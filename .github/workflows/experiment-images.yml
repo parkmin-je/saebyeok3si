@@ -3,7 +3,7 @@ name: experiment-images
 on:
   push:
     branches: [feat/sample-video-veo]
-    paths: [pipeline/experiments/**, .github/workflows/experiment-images.yml]
+    paths: [pipeline/experiments/realistic_images.py, .github/workflows/experiment-images.yml]
   workflow_dispatch:
     inputs:
       models:
