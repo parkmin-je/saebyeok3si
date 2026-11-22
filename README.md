@@ -29,6 +29,20 @@
 - **공급자 폴백 + 서킷 브레이커**: 이미지/TTS 공급자 하나가 죽어도 다음 공급자로 이어갑니다.
 - **게시는 정확히 한 번**: 멱등 키와 영수증으로 중복 업로드를 막습니다.
 
+## 샘플 영상 만들기 (무료 방식)
+
+```bash
+pip install -r requirements.txt          # ffmpeg, Node.js + Playwright(Chromium)도 필요
+export GEMINI_API_KEY=...                # 무료 등급 키 (음성용)
+python -m pipeline.cli produce --script scripts/samples/1930s-001.json
+# → runs/<run_id>/render/final.mp4, cover.jpg, qa/video.json
+python -m pipeline.cli produce --script scripts/samples/1930s-001.json --fake   # 외부 호출 없는 드라이런
+```
+
+그림은 `pipeline/illustrated/<대본 id>.html`에 Claude가 직접 그린 장면이고, 프레임마다 `render(t)`로 그려
+1080×1920·30fps로 찍습니다. 음성은 Gemini TTS 무료 등급, 배경음악은 코드로 합성한 피아노 왈츠,
+자막은 나눔명조(OFL)로 입힙니다. 지금은 `1930s-001` 장면 파일만 있습니다.
+
 ## 폴더 구조
 
 ```

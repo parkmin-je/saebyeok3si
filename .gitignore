@@ -12,3 +12,6 @@ assets/images/*
 !assets/images/.gitkeep
 assets/audio/*
 !assets/audio/.gitkeep
+
+# 런 디렉터리 (생성물)
+runs/
