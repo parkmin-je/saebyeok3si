@@ -1,6 +1,9 @@
 name: experiment-images
 # 무료 CPU 러너에서 실사 이미지 모델 실험. 결과는 experiment-output 브랜치에 커밋한다.
 on:
+  push:
+    branches: [feat/sample-video-veo]
+    paths: [pipeline/experiments/**, .github/workflows/experiment-images.yml]
   workflow_dispatch:
     inputs:
       models:
@@ -23,7 +26,7 @@ jobs:
       - name: Generate
         run: |
           nproc; free -g
-          python pipeline/experiments/realistic_images.py ${{ inputs.models }}
+          python pipeline/experiments/realistic_images.py ${{ inputs.models || 'rv51 vega' }}
       - name: Push results
         if: always()
         run: |
