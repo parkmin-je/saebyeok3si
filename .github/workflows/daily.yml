@@ -53,6 +53,7 @@ jobs:
           RID="${{ inputs.run_id }}"
           if [ -z "$RID" ] && [ "${{ github.event_name }}" = "push" ]; then
             RID=$(git diff --name-only HEAD~1 HEAD -- runs | head -1 | cut -d/ -f2)
+            [ -z "$RID" ] && RID=$(git ls-files runs | head -1 | cut -d/ -f2)
           fi
           [ -z "$RID" ] && RID="$(TZ=Asia/Seoul date +%Y%m%d)-2000s-${{ github.run_id }}"
           echo "rid=$RID" >> "$GITHUB_OUTPUT"
