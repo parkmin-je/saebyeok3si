@@ -1,0 +1,21 @@
+[timeline] 총 55.0s, 장면 5.0, 11.0, 10.0, 11.0, 11.0, 7.0
+[cost] 장면 1 이미지 (local:Realistic_Vision_V5.1_noVAE): $0.000 (누적 $0.00 / 상한 $30.00)
+[cost] 장면 2 이미지 (local:Realistic_Vision_V5.1_noVAE): $0.000 (누적 $0.00 / 상한 $30.00)
+[cost] 장면 3 이미지 (local:Realistic_Vision_V5.1_noVAE): $0.000 (누적 $0.00 / 상한 $30.00)
+[cost] 장면 4 이미지 (local:Realistic_Vision_V5.1_noVAE): $0.000 (누적 $0.00 / 상한 $30.00)
+[cost] 장면 5 이미지 (local:Realistic_Vision_V5.1_noVAE): $0.000 (누적 $0.00 / 상한 $30.00)
+[cost] 장면 6 이미지 (local:Realistic_Vision_V5.1_noVAE): $0.000 (누적 $0.00 / 상한 $30.00)
+[depth] 장면 1
+[depth] 장면 2
+[depth] 장면 3
+[depth] 장면 4
+[depth] 장면 5
+[depth] 장면 6
+[parallax] 장면 1 5.6s
+[parallax] 장면 2 11.6s
+[parallax] 장면 3 10.6s
+[parallax] 장면 4 11.6s
+[parallax] 장면 5 11.6s
+[parallax] 장면 6 7.0s
+[music] musicbox_major 55.0s 합성
+[gate] video passed=True {'duration_sec': 55.0, 'lufs': -14.1, 'true_peak_dbtp': -1.4, 'size_mb': 17.9} []
