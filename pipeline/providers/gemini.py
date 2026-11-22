@@ -12,7 +12,7 @@ from pathlib import Path
 
 import requests
 
-from ..core.errors import FatalError, TransientError
+from ..core.errors import FatalError, ProviderError, TransientError
 from .base import VoiceSpec
 
 API = "https://generativelanguage.googleapis.com/v1beta"
@@ -31,6 +31,8 @@ def _check(r: requests.Response) -> dict:
         raise TransientError(f"HTTP {r.status_code}: {r.text[:300]}", float(ra) if ra else None)
     if r.status_code in (401, 403):
         raise FatalError(f"인증/권한 오류 HTTP {r.status_code}: {r.text[:300]}")
+    if r.status_code == 404:
+        raise ProviderError(f"모델 없음 HTTP 404: {r.text[:300]}")
     if r.status_code >= 400:
         raise FatalError(f"요청 오류 HTTP {r.status_code}: {r.text[:500]}")
     return r.json()

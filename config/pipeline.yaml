@@ -13,7 +13,9 @@ providers:
         - { model: veo-3.1-fast-generate-preview, usd_per_sec: 0.15, resolution: 1080p }
     text:                        # 대본 작성 (무료 등급)
       - gemini-3.5-flash
-      - gemini-3-flash
+      - gemini-3.8-flash
+      - gemini-3-flash-preview
+      - gemini-2.5-flash
     tts:                         # gemini-3.8-flash-tts는 무료 등급에서 동작 (2026-11-22 확인)
       - { model: gemini-3.8-flash-tts,         usd_per_char: 0.0 }
       - { model: gemini-3.8-flash-lite-tts,    usd_per_char: 0.0 }
