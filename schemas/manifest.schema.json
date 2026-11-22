@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/parkmin-je/retro-romance-shorts/schemas/manifest.schema.json",
+  "title": "Run manifest",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "created_at", "updated_at", "approval", "stages", "cost_usd"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^1\\.\\d+\\.\\d+$" },
+    "run_id": { "type": "string", "pattern": "^\\d{8}-\\d{4}-(19[0-9]0s|2000s)-[a-z0-9]{4}$" },
+    "status": { "enum": ["created", "producing", "ready", "awaiting_approval", "rejected", "publishing", "published", "partially_published", "failed"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "approval": { "enum": ["auto", "review"] },
+    "episode_id": { "type": ["string", "null"] },
+    "slot": { "type": ["string", "null"], "format": "date-time" },
+    "git_sha": { "type": ["string", "null"] },
+    "cost_usd": { "type": "number", "minimum": 0 },
+    "stages": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "attempts"],
+        "properties": {
+          "status": { "enum": ["pending", "running", "succeeded", "failed", "skipped"] },
+          "version": { "type": "string" },
+          "input_hash": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+          "attempts": { "type": "integer", "minimum": 0 },
+          "started_at": { "type": ["string", "null"], "format": "date-time" },
+          "finished_at": { "type": ["string", "null"], "format": "date-time" },
+          "outputs": { "type": "array", "items": { "type": "string" } },
+          "provider": { "type": ["string", "null"] },
+          "cost_usd": { "type": "number", "minimum": 0 },
+          "meta": { "type": ["object", "null"] },
+          "error": {
+            "type": ["object", "null"],
+            "required": ["class", "message"],
+            "properties": {
+              "class": { "enum": ["TransientError", "ProviderError", "QualityError", "ValidationError", "BudgetError", "FatalError"] },
+              "message": { "type": "string" },
+              "issues": { "type": "array" }
+            }
+          }
+        }
+      }
+    },
+    "licenses": {
+      "type": "array",
+      "items": { "type": "object", "required": ["file", "source", "license"], "properties": { "file": { "type": "string" }, "source": { "type": "string" }, "license": { "type": "string" }, "attribution": { "type": ["string", "null"] } } }
+    },
+    "publish": {
+      "type": "object",
+      "properties": { "youtube": { "type": ["string", "null"] }, "instagram": { "type": ["string", "null"] } },
+      "description": "Paths to publish receipts"
+    }
+  }
+}
