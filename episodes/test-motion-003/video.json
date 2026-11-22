@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "passed": true,
+  "metrics": {
+    "duration_sec": 55.0,
+    "lufs": -14.1,
+    "true_peak_dbtp": -1.4,
+    "size_mb": 19.8
+  },
+  "issues": []
+}
