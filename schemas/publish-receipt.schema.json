@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/parkmin-je/retro-romance-shorts/schemas/publish-receipt.schema.json",
+  "title": "Publish receipt",
+  "type": "object",
+  "required": ["schema_version", "platform", "idempotency_key", "status", "started_at"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^1\\.\\d+\\.\\d+$" },
+    "platform": { "enum": ["youtube", "instagram"] },
+    "idempotency_key": { "type": "string", "pattern": "^[^:]+:(youtube|instagram)$" },
+    "status": { "enum": ["uploading", "processing", "published", "failed", "needs_human"] },
+    "started_at": { "type": "string", "format": "date-time" },
+    "finished_at": { "type": ["string", "null"], "format": "date-time" },
+    "scheduled_for": { "type": ["string", "null"], "format": "date-time" },
+    "container_id": { "type": ["string", "null"], "description": "Instagram media container id, recorded before publish" },
+    "platform_id": { "type": ["string", "null"] },
+    "url": { "type": ["string", "null"] },
+    "privacy": { "enum": ["public", "unlisted", "private", null] },
+    "error": {
+      "type": ["object", "null"],
+      "required": ["class", "message"],
+      "properties": { "class": { "type": "string" }, "message": { "type": "string" } }
+    }
+  },
+  "allOf": [
+    { "if": { "properties": { "status": { "const": "published" } } }, "then": { "required": ["platform_id", "finished_at"], "properties": { "platform_id": { "type": "string" } } } }
+  ]
+}

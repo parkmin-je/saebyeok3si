@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0.0",
+  "id": "2000s-002",
+  "era": "2000s",
+  "title": "매년 6월, 그 광장",
+  "logline": "2002년 거리응원에서 우산을 같이 쓴 두 사람이 엇갈린 뒤, 매년 같은 날 같은 광장 반대편에 서 있었다.",
+  "theme": [
+    "그리움",
+    "재회"
+  ],
+  "target_duration_sec": 55,
+  "aspect_ratio": "9:16",
+  "style": {
+    "visual": "2002 summer film snapshot, saturated reds, warm golden evening light, light leaks, film grain, vertical 9:16",
+    "negative": "text, watermark, logo, team emblem, real players, smartphone, extra fingers, distorted face",
+    "bgm": "응원 함성이 멀어지며 잦아드는 어쿠스틱 기타",
+    "narrator_voice": "현우(40대 남성)와 수아(40대 여성)가 번갈아"
+  },
+  "characters": [
+    {
+      "key": "A",
+      "name": "현우",
+      "look": "a Korean man in his early 20s, plain red cheering t-shirt, small face paint on cheek",
+      "voice": "40대 남성"
+    },
+    {
+      "key": "B",
+      "name": "수아",
+      "look": "a Korean woman in her early 20s, red bandana, holding a yellow umbrella",
+      "voice": "40대 여성"
+    }
+  ],
+  "scenes": [
+    {
+      "no": 1,
+      "beat": "hook",
+      "duration_sec": 5,
+      "location": "현재 광장",
+      "image_prompt": "a faded yellow umbrella held up in a city plaza, crowd around, summer evening",
+      "motion_prompt": "slow zoom in",
+      "narration": "스무 번째 6월이었다.",
+      "dialogue": [],
+      "captions": [
+        "스무 번째 6월이었다."
+      ],
+      "sfx": "군중 웅성임"
+    },
+    {
+      "no": 2,
+      "beat": "memory",
+      "duration_sec": 12,
+      "location": "2002 광장 거리응원",
+      "image_prompt": "{A} and {B} sharing one yellow umbrella in a sea of red shirts, summer rain, joyful faces",
+      "motion_prompt": "slow pan left",
+      "narration": "2002년 여름, 소나기가 내렸다. 모르는 사람이 우산을 씌워줬다.",
+      "dialogue": [
+        {
+          "speaker": "B",
+          "line": "같이 써요, 골 들어가면 돌려주고요."
+        }
+      ],
+      "captions": [
+        "2002년 여름, 소나기가",
+        "내렸다. 모르는 사람이",
+        "우산을 씌워줬다. 같이",
+        "써요, 골 들어가면",
+        "돌려주고요."
+      ],
+      "sfx": "빗소리, 응원 함성"
+    },
+    {
+      "no": 3,
+      "beat": "conflict",
+      "duration_sec": 10,
+      "location": "광장 인파",
+      "image_prompt": "crowd jumping and cheering, {A} looking back over shoulders, yellow umbrella drifting away in the crowd",
+      "motion_prompt": "fast push in then hold",
+      "narration": "골이 들어간 순간, 사람들에 떠밀려 그녀를 놓쳤다. 이름도, 번호도 모른 채로.",
+      "dialogue": [],
+      "captions": [
+        "골이 들어간 순간,",
+        "사람들에 떠밀려 그녀를",
+        "놓쳤다. 이름도, 번호도",
+        "모른 채로."
+      ],
+      "sfx": "골 함성"
+    },
+    {
+      "no": 4,
+      "beat": "memory",
+      "duration_sec": 10,
+      "location": "광장(여러 해)",
+      "image_prompt": "vertical montage of {A} standing alone in the same plaza across different years, aging slightly",
+      "motion_prompt": "slow pan down",
+      "narration": "그래서 매년 그날, 그 광장에 갔다. 한 번도 만나지 못했다.",
+      "dialogue": [],
+      "captions": [
+        "그래서 매년 그날, 그",
+        "광장에 갔다. 한 번도",
+        "만나지 못했다."
+      ],
+      "sfx": ""
+    },
+    {
+      "no": 5,
+      "beat": "turn",
+      "duration_sec": 11,
+      "location": "광장 반대편 분수대",
+      "image_prompt": "{B} standing at a fountain on the other side of the same plaza, montage of different years",
+      "motion_prompt": "slow pan down",
+      "narration": "",
+      "dialogue": [
+        {
+          "speaker": "B",
+          "line": "나도 매년 갔어요. 다만 광장 반대편 분수대 앞이었죠."
+        }
+      ],
+      "captions": [
+        "나도 매년 갔어요. 다만",
+        "광장 반대편 분수대",
+        "앞이었죠."
+      ],
+      "sfx": "분수 소리"
+    },
+    {
+      "no": 6,
+      "beat": "ending",
+      "duration_sec": 7,
+      "location": "현재 광장 한가운데",
+      "image_prompt": "{A} and {B} in their 40s meeting in the middle of the plaza, the faded yellow umbrella between them, same framing as scene 1",
+      "motion_prompt": "slow zoom out",
+      "narration": "",
+      "dialogue": [
+        {
+          "speaker": "B",
+          "line": "이번엔 돌려받으러 왔어요."
+        }
+      ],
+      "captions": [
+        "이번엔 돌려받으러 왔어요."
+      ],
+      "sfx": ""
+    }
+  ],
+  "upload": {
+    "yt_title": "2002년 우산을 씌워준 사람을 20년 만에 #shorts",
+    "ig_caption": "골 들어가면 돌려주기로 했던 우산.",
+    "hashtags": [
+      "#2002",
+      "#거리응원",
+      "#추억",
+      "#숏드라마"
+    ],
+    "cover_text": "골 들어가면 돌려주고요"
+  }
+}
