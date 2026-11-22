@@ -33,13 +33,35 @@ class LocalImage:
             self._pipe = p
         return self._pipe
 
+    def _embed(self, text: str, chunks: int | None = None):
+        """CLIP 77토큰 제한을 넘는 프롬프트를 75토큰씩 나눠 인코딩하고 이어 붙인다 (뒷부분 잘림 방지)."""
+        import torch
+        pipe = self._load()
+        tok, enc = pipe.tokenizer, pipe.text_encoder
+        ids = tok(text, add_special_tokens=False).input_ids
+        n = max(1, -(-len(ids) // 75), chunks or 0)
+        outs = []
+        for i in range(n):
+            part = ids[i * 75:(i + 1) * 75]
+            part = [tok.bos_token_id] + part + [tok.eos_token_id] * (76 - len(part))
+            with torch.no_grad():
+                outs.append(enc(torch.tensor([part]))[0])
+        return torch.cat(outs, dim=1), n
+
     def generate(self, prompt, negative, width, height, seed, reference_images=None):
         import torch
         pipe = self._load()
         g = torch.Generator().manual_seed(seed)
-        img = pipe(prompt=prompt, negative_prompt=negative if self.guidance > 1 else None, generator=g,
-                   width=self.width, height=self.height, num_inference_steps=self.steps,
-                   guidance_scale=self.guidance).images[0]
+        pe, n = self._embed(prompt)
+        kw = {"prompt_embeds": pe}
+        if self.guidance > 1:
+            ne, m = self._embed(negative or "", n)
+            if m > n:
+                pe, _ = self._embed(prompt, m)
+                kw["prompt_embeds"] = pe
+            kw["negative_prompt_embeds"] = ne
+        img = pipe(generator=g, width=self.width, height=self.height, num_inference_steps=self.steps,
+                   guidance_scale=self.guidance, **kw).images[0]
         buf = io.BytesIO()
         img.save(buf, format="PNG")
         return buf.getvalue(), 0.0
