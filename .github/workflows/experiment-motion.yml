@@ -1,9 +1,6 @@
 name: experiment-motion
 # 무료 CPU 러너에서 AnimateDiff-Lightning 움직임 컷 실험. 결과는 experiment-output 브랜치에 커밋한다.
 on:
-  push:
-    branches: [feat/sample-video-veo]
-    paths: [pipeline/experiments/motion_clips.py, .github/workflows/experiment-motion.yml]
   workflow_dispatch:
     inputs:
       sizes:
