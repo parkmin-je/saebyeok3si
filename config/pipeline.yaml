@@ -30,6 +30,17 @@ providers:
       width: 512
       height: 896
     depth: depth-anything/Depth-Anything-V2-Small-hf   # Apache-2.0
+    motion:                      # 인물이 실제로 움직이는 컷 (AnimateDiff-Lightning, CreativeML OpenRAIL-M)
+      model: SG161222/Realistic_Vision_V5.1_noVAE
+      vae: stabilityai/sd-vae-ft-mse
+      adapter_repo: ByteDance/AnimateDiff-Lightning
+      adapter_file: animatediff_lightning_4step_diffusers.safetensors
+      steps: 4
+      frames: 16
+      width: 384                 # CPU 2코어 기준 컷당 약 23분. 공개 저장소(4코어)면 약 절반
+      height: 672
+      fps_in: 7                  # 16프레임을 7fps로 → 약 2.3초, 30fps로 보간
+      max_scenes: 6              # 0이면 끔 (사진+카메라 움직임만)
 
 video:
   clip_sec: 8                    # Veo 클립 길이 (4, 6, 8 중 하나)

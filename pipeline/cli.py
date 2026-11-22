@@ -56,8 +56,8 @@ def produce(a) -> int:
 def daily(a) -> int:
     """하루 1편 자동 제작: 소재 선택 → 대본(Gemini 무료) → 음성 → 실사 이미지(로컬 모델) → 깊이 → 입체 움직임 → 렌더."""
     from .providers.gemini_text import GeminiText
-    from .providers.local_models import LocalDepth, LocalImage
-    from .stages import images, photo, script as script_stage
+    from .providers.local_models import LocalDepth, LocalImage, LocalMotion
+    from .stages import images, motion, photo, script as script_stage
 
     cfg = yaml.safe_load((REPO / "config" / "pipeline.yaml").read_text(encoding="utf-8"))
     hist_path = REPO / "data" / "history.json"
@@ -88,6 +88,9 @@ def daily(a) -> int:
     voice.run(ctx)
     timeline.run(ctx)
     tl = read_json(run_dir / "timeline.json")
+    mc = lc.get("motion") or {}
+    if not a.fake and mc.get("max_scenes", 0) > 0:
+        motion.run(ctx, LocalMotion(**mc), int(mc["max_scenes"]), float(mc.get("fps_in", 7)))
     images.run(ctx, photo_style=True)
     if not a.fake:
         photo.depth_maps(ctx, LocalDepth(lc["depth"]))

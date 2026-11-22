@@ -22,6 +22,25 @@ def depth_maps(ctx: Ctx, depth_provider) -> None:
         ctx.log(f"[depth] 장면 {sc['no']}")
 
 
+MXF = 0.35  # 움직임 컷 → 카메라 움직임 이음새 페이드(초)
+
+
+def _motion_then_parallax(mclip, img, depth, length, motion, out) -> None:
+    """인물이 움직이는 컷을 먼저 보여주고, 그 마지막 프레임에서 카메라 움직임으로 이어 장면 길이를 채운다."""
+    md = media.duration(mclip)
+    if length <= md:
+        media.run(["ffmpeg", "-y", "-v", "error", "-i", str(mclip), "-t", f"{length:.3f}", "-r", "30",
+                   "-c:v", "libx264", "-preset", "medium", "-crf", "16", "-pix_fmt", "yuv420p", str(out)])
+        return
+    rest = out.with_name(out.stem + "-rest.mp4")
+    render_scene(img, depth, length - md + MXF, motion, rest, strength=0.8)
+    media.run(["ffmpeg", "-y", "-v", "error", "-i", str(mclip), "-i", str(rest), "-filter_complex",
+               f"[0:v]fps=30,settb=AVTB[a];[1:v]fps=30,settb=AVTB[b];"
+               f"[a][b]xfade=transition=fade:duration={MXF}:offset={md - MXF:.3f}[v]",
+               "-map", "[v]", "-c:v", "libx264", "-preset", "medium", "-crf", "16", "-pix_fmt", "yuv420p", str(out)])
+    rest.unlink(missing_ok=True)
+
+
 def frames(ctx: Ctx) -> None:
     out = ctx.run_dir / "render" / "frames.mp4"
     if out.exists():
@@ -35,9 +54,14 @@ def frames(ctx: Ctx) -> None:
         dp = ctx.run_dir / "images" / f"depth-{nn(sc['no'])}.png"
         depth = cv2.imread(str(dp), cv2.IMREAD_GRAYSCALE) if dp.exists() else None
         clip = ctx.run_dir / "render" / "clips" / f"scene-{nn(sc['no'])}.mp4"
+        mclip = ctx.run_dir / "render" / "motion" / f"scene-{nn(sc['no'])}.mp4"
         if not clip.exists():
-            render_scene(ctx.run_dir / "images" / f"scene-{nn(sc['no'])}.png", depth, length,
-                         motion_for(by_no[sc["no"]]["motion_prompt"]), clip)
+            img = ctx.run_dir / "images" / f"scene-{nn(sc['no'])}.png"
+            mot = motion_for(by_no[sc["no"]]["motion_prompt"])
+            if mclip.exists():
+                _motion_then_parallax(mclip, img, depth, length, mot, clip)
+            else:
+                render_scene(img, depth, length, mot, clip)
         clips.append(clip)
         lens.append(length)
         ctx.log(f"[parallax] 장면 {sc['no']} {length:.1f}s")

@@ -10,6 +10,21 @@ from pathlib import Path
 import numpy as np
 
 
+def long_embed(pipe, text: str, chunks: int | None = None):
+    """CLIP 77토큰 제한을 넘는 프롬프트를 75토큰씩 나눠 인코딩하고 이어 붙인다 (뒷부분 잘림 방지)."""
+    import torch
+    tok, enc = pipe.tokenizer, pipe.text_encoder
+    ids = tok(text, add_special_tokens=False).input_ids
+    n = max(1, -(-len(ids) // 75), chunks or 0)
+    outs = []
+    for i in range(n):
+        part = ids[i * 75:(i + 1) * 75]
+        part = [tok.bos_token_id] + part + [tok.eos_token_id] * (76 - len(part))
+        with torch.no_grad():
+            outs.append(enc(torch.tensor([part]))[0])
+    return torch.cat(outs, dim=1), n
+
+
 class LocalImage:
     def __init__(self, model: str, lcm_lora: str | None = None, vae: str | None = None,
                  steps: int = 6, guidance: float = 1.5, width: int = 512, height: int = 896):
@@ -34,19 +49,7 @@ class LocalImage:
         return self._pipe
 
     def _embed(self, text: str, chunks: int | None = None):
-        """CLIP 77토큰 제한을 넘는 프롬프트를 75토큰씩 나눠 인코딩하고 이어 붙인다 (뒷부분 잘림 방지)."""
-        import torch
-        pipe = self._load()
-        tok, enc = pipe.tokenizer, pipe.text_encoder
-        ids = tok(text, add_special_tokens=False).input_ids
-        n = max(1, -(-len(ids) // 75), chunks or 0)
-        outs = []
-        for i in range(n):
-            part = ids[i * 75:(i + 1) * 75]
-            part = [tok.bos_token_id] + part + [tok.eos_token_id] * (76 - len(part))
-            with torch.no_grad():
-                outs.append(enc(torch.tensor([part]))[0])
-        return torch.cat(outs, dim=1), n
+        return long_embed(self._load(), text, chunks)
 
     def generate(self, prompt, negative, width, height, seed, reference_images=None):
         import torch
@@ -65,6 +68,43 @@ class LocalImage:
         buf = io.BytesIO()
         img.save(buf, format="PNG")
         return buf.getvalue(), 0.0
+
+
+class LocalMotion:
+    """인물이 실제로 움직이는 짧은 실사 컷 (AnimateDiff-Lightning + 실사 SD1.5, CPU)."""
+
+    def __init__(self, model: str, adapter_repo: str, adapter_file: str, vae: str | None = None,
+                 steps: int = 4, frames: int = 16, width: int = 384, height: int = 672, **_):
+        self.model, self.adapter_repo, self.adapter_file, self.vae = model, adapter_repo, adapter_file, vae
+        self.steps, self.frames, self.width, self.height = steps, frames, width, height
+        self.name = f"local:animatediff-lightning/{model.split('/')[-1]}"
+        self._pipe = None
+
+    def _load(self):
+        if self._pipe is None:
+            import torch
+            from diffusers import AnimateDiffPipeline, AutoencoderKL, EulerDiscreteScheduler, MotionAdapter
+            from huggingface_hub import hf_hub_download
+            from safetensors.torch import load_file
+            ad = MotionAdapter()
+            ad.load_state_dict(load_file(hf_hub_download(self.adapter_repo, self.adapter_file)))
+            kw = {"vae": AutoencoderKL.from_pretrained(self.vae)} if self.vae else {}
+            p = AnimateDiffPipeline.from_pretrained(self.model, motion_adapter=ad, torch_dtype=torch.float32, **kw)
+            p.scheduler = EulerDiscreteScheduler.from_config(p.scheduler.config, timestep_spacing="trailing",
+                                                             beta_schedule="linear")
+            p.enable_vae_slicing()
+            self._pipe = p
+        return self._pipe
+
+    def generate(self, prompt: str, seed: int) -> list:
+        """RGB uint8 프레임 리스트."""
+        import torch
+        pipe = self._load()
+        pe, _ = long_embed(pipe, prompt)
+        r = pipe(prompt_embeds=pe, num_frames=self.frames, width=self.width, height=self.height,
+                 num_inference_steps=self.steps, guidance_scale=1.0,
+                 generator=torch.Generator().manual_seed(seed), output_type="np")
+        return [(np.clip(f, 0, 1) * 255).astype(np.uint8) for f in r.frames[0]]
 
 
 class LocalDepth:
