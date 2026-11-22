@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0.0",
+  "id": "2000s-101",
+  "era": "2000s",
+  "title": "롤링페이퍼 맨 아랫줄",
+  "logline": "2005년 12월 롤링페이퍼 맨 아랫줄에 담았던 서툰 안부가 20년이 지난 지금도 따뜻한 온기로 남아있는 풋풋한 학창시절 이야기.",
+  "theme": [
+    "첫사랑",
+    "롤링페이퍼",
+    "크리스마스카드",
+    "추억"
+  ],
+  "target_duration_sec": 54,
+  "aspect_ratio": "9:16",
+  "style": {
+    "visual": "retro early 2000s Korean school drama aesthetic, soft warm winter sunlight, pastel tones, film grain, nostalgic cinematic, vertical 9:16",
+    "negative": "smartphone in 2005 scenes, modern clothes, text, watermark, logo, extra fingers, distorted face",
+    "bgm": "아련하고 따뜻한 겨울 피아노와 첼로 선율",
+    "narrator_voice": "30대 남성, 차분하고 따뜻한 목소리"
+  },
+  "characters": [
+    {
+      "key": "A",
+      "name": "민우",
+      "look": "a Korean male in his 30s with short black hair wearing a winter coat in modern scene, and as a middle school student in dark blue Korean school winter uniform with messy hair in past scenes",
+      "voice": "차분한 30대 남성"
+    },
+    {
+      "key": "B",
+      "name": "유진",
+      "look": "a Korean girl in dark blue middle school winter uniform with a red scarf, ponytail, sweet warm smile",
+      "voice": "수줍은 10대 여성"
+    },
+    {
+      "key": "C",
+      "name": "요즘 학생",
+      "look": "a Korean teenager sitting alone in a modern cold winter street, wearing a modern padded jacket, face lit by a glowing smartphone screen",
+      "voice": "대사 없음"
+    }
+  ],
+  "scenes": [
+    {
+      "no": 1,
+      "beat": "hook",
+      "duration_sec": 5,
+      "location": "2026년 겨울 거리",
+      "image_prompt": "{C} sitting alone on a street bench at dusk, glowing smartphone screen illuminating their face in cold winter air",
+      "motion_prompt": "slow push in",
+      "narration": "요즘 카드는 문자 몇 줄로 끝난다.",
+      "dialogue": [],
+      "captions": [
+        "요즘 카드는 문자 몇 줄로",
+        "끝난다."
+      ],
+      "sfx": "차가운 겨울 바람 소리"
+    },
+    {
+      "no": 2,
+      "beat": "memory",
+      "duration_sec": 10,
+      "location": "2005년 12월 교실",
+      "image_prompt": "warm afternoon winter sunlight in a 2000s Korean classroom, {B} holding a large colorful paper rolling paper, smiling bright at {A} in middle school uniform",
+      "motion_prompt": "slow pan right",
+      "narration": "2005년 12월, 교실엔 롤링페이퍼가 돌았다.",
+      "dialogue": [
+        {
+          "speaker": "B",
+          "line": "너도 내 거에 써줘!"
+        }
+      ],
+      "captions": [
+        "2005년 12월, 교실엔",
+        "롤링페이퍼가 돌았다. 너도",
+        "내 거에 써줘!"
+      ],
+      "sfx": "아이들 왁자지껄한 소리"
+    },
+    {
+      "no": 3,
+      "beat": "memory",
+      "duration_sec": 10,
+      "location": "교실 책상",
+      "image_prompt": "close-up of {A}'s hand holding a pen over {B}'s festive rolling paper card, hesitation in his fingers, subtle warm bokeh lighting",
+      "motion_prompt": "slow push in",
+      "narration": "좋아한다는 말을 쓸까 한참을 망설였다.",
+      "dialogue": [],
+      "captions": [
+        "좋아한다는 말을 쓸까",
+        "한참을 망설였다."
+      ],
+      "sfx": "심장 뛰는 소리"
+    },
+    {
+      "no": 4,
+      "beat": "conflict",
+      "duration_sec": 11,
+      "location": "해 질 녘 교실",
+      "image_prompt": "{A} sitting alone at a wooden desk writing carefully at the very bottom line of the rolling paper card, dusk setting in through window",
+      "motion_prompt": "slow zoom in",
+      "narration": "결국 맨 아랫줄에 감기 조심하라고 썼다.",
+      "dialogue": [],
+      "captions": [
+        "결국 맨 아랫줄에 감기",
+        "조심하라고 썼다."
+      ],
+      "sfx": "사각거리는 연필 소리"
+    },
+    {
+      "no": 5,
+      "beat": "turn",
+      "duration_sec": 11,
+      "location": "방학식 날 복도",
+      "image_prompt": "snowflakes falling outside the corridor window, {B} blushing and holding out a small hand-written Christmas card to {A} in middle school uniform",
+      "motion_prompt": "slow push in",
+      "narration": "방학식 날 그 애가 작게 웃으며 카드를 건넸다.",
+      "dialogue": [
+        {
+          "speaker": "B",
+          "line": "네 글이 제일 따뜻했어."
+        }
+      ],
+      "captions": [
+        "방학식 날 그 애가 작게",
+        "웃으며 카드를 건넸다. 네",
+        "글이 제일 따뜻했어."
+      ],
+      "sfx": "부드러운 종이 소리"
+    },
+    {
+      "no": 6,
+      "beat": "ending",
+      "duration_sec": 7,
+      "location": "2026년 방 안",
+      "image_prompt": "adult {A} holding an old yellowed Christmas paper card taken out of a wooden drawer, soft cozy indoor tungsten light",
+      "motion_prompt": "slow zoom out",
+      "narration": "손때 묻은 종이엔 아직 온기가 남아 있다.",
+      "dialogue": [],
+      "captions": [
+        "손때 묻은 종이엔 아직",
+        "온기가 남아 있다."
+      ],
+      "sfx": ""
+    }
+  ],
+  "upload": {
+    "yt_title": "롤링페이퍼 맨 아랫줄에 적었던 첫사랑 이야기 #shorts",
+    "ig_caption": "좋아한다는 말 대신 감기 조심하라고 적었던 그 겨울. 손때 묻은 크리스마스 카드엔 여전히 온기가 남아 있습니다.",
+    "hashtags": [
+      "#2000년대",
+      "#학창시절",
+      "#롤링페이퍼",
+      "#첫사랑",
+      "#크리스마스",
+      "#추억"
+    ],
+    "cover_text": "맨 아랫줄의 고백"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "images": [
+    {
+      "no": 1,
+      "file": "images/scene-01.png"
+    },
+    {
+      "no": 2,
+      "file": "images/scene-02.png"
+    },
+    {
+      "no": 3,
+      "file": "images/scene-03.png"
+    },
+    {
+      "no": 4,
+      "file": "images/scene-04.png"
+    },
+    {
+      "no": 5,
+      "file": "images/scene-05.png"
+    },
+    {
+      "no": 6,
+      "file": "images/scene-06.png"
+    }
+  ]
+}
