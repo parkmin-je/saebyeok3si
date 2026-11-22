@@ -26,6 +26,8 @@ def _key() -> str:
 
 
 def _check(r: requests.Response) -> dict:
+    if r.status_code == 429 and "PerDay" in r.text:
+        raise ProviderError(f"일일 무료 한도 소진 HTTP 429: {r.text[:200]}")
     if r.status_code == 429 or r.status_code >= 500:
         ra = r.headers.get("Retry-After")
         raise TransientError(f"HTTP {r.status_code}: {r.text[:300]}", float(ra) if ra else None)

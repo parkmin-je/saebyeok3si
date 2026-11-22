@@ -11,16 +11,20 @@ class Chain:
         if not providers:
             raise FatalError(f"{kind} 공급자가 설정되지 않았습니다")
         self.kind, self.providers, self.log = kind, providers, log
+        self.dead: set[str] = set()   # 이번 실행에서 한도 소진 등으로 실패한 공급자는 다시 시도하지 않는다
 
     def call(self, method: str, *args, **kwargs):
         last = None
         for p in self.providers:
+            if p.name in self.dead and p is not self.providers[-1]:
+                continue
             try:
                 out = with_retry(lambda: getattr(p, method)(*args, **kwargs), log=self.log,
                                  label=f"{p.name}.{method}")
                 return out, p.name
             except ProviderError as e:
                 self.log(f"[fallback] {p.name} 실패 → 다음 공급자: {e}")
+                self.dead.add(p.name)
                 last = e
         raise ProviderError(f"{self.kind}: 모든 공급자 실패: {last}")
 
