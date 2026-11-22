@@ -53,6 +53,59 @@ def produce(a) -> int:
     return 0 if rep["passed"] else 1
 
 
+def daily(a) -> int:
+    """하루 1편 자동 제작: 소재 선택 → 대본(Gemini 무료) → 음성 → 실사 이미지(로컬 모델) → 깊이 → 입체 움직임 → 렌더."""
+    from .providers.gemini_text import GeminiText
+    from .providers.local_models import LocalDepth, LocalImage
+    from .stages import images, photo, script as script_stage
+
+    cfg = yaml.safe_load((REPO / "config" / "pipeline.yaml").read_text(encoding="utf-8"))
+    hist_path = REPO / "data" / "history.json"
+    history = read_json(hist_path) if hist_path.exists() else []
+    now = dt.datetime.now(dt.timezone(dt.timedelta(hours=9)))
+    run_id = a.run_id or f"{now:%Y%m%d}-2000s-{secrets.token_hex(2)}"
+    run_dir = REPO / "runs" / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+    log = lambda m: (print(m, flush=True), open(run_dir / "logs.txt", "a", encoding="utf-8").write(m + "\n"))
+    seed = int(now.strftime("%Y%m%d"))
+
+    g = cfg["providers"]["gemini"]
+    llm = registry.Chain("llm", [GeminiText(m) for m in g["text"]], log)
+    sp = run_dir / "script.json"
+    if sp.exists():
+        script = read_json(sp)
+        topic = (read_json(run_dir / "topic.json") if (run_dir / "topic.json").exists() else {"topic": "?"})["topic"]
+    else:
+        script, topic = script_stage.run(REPO, llm, history, seed, sp, log)
+        write_json(run_dir / "topic.json", {"topic": topic})
+
+    lc = cfg["providers"]["local"]
+    provs = registry.build(cfg, "fast", a.fake, log)
+    if not a.fake:
+        provs["image"] = registry.Chain("image", [LocalImage(**lc["image"])], log)
+    ctx = Ctx(run_dir=run_dir, repo=REPO, script=script, cfg=cfg, providers=provs,
+              budget_usd=float(cfg["budget"]["per_episode_usd"]))
+    voice.run(ctx)
+    timeline.run(ctx)
+    tl = read_json(run_dir / "timeline.json")
+    images.run(ctx, photo_style=True)
+    if not a.fake:
+        photo.depth_maps(ctx, LocalDepth(lc["depth"]))
+    photo.frames(ctx)
+    music.run(ctx, tl["duration_sec"])
+    fr = run_dir / "render" / "frames.mp4"
+    mx = render.mix(ctx, tl)
+    out = render.final(ctx, tl, fr, mx)
+    render.cover(ctx, fr)
+    rep = gate_video.check(out, run_dir / "qa" / "video.json")
+    log(f"[gate] video passed={rep['passed']} {rep['metrics']} {rep['issues']}")
+    if rep["passed"]:
+        history.append({"date": now.strftime("%Y-%m-%d"), "run_id": run_id, "topic": topic,
+                        "title": script["title"], "id": script["id"]})
+        write_json(hist_path, history)
+    return 0 if rep["passed"] else 1
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="rrs")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -62,9 +115,12 @@ def main(argv=None) -> int:
     p.add_argument("--mode", choices=["illustrated", "veo"], default="illustrated")
     p.add_argument("--quality", choices=["fast", "max"], default="fast")
     p.add_argument("--fake", action="store_true")
+    d = sub.add_parser("daily")
+    d.add_argument("--run-id")
+    d.add_argument("--fake", action="store_true")
     a = ap.parse_args(argv)
     try:
-        return produce(a)
+        return produce(a) if a.cmd == "produce" else daily(a)
     except PipelineError as e:
         print(f"[error] {type(e).__name__}: {e}", file=sys.stderr)
         return e.exit_code

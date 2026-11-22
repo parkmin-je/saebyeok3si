@@ -15,3 +15,4 @@ assets/audio/*
 
 # 런 디렉터리 (생성물)
 runs/
+data/
