@@ -38,7 +38,7 @@ def save_mp4(frames, out: Path, fps_in=8):
     p.stdin.close(); p.wait()
 
 
-def main(sizes):
+def main(sizes, keys=None):
     t0 = time.time()
     adapter = MotionAdapter()
     adapter.load_state_dict(load_file(hf_hub_download("ByteDance/AnimateDiff-Lightning",
@@ -53,6 +53,8 @@ def main(sizes):
     for s in sizes:
         w, h = RES[s]
         for key, prompt in PROMPTS:
+            if keys and key not in keys:
+                continue
             t = time.time()
             r = pipe(prompt=prompt, num_frames=16, width=w, height=h, num_inference_steps=4,
                      guidance_scale=1.0, generator=torch.Generator().manual_seed(7), output_type="np")
@@ -66,4 +68,5 @@ def main(sizes):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:] or ["s", "m"])
+    a = sys.argv[1:]
+    main([x for x in a if x in RES] or ["s", "m"], [x for x in a if x not in RES] or None)
