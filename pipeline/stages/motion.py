@@ -10,7 +10,7 @@ import cv2
 
 from .common import Ctx, fill, keys_in, nn, seed_for
 
-STYLE = ("RAW photo, candid movie still, Korea, early 2000s, nostalgic film photo, Kodak Portra 400, "
+STYLE = ("RAW photo, candid movie still, one clear subject, smooth natural motion, Korea, early 2000s, nostalgic film photo, Kodak Portra 400, "
          "soft natural light, film grain, natural skin")
 
 

@@ -86,6 +86,7 @@ def build_prompt(p: dict, example: dict, schema: dict, feedback: list[str] | Non
   어린 시절과 커서의 모습이 다르면 look에 둘 다 적는다. voice는 "수줍은 10대 남성"처럼 성별과 나이대를 꼭 넣는다.
   화면에만 나오고 말하지 않는 인물은 voice를 "대사 없음"으로.
 - image_prompt는 영어, 실사 영화 스틸 사진 묘사. 인물은 {{A}} 같은 키로만 부른다. 2000년대 소품(폴더폰, MP3, 교복, 문방구 등) 구체적으로.
+- image_prompt 한 장면엔 인물 한 명을 중심으로(최대 두 명, 서로 떨어져 있게), 허리 위나 전신이 크게 보이는 구도로. 짧은 영상으로 움직이므로 인물이 하는 단순한 동작 하나를 영어 동사로 넣어라(running toward camera, turning head and smiling, walking away, laughing). 여러 명이 얽히거나 서로 만지는 동작은 피한다.
 - motion_prompt는 카메라 움직임 한 줄(slow push in 등).
 - captions는 비워도 된다(파이프라인이 다시 만든다). upload.yt_title에는 #shorts 포함, hashtags 4~6개.
 
