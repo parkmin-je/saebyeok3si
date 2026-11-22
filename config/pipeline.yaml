@@ -29,6 +29,10 @@ voices:                          # Gemini TTS 프리셋 목소리. 대본 voice 
   male: Achird                   # 젊고 다정한 남성
   speed_old: 0.92                # 노년 목소리는 조금 느리게
 
+music:                           # 시대별 배경음악 프리셋 (pipeline/stages/music.py)
+  2000s: musicbox_major
+  default: piano_minor
+
 budget:
   per_episode_usd: 30.0
 

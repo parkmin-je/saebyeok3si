@@ -35,6 +35,16 @@ def piano(f: float, dur: float, vel: float) -> np.ndarray:
     return out * att * rel * vel
 
 
+def bell(f: float, dur: float, vel: float) -> np.ndarray:
+    """오르골 음색: 비조화 배음이 빨리 사라지는 종소리."""
+    n = int(SR * (dur + 2.0))
+    t = np.arange(n) / SR
+    out = np.zeros(n)
+    for ratio, amp, dec in ((1.0, 1.0, 2.2), (2.0, 0.35, 4.0), (2.76, 0.25, 6.0), (5.4, 0.12, 9.0)):
+        out += amp * np.sin(2 * np.pi * f * ratio * t) * np.exp(-t * dec)
+    return out * np.minimum(1, t / 0.002) * vel
+
+
 def reverb_ir(sec: float, rng) -> np.ndarray:
     n = int(SR * sec)
     t = np.arange(n) / SR
@@ -60,7 +70,26 @@ MELODY = [  # 마디별 오른손 (음, 시작 박, 길이 박)
 ]
 
 
-def compose(total_sec: float, bpm: float = 66, seed: int = 7) -> np.ndarray:
+# 2000년대 발라드풍 장조 진행 (C-G-Am-Em-F-C-F-G) + 오르골 멜로디
+PROG_MAJOR = [
+    ("C3", ["E3", "G3", "C4"]), ("G2", ["D3", "G3", "B3"]), ("A2", ["E3", "A3", "C4"]), ("E2", ["E3", "G3", "B3"]),
+    ("F2", ["F3", "A3", "C4"]), ("C3", ["E3", "G3", "C4"]), ("F2", ["F3", "A3", "C4"]), ("G2", ["D3", "G3", "B3"]),
+]
+MELODY_MAJOR = [
+    [("E5", 0, 1), ("G5", 1, 1), ("C6", 2, 1)], [("B5", 0, 2), ("G5", 2, 1)], [("A5", 0, 1), ("C6", 1, 1), ("E6", 2, 1)], [("D6", 0, 2), ("B5", 2, 1)],
+    [("C6", 0, 1), ("A5", 1, 1), ("F5", 2, 1)], [("G5", 0, 2), ("E5", 2, 1)], [("F5", 0, 1), ("A5", 1, 1), ("C6", 2, 1)], [("B5", 0, 1.5), ("D6", 1.5, 1.5)],
+]
+PRESETS = {
+    "piano_minor": {"prog": None, "melody": None, "lead": "piano", "bpm": 66},
+    "musicbox_major": {"prog": PROG_MAJOR, "melody": MELODY_MAJOR, "lead": "bell", "bpm": 72},
+}
+
+
+def compose(total_sec: float, bpm: float = 66, seed: int = 7, preset: str = "piano_minor") -> np.ndarray:
+    pr = PRESETS[preset]
+    prog, melody = pr["prog"] or PROG, pr["melody"] or MELODY
+    lead = bell if pr["lead"] == "bell" else piano
+    bpm = pr["bpm"]
     rng = np.random.default_rng(seed)
     beat = 60 / bpm
     bar = 3 * beat
@@ -77,7 +106,7 @@ def compose(total_sec: float, bpm: float = 66, seed: int = 7) -> np.ndarray:
     bars = int(np.ceil(total_sec / bar)) + 1
     for b in range(bars):
         t0 = b * bar
-        bass, chord = PROG[b % len(PROG)]
+        bass, chord = prog[b % len(prog)]
         intro = b < 2  # 처음 두 마디는 오른손 없이 조용히
         human = lambda: rng.normal(0, 0.012)
         add(piano(hz(bass), bar * 0.95, 0.55), t0 + human())
@@ -85,10 +114,10 @@ def compose(total_sec: float, bpm: float = 66, seed: int = 7) -> np.ndarray:
             for c in chord:
                 add(piano(hz(c), beat * 0.9, 0.16), t0 + k * beat + human())
         if not intro:
-            for note, st, ln in MELODY[b % len(MELODY)]:
+            for note, st, ln in melody[b % len(melody)]:
                 octave_down = b >= 10 and b % 8 in (4, 5)  # 두 번째 반복은 살짝 변주
                 f = hz(note) / (2 if octave_down else 1)
-                add(piano(f, ln * beat * 0.95, 0.42), t0 + st * beat + human())
+                add(lead(f, ln * beat * 0.95, 0.42 if lead is piano else 0.3), t0 + st * beat + human())
     mix = fft_convolve(mix, reverb_ir(2.6, rng))[:n] * 0.6 + mix * 0.55
 
     # LP 잡음: 낮은 히스 + 드문 크래클
@@ -123,6 +152,7 @@ def run(ctx: Ctx, total_sec: float) -> None:
         return
     p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_name("bgm.tmp.wav")
-    write_wav(tmp, compose(total_sec))
+    preset = ctx.cfg.get("music", {}).get(ctx.script["era"], "piano_minor")
+    write_wav(tmp, compose(total_sec, preset=preset))
     tmp.replace(p)
-    ctx.log(f"[music] 피아노 왈츠 {total_sec:.1f}s 합성")
+    ctx.log(f"[music] {preset} {total_sec:.1f}s 합성")

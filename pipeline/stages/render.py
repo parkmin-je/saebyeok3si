@@ -2,6 +2,7 @@
 
 일러스트 모드: 프레임은 pipeline/illustrated/<id>.html 을 capture.cjs로 찍어 만든다.
 """
+import json
 import os
 import subprocess
 from pathlib import Path
@@ -89,12 +90,22 @@ def mix(ctx: Ctx, tl: dict) -> Path:
         f"aecho=0.8:0.5:40:0.12,asplit=2[voice][key]"
         f";[{n}:a]aresample=48000,volume={bgm['gain_db']}dB,atrim=0:{dur}[bg]"
         f";[bg][key]sidechaincompress=threshold=0.02:ratio=6:attack=20:release=400[bgd]"
-        f";[voice][bgd]amix=inputs=2:normalize=0:duration=first,"
-        f"loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[out]")
+        f";[voice][bgd]amix=inputs=2:normalize=0:duration=first[out]")
     out.parent.mkdir(parents=True, exist_ok=True)
-    tmp = out.with_name("mix.tmp.wav")
+    raw = out.with_name("mix.raw.wav")
     media.run(["ffmpeg", "-y", "-v", "error", *args, "-filter_complex", fc, "-map", "[out]", "-ac", "2",
-               "-t", str(dur), str(tmp)])
+               "-t", str(dur), str(raw)])
+    # 2패스 loudnorm: 1패스로 측정하고 2패스에서 선형 보정해 -14 LUFS에 정확히 맞춘다
+    target = "I=-14:TP=-1.5:LRA=11"
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(raw), "-af", f"loudnorm={target}:print_format=json",
+                        "-f", "null", "-"], capture_output=True, text=True).stderr
+    m = json.loads(p[p.rindex("{"):p.rindex("}") + 1])
+    tmp = out.with_name("mix.tmp.wav")
+    media.run(["ffmpeg", "-y", "-v", "error", "-i", str(raw), "-af",
+               f"loudnorm={target}:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
+               f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:"
+               f"offset={m['target_offset']}:linear=true,aresample=48000", str(tmp)])
+    raw.unlink()
     tmp.replace(out)
     return out
 
