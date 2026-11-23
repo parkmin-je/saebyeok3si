@@ -1,0 +1,22 @@
+name: kaggle-status
+# Kaggle 커널 상태만 빠르게 확인 (이 세션 네트워크에서는 Kaggle이 막혀 있어서)
+on:
+  push:
+    branches: [feat/sample-video-veo]
+    paths: [.github/workflows/kaggle-status.yml, pipeline/kaggle/status-ping.txt]
+  workflow_dispatch:
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: pip install -q kaggle six
+      - env:
+          KAGGLE_JSON: ${{ secrets.KAGGLE_JSON }}
+        run: |
+          mkdir -p ~/.kaggle && echo "$KAGGLE_JSON" > ~/.kaggle/kaggle.json && chmod 600 ~/.kaggle/kaggle.json
+          U=$(python -c "import json,os;print(json.loads(os.environ['KAGGLE_JSON'])['username'])")
+          kaggle kernels list --mine --page-size 20 || true
+          for k in $(kaggle kernels list --mine --page-size 20 --csv | tail -n +2 | cut -d, -f1); do
+            echo "== $k"; kaggle kernels status "$k" || true
+          done
