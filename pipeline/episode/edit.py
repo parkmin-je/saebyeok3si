@@ -122,13 +122,22 @@ def shot_video(sh: dict, dur: float, out: Path) -> None:
     if need > avail:   # 클립이 모자라면 먼저 최대 1.4배까지 느리게, 그래도 모자라면 마지막 프레임 유지
         slow = min(1.4, dur / avail)
     pad = max(0.0, dur - avail * slow)
-    vf = f"setpts={slow:.4f}*(PTS-STARTPTS),fps={FPS},{cover},tpad=stop_mode=clone:stop_duration={pad + 0.1:.3f}"
+    # 16fps 생성 컷을 움직임 보간으로 30fps (그냥 복제하면 뚝뚝 끊겨 보임)
+    interp = f"minterpolate=fps={FPS}:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1" if media_fps(src) < 25 else f"fps={FPS}"
+    vf = f"setpts={slow:.4f}*(PTS-STARTPTS),{interp},{cover},tpad=stop_mode=clone:stop_duration={pad + 0.1:.3f}"
     z = float(sh.get("push", 0.04))   # 컷마다 살짝 밀고 들어가는 카메라 (화면이 멈춰 보이지 않게)
     if z:
         vf += (f",zoompan=z='1+{z}*on/({dur}*{FPS})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
                f":d=1:s={W}x{H}:fps={FPS}")
     run(["ffmpeg", "-y", "-v", "error", "-ss", f"{start:.3f}", "-i", str(src), "-t", f"{dur:.3f}", "-vf", vf,
          "-an", "-r", str(FPS), "-c:v", "libx264", "-crf", "16", "-pix_fmt", "yuv420p", str(out)])
+
+
+def media_fps(p: Path) -> float:
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate",
+                        "-of", "csv=p=0", str(p)], capture_output=True, text=True).stdout.strip()
+    a, _, b = r.partition("/")
+    return float(a) / float(b or 1) if a else 30.0
 
 
 def ass_time(t: float) -> str:
