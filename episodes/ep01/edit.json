@@ -48,7 +48,8 @@
      "who": "seojin",
      "text": "전학 첫날이었다. 산 지 사흘 된 폰이었고.",
      "at": 0.3,
-     "inner": true
+     "inner": true,
+     "tone": "deadpan inner monologue, exasperated sigh"
     }
    ],
    "flash": true
@@ -71,7 +72,8 @@
     {
      "who": "seojin",
      "text": "야. 사과 안 해?",
-     "at": 0.3
+     "at": 0.3,
+     "tone": "annoyed"
     }
    ]
   },
@@ -82,7 +84,8 @@
     {
      "who": "doyoon",
      "text": "거기 서 있는 게 잘못이지.",
-     "at": 0.4
+     "at": 0.4,
+     "tone": "coldly, bored and arrogant"
     }
    ]
   },
@@ -94,7 +97,8 @@
     {
      "who": "seojin",
      "text": "물어내.",
-     "at": 0.3
+     "at": 0.3,
+     "tone": "through gritted teeth, firm"
     }
    ]
   },
@@ -105,7 +109,8 @@
     {
      "who": "bokhee",
      "text": "미쳤다. 강도윤한테...",
-     "at": 0.3
+     "at": 0.3,
+     "tone": "whispering in shock"
     }
    ]
   },
@@ -116,7 +121,8 @@
     {
      "who": "doyoon",
      "text": "얼마면 되는데.",
-     "at": 0.5
+     "at": 0.5,
+     "tone": "smirking, low and teasing"
     }
    ],
    "sfx": [
@@ -134,7 +140,8 @@
     {
      "who": "seojin",
      "text": "돈 말고. 너 폰 줘.",
-     "at": 0.3
+     "at": 0.3,
+     "tone": "defiant, bold"
     }
    ]
   },
@@ -146,7 +153,8 @@
     {
      "who": "doyoon",
      "text": "가져.",
-     "at": 0.6
+     "at": 0.6,
+     "tone": "casually amused"
     }
    ]
   },
@@ -158,7 +166,8 @@
     {
      "who": "seojin",
      "text": "...진짜 주는 거야?",
-     "at": 0.3
+     "at": 0.3,
+     "tone": "flustered, surprised"
     }
    ]
   },
@@ -170,7 +179,8 @@
      "who": "seojin",
      "text": "이상한 애다. 그런데 왜 심장이...",
      "at": 0.4,
-     "inner": true
+     "inner": true,
+     "tone": "whispering, shy and flustered"
     }
    ]
   },
@@ -194,7 +204,8 @@
     {
      "who": "seojin",
      "text": "...고백?",
-     "at": 0.4
+     "at": 0.4,
+     "tone": "breathless shock, whispering"
     }
    ],
    "sfx": [

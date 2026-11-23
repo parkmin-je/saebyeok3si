@@ -182,7 +182,11 @@ def main(spec_path: str, out_dir: str, fake: bool = False) -> Path:
         lines = []
         end_need = float(sh.get("dur", 2.5))
         for k, ln in enumerate(sh.get("lines", [])):
-            wav = tts(ln["text"], cast[ln["who"]]["voice"], out / "voice" / f"{i:02d}-{k}.wav", fake)
+            # 감정 태그(예: [annoyed])를 앞에 붙이면 Gemini TTS가 태그는 읽지 않고 말투만 바꾼다
+            say = f"[{ln['tone']}] {ln['text']}" if ln.get("tone") else ln["text"]
+            import hashlib
+            key = hashlib.md5(f"{say}|{cast[ln['who']]['voice']}".encode()).hexdigest()[:8]
+            wav = tts(say, cast[ln["who"]]["voice"], out / "voice" / f"{i:02d}-{k}-{key}.wav", fake)
             d = media.duration(wav)
             lines.append({**ln, "wav": wav, "len": d})
             end_need = max(end_need, float(ln.get("at", 0.2)) + d + 0.12)
