@@ -2,5 +2,9 @@
  "s01-phone-hit": {
   "still": "s01-phone-hit-still.webp (black-forest-labs/FLUX.1-schnell)",
   "clip": "s01-phone-hit.mp4 (zerogpu-aoti/wan2-2-fp8da-aoti-faster)"
+ },
+ "s02-seojin-shock": {
+  "still": "s02-seojin-shock-still.webp (LPX55/Qwen-Image-Edit-2509-Turbo-Lightning)",
+  "error": "zerogpu-aoti/wan2-2-fp8da-aoti-faster: AppError: You have exceeded your ZeroGPU runs limit. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens | zerogpu-aoti/wan2-2-fp8da-aoti: ValueError: The current space is in the invalid state: RUNTIME_ERROR. Please contact the owner to fix this. | KingNish/wan2-2-fast: AppError: You have exceeded your ZeroGPU runs limit. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens | r3gm/wan2-2-fp8da-aoti-preview: AppError: You have exceeded your ZeroGPU runs limit. Authenticate with a Hugging Face token for more quota - https://huggingface.co/settings/tokens"
  }
 }
