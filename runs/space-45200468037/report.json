@@ -21,5 +21,8 @@
  },
  "s10-seojin-defiant": {
   "error": "linoyts/Qwen-Image-Edit-2509-Fast: ValueError: The current space is in the invalid state: RUNTIME_ERROR. Please contact the owner to fix this. | Menyu/Qwen-Image-Edit-Fast-2509: RepositoryNotFoundError: 404 Client Error. (Request ID: Root=1-6b04567a-49c0b135149aef0a665cf372;f8f7e18e-d419-432f-9d9e-44a693c33345)\n\nRepository Not Found for url: https://huggingface.co/api/spaces/Menyu/Qwen-Image-Edit-Fast-2509.\nPlease make sure you specified the correct `repo_id` and `repo_type`.\nIf you are trying to a | LPX55/Qwen-Image-Edit-2509-Turbo-Lightning: AppError: You have exceeded your free ZeroGPU quota (120s requested vs. -1s left). Try again in 23:54:46. Subscribe to Hugging Face PRO to get 40 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU | akhaliq/Qwen-Image-Edit"
+ },
+ "s13-seojin-window": {
+  "error": "linoyts/Qwen-Image-Edit-2509-Fast: ValueError: The current space is in the invalid state: RUNTIME_ERROR. Please contact the owner to fix this. | Menyu/Qwen-Image-Edit-Fast-2509: RepositoryNotFoundError: 404 Client Error. (Request ID: Root=1-6b04567c-28bb252b02b457eb4a211b69;cc66ff9c-cc9e-4745-a021-39b13a44e206)\n\nRepository Not Found for url: https://huggingface.co/api/spaces/Menyu/Qwen-Image-Edit-Fast-2509.\nPlease make sure you specified the correct `repo_id` and `repo_type`.\nIf you are trying to a | LPX55/Qwen-Image-Edit-2509-Turbo-Lightning: AppError: You have exceeded your free ZeroGPU quota (120s requested vs. -1s left). Try again in 23:54:44. Subscribe to Hugging Face PRO to get 40 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU | akhaliq/Qwen-Image-Edit"
  }
 }
