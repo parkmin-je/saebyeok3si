@@ -107,7 +107,15 @@ def call(kind, prompt, image=None, seed=0, dur=None):
                     kw[pn] = None
             print(f"  [{space}] {name} {shown}", flush=True)
             t = time.time()
-            res = c.predict(api_name=name, **kw)
+            for attempt in range(3):   # 무료 GPU가 잠깐 꽉 찼을 때는 같은 곳에서 다시 기다림
+                try:
+                    res = c.predict(api_name=name, **kw)
+                    break
+                except Exception as e:
+                    if "No GPU was available" not in str(e) or attempt == 2:
+                        raise
+                    print("  GPU 대기, 30초 뒤 다시", flush=True)
+                    time.sleep(30)
             exts = (".mp4", ".webm", ".mov") if kind == "i2v" else (".png", ".jpg", ".jpeg", ".webp")
             f = find(res, exts)
             print(f"  [{space}] {time.time() - t:.0f}s → {str(f)[-80:]}", flush=True)
