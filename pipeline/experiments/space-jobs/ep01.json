@@ -11,7 +11,8 @@
    "ref": "runs/cast-45178887634/seojin-3.png",
    "edit": "Keep this exact girl's face, identity and long black hair with bangs unchanged. She wears a navy school blazer with a red ribbon tie and a white shirt. She stands on an outdoor school basketball court, looking down in shock with her mouth slightly open, upper body shot, red brick school building and a few students far in the background. Photorealistic cinematic still from a 2006 Korean high school drama, winter, soft overcast daylight, film look, natural skin texture, realistic background people, vertical 9:16 frame.",
    "motion": "she looks down in shock, then slowly raises a hand to her mouth, cold wind moves her hair, subtle handheld camera",
-   "dur": 5
+   "dur": 5,
+   "still": "runs/space-45198336744/s02-seojin-shock-still.webp"
   },
   {
    "name": "s03-doyoon-walk",
@@ -61,5 +62,6 @@
    "motion": "she looks at the flip phone, bites her lip trying not to smile, then glances out the window, curtains moving gently",
    "dur": 5
   }
- ]
+ ],
+ "only": "1,2,3,4,5,6,7,8"
 }
