@@ -60,7 +60,7 @@ def main(jobs_path, out_dir):
     tmpl = {"wan": "wan_i2v_kernel.py", "stills": "sdxl_stills_kernel.py"}[kind]
     code = (HERE / tmpl).read_text().replace(
         "__JOBS__", base64.b64encode(json.dumps(jobs).encode()).decode())
-    slug = f"rrs-{kind}"
+    slug = f"rrs-{kind}-{os.environ.get('GITHUB_RUN_ID', 'local')}"
     work = Path("/tmp/kernel")
     work.mkdir(exist_ok=True)
     (work / "main.py").write_text(code)

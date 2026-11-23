@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
-concurrency: { group: kaggle, cancel-in-progress: false }
+concurrency: { group: "kaggle-${{ github.sha }}", cancel-in-progress: false }
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -23,7 +23,7 @@ jobs:
           KAGGLE_JSON: ${{ secrets.KAGGLE_JSON }}
         run: |
           J=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- pipeline/kaggle/jobs | head -1)
-          [ -z "$J" ] && J=$(ls pipeline/kaggle/jobs/*.json | tail -1)
+          [ -z "$J" ] && J=$(git log -1 --name-only --format= -- pipeline/kaggle/jobs | head -1)
           echo "jobs=$J"
           git fetch -q origin experiment-output && git worktree add -q /tmp/eo origin/experiment-output
           python - "$J" <<'PY'
