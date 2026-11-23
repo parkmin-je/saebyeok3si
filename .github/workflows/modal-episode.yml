@@ -1,0 +1,39 @@
+name: modal-episode
+# Modal 무료 크레딧 GPU(H100)로 에피소드 컷: Qwen-Image-Edit-2509 스틸 → Wan 2.2 A14B 영상. 컷마다 experiment-output에 바로 올림.
+on:
+  push:
+    branches: [feat/sample-video-veo]
+    paths: [pipeline/experiments/modal-jobs/**]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: "modal-${{ github.sha }}", cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -q modal gradio_client pillow
+      - name: Generate
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          if [ -z "$MODAL_TOKEN_ID" ]; then echo "MODAL_TOKEN_ID 시크릿 없음 → 건너뜀"; exit 0; fi
+          git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
+          J=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- pipeline/experiments/modal-jobs | head -1)
+          [ -z "$J" ] && J=$(git log -1 --name-only --format= -- pipeline/experiments/modal-jobs | head -1)
+          git fetch -q origin experiment-output && git worktree add -q -B eo-work /tmp/eo origin/experiment-output
+          python - "$J" <<'PY'
+          import json, sys
+          spec = json.load(open(sys.argv[1]))
+          for s in spec["shots"]:
+              for k in ("ref", "still"):
+                  if s.get(k) and not s[k].startswith("/"): s[k] = "/tmp/eo/" + s[k]
+          json.dump(spec, open("/tmp/job.json", "w"))
+          PY
+          modal run pipeline/experiments/modal_app.py --job /tmp/job.json --out out/modal-${{ github.run_id }} --eo /tmp/eo
