@@ -12,5 +12,8 @@
  "s06-doyoon-glance": {
   "still": "s06-doyoon-glance-still.webp (LPX55/Qwen-Image-Edit-2509-Turbo-Lightning)",
   "clip": "s06-doyoon-glance.mp4 (zerogpu-aoti/wan2-2-fp8da-aoti-faster)"
+ },
+ "s08-classmates": {
+  "error": "Qwen/Qwen-Image: AppError: You have exceeded your free ZeroGPU quota (120s requested vs. 76s left). Try again in 23:55:18. Subscribe to Hugging Face PRO to get 25 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU | multimodalart/Qwen-Image-Fast: AppError: RuntimeError | black-forest-labs/FLUX.1-schnell: AppError: You have exceeded your free ZeroGPU quota (105s requested vs. 70s left). Try again in 23:55:02. Subscribe to Hugging Face PRO to get 40 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU"
  }
 }
