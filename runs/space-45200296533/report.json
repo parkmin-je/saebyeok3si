@@ -1,0 +1,5 @@
+{
+ "s02-seojin-shock": {
+  "error": "zerogpu-aoti/wan2-2-fp8da-aoti-faster: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | zerogpu-aoti/wan2-2-fp8da-aoti: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | KingNish/wan2-2-fast: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | r3gm/wan2-2-fp8da-aoti-preview: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token'"
+ }
+}
