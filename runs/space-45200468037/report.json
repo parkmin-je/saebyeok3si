@@ -15,5 +15,8 @@
  },
  "s08-classmates": {
   "error": "Qwen/Qwen-Image: AppError: You have exceeded your free ZeroGPU quota (120s requested vs. 76s left). Try again in 23:55:18. Subscribe to Hugging Face PRO to get 25 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU | multimodalart/Qwen-Image-Fast: AppError: RuntimeError | black-forest-labs/FLUX.1-schnell: AppError: You have exceeded your free ZeroGPU quota (105s requested vs. 70s left). Try again in 23:55:02. Subscribe to Hugging Face PRO to get 40 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU"
+ },
+ "s09-doyoon-close": {
+  "error": "linoyts/Qwen-Image-Edit-2509-Fast: ValueError: The current space is in the invalid state: RUNTIME_ERROR. Please contact the owner to fix this. | Menyu/Qwen-Image-Edit-Fast-2509: RepositoryNotFoundError: 404 Client Error. (Request ID: Root=1-6b04566b-7c45d35d61877fe16678ed52;b4743e5e-38cb-4564-a726-6fad239d959e)\n\nRepository Not Found for url: https://huggingface.co/api/spaces/Menyu/Qwen-Image-Edit-Fast-2509.\nPlease make sure you specified the correct `repo_id` and `repo_type`.\nIf you are trying to a | LPX55/Qwen-Image-Edit-2509-Turbo-Lightning: AppError: You have exceeded your free ZeroGPU quota (120s requested vs. 10s left). Try again in 23:55:01. Subscribe to Hugging Face PRO to get 40 min of ZeroGPU quota a day - https://huggingface.co/subscribe/pro?from=ZeroGPU | akhaliq/Qwen-Image-Edit"
  }
 }
