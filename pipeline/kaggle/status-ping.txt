@@ -1,2 +1,1 @@
-ping 9
-cpudiag
+ping 10
