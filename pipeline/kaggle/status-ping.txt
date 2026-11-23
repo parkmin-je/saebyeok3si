@@ -1,1 +1,6 @@
-2
+ping 3
+delete rrs-wan-i2v
+delete rrs-stills-45189115278
+delete rrs-diag-00
+delete rrs-diag-10
+delete rrs-diag-11

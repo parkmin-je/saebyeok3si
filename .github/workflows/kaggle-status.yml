@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v4
       - run: pip install -q kaggle six
       - env:
           KAGGLE_JSON: ${{ secrets.KAGGLE_JSON }}
@@ -17,6 +18,7 @@ jobs:
           mkdir -p ~/.kaggle && echo "$KAGGLE_JSON" > ~/.kaggle/kaggle.json && chmod 600 ~/.kaggle/kaggle.json
           U=$(python -c "import json,os;print(json.loads(os.environ['KAGGLE_JSON'])['username'])")
           kaggle quota || true
+          for k in $(grep '^delete ' pipeline/kaggle/status-ping.txt 2>/dev/null | cut -d' ' -f2); do echo "== delete $k"; kaggle kernels delete -y "$U/$k" || true; done
           kaggle kernels list --mine --page-size 20 || true
           for k in $(kaggle kernels list --mine --page-size 20 --csv | tail -n +2 | cut -d, -f1); do
             echo "== $k"; kaggle kernels status "$k" || true
