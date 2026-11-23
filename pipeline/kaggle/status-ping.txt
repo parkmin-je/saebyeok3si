@@ -1,2 +1,2 @@
-ping 15
+ping 16
 collect rrs-cpu-s05-45209668145 rrs-cpu-s08-45209687705 rrs-cpu-s09-45209962263 rrs-cpu-s13-45209751446 rrs-cpu-s10-45209730096
