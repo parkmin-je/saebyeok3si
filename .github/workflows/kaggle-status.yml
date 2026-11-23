@@ -18,6 +18,13 @@ jobs:
           mkdir -p ~/.kaggle && echo "$KAGGLE_JSON" > ~/.kaggle/kaggle.json && chmod 600 ~/.kaggle/kaggle.json
           U=$(python -c "import json,os;print(json.loads(os.environ['KAGGLE_JSON'])['username'])")
           kaggle quota || true
+          if grep -q '^cpudiag' pipeline/kaggle/status-ping.txt; then
+            mkdir -p /tmp/cd && printf 'import os,subprocess\nprint(os.cpu_count(), subprocess.run(["free","-g"],capture_output=True,text=True).stdout)\n' > /tmp/cd/main.py
+            python -c "import json,sys;u=sys.argv[1];json.dump({'id':f'{u}/rrs-cpudiag','title':'rrs-cpudiag','code_file':'main.py','language':'python','kernel_type':'script','is_private':True,'enable_gpu':False,'enable_internet':True},open('/tmp/cd/kernel-metadata.json','w'))" "$U"
+            kaggle kernels push -p /tmp/cd || true
+            sleep 120
+            kaggle kernels status "$U/rrs-cpudiag" || true; kaggle kernels logs "$U/rrs-cpudiag" 2>&1 | tail -c 1500 || true
+          fi
           if grep -q '^gpudiag' pipeline/kaggle/status-ping.txt; then
             mkdir -p /tmp/gd && printf 'import subprocess\nprint(subprocess.run(["nvidia-smi"],capture_output=True,text=True).stdout)\n' > /tmp/gd/main.py
             for acc in NvidiaTeslaT4 none; do

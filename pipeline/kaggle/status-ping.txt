@@ -1,2 +1,2 @@
-ping 8
-delete rrs-wan-45197097753
+ping 9
+cpudiag
