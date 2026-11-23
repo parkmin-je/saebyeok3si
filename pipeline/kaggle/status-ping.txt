@@ -1,1 +1,1 @@
-ping 4
+ping 5
