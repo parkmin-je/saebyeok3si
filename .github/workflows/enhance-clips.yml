@@ -19,7 +19,7 @@ jobs:
         with: { python-version: "3.12" }
       - run: |
           pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu
-          pip install -q spandrel opencv-python-headless numpy
+          pip install -q spandrel "opencv-python-headless<5" "numpy<2.4"
       - name: Enhance
         run: |
           git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
