@@ -1,0 +1,29 @@
+{
+ "id": "ep01", "series": "우리가 열여덟이던 겨울", "episode": 1, "title": "물어내", "next": "EP.02 남의 폰",
+ "music": "piano_minor",
+ "cast": {
+  "seojin": {"name": "서진", "voice": "Leda", "color": "FFD3DE"},
+  "doyoon": {"name": "도윤", "voice": "Achird", "color": "C4E4FF"},
+  "bokhee": {"name": "복희", "voice": "Aoede", "color": "FFF0A8"}
+ },
+ "shots": [
+  {"src": "episodes/ep01/clips/s01-phone-hit.mp4", "dur": 1.6, "slow": 1.3, "sfx": [{"name": "whoosh", "at": 0.0}, {"name": "crack", "at": 0.7}]},
+  {"src": "episodes/ep01/clips/s02-seojin-shock.mp4", "dur": 3.0,
+   "lines": [{"who": "seojin", "text": "전학 첫날이었다. 산 지 사흘 된 폰이었고.", "at": 0.3, "inner": true}]},
+  {"src": "episodes/ep01/clips/s03-doyoon-walk.mp4", "dur": 2.6, "sfx": [{"name": "heartbeat", "at": 0.6, "gain": 0.6}]},
+  {"src": "episodes/ep01/clips/s05-ots-seojin.mp4", "dur": 2.2, "lines": [{"who": "seojin", "text": "야. 사과 안 해?", "at": 0.3}]},
+  {"src": "episodes/ep01/clips/s06-doyoon-glance.mp4", "dur": 2.4, "lines": [{"who": "doyoon", "text": "거기 서 있는 게 잘못이지.", "at": 0.4}]},
+  {"src": "episodes/ep01/clips/s02-seojin-shock.mp4", "in": 2.0, "dur": 1.8, "lines": [{"who": "seojin", "text": "물어내.", "at": 0.3}]},
+  {"src": "episodes/ep01/clips/s08-classmates.mp4", "dur": 2.2, "lines": [{"who": "bokhee", "text": "미쳤다. 강도윤한테...", "at": 0.3}]},
+  {"src": "episodes/ep01/clips/s09-doyoon-close.mp4", "dur": 2.4, "lines": [{"who": "doyoon", "text": "얼마면 되는데.", "at": 0.5}], "sfx": [{"name": "heartbeat", "at": 0.0, "gain": 0.7}]},
+  {"src": "episodes/ep01/clips/s10-seojin-defiant.mp4", "dur": 2.6, "lines": [{"who": "seojin", "text": "돈 말고. 너 폰 줘.", "at": 0.3}]},
+  {"src": "episodes/ep01/clips/s09-doyoon-close.mp4", "in": 2.5, "dur": 2.0, "lines": [{"who": "doyoon", "text": "가져.", "at": 0.6}]},
+  {"src": "episodes/ep01/clips/s10-seojin-defiant.mp4", "in": 2.5, "dur": 2.0, "lines": [{"who": "seojin", "text": "...진짜 주는 거야?", "at": 0.3}]},
+  {"src": "episodes/ep01/clips/s13-seojin-window.mp4", "dur": 3.4,
+   "lines": [{"who": "seojin", "text": "이상한 애다. 그런데 왜 심장이...", "at": 0.4, "inner": true}]},
+  {"src": "episodes/ep01/clips/s13-seojin-window.mp4", "in": 3.0, "dur": 3.2, "phone": "채린: 도윤아, 오늘 고백 대답 들으러 갈게. 옥상 4시.",
+   "sfx": [{"name": "buzz", "at": 0.0}]},
+  {"src": "episodes/ep01/clips/s02-seojin-shock.mp4", "in": 3.0, "dur": 2.8, "lines": [{"who": "seojin", "text": "...고백?", "at": 0.4}],
+   "sfx": [{"name": "sting", "at": 0.9}]}
+ ]
+}
