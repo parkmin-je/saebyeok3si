@@ -1,5 +1,9 @@
 {
  "s02-seojin-shock": {
   "clip": "s02-seojin-shock.mp4 (zerogpu-aoti/wan2-2-fp8da-aoti-faster)"
+ },
+ "s03-doyoon-walk": {
+  "still": "s03-doyoon-walk-still.webp (LPX55/Qwen-Image-Edit-2509-Turbo-Lightning)",
+  "clip": "s03-doyoon-walk.mp4 (zerogpu-aoti/wan2-2-fp8da-aoti-faster)"
  }
 }
