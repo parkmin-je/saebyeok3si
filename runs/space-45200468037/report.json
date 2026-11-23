@@ -8,5 +8,9 @@
  },
  "s05-ots-seojin": {
   "error": "linoyts/Qwen-Image-Edit-2509-Fast: ValueError: The current space is in the invalid state: RUNTIME_ERROR. Please contact the owner to fix this. | Menyu/Qwen-Image-Edit-Fast-2509: RepositoryNotFoundError: 404 Client Error. (Request ID: Root=1-6b0455b9-53c48ec10c3d12f8281dd619;74ff317d-fdd3-4544-a421-e81cf56de978)\n\nRepository Not Found for url: https://huggingface.co/api/spaces/Menyu/Qwen-Image-Edit-Fast-2509.\nPlease make sure you specified the correct `repo_id` and `repo_type`.\nIf you are trying to a | LPX55/Qwen-Image-Edit-2509-Turbo-Lightning: AppError: No GPU was available after 60s. <a style=\"white-space: nowrap;text-underline-offset: 2px;color: var(--body-text-color)\" href=\"https://huggingface.co/subscribe/pro?from=ZeroGPU\">Subscribe to Pro</a> to get the highest priority in ZeroGPU que"
+ },
+ "s06-doyoon-glance": {
+  "still": "s06-doyoon-glance-still.webp (LPX55/Qwen-Image-Edit-2509-Turbo-Lightning)",
+  "clip": "s06-doyoon-glance.mp4 (zerogpu-aoti/wan2-2-fp8da-aoti-faster)"
  }
 }
