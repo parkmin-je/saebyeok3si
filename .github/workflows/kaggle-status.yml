@@ -16,7 +16,9 @@ jobs:
         run: |
           mkdir -p ~/.kaggle && echo "$KAGGLE_JSON" > ~/.kaggle/kaggle.json && chmod 600 ~/.kaggle/kaggle.json
           U=$(python -c "import json,os;print(json.loads(os.environ['KAGGLE_JSON'])['username'])")
+          kaggle quota || true
           kaggle kernels list --mine --page-size 20 || true
           for k in $(kaggle kernels list --mine --page-size 20 --csv | tail -n +2 | cut -d, -f1); do
             echo "== $k"; kaggle kernels status "$k" || true
+            case "$k" in *rrs-wan*|*rrs-stills*) kaggle kernels logs "$k" 2>&1 | tail -c 3000 || true;; esac
           done

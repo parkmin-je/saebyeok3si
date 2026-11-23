@@ -68,7 +68,7 @@ def main(jobs_path, out_dir):
         "id": f"{user}/{slug}", "title": slug, "code_file": "main.py", "language": "python",
         "kernel_type": "script", "is_private": True, "enable_gpu": True, "enable_internet": True,
         "dataset_sources": [], "competition_sources": [], "kernel_sources": []}))
-    r = sh("kaggle", "kernels", "push", "-p", str(work), check=False)
+    r = sh("kaggle", "kernels", "push", "-p", str(work), "--accelerator", "NvidiaTeslaT4", check=False)
     print(r.stdout, r.stderr, flush=True)
     if r.returncode != 0:
         diagnose(user, work)
