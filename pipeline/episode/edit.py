@@ -123,6 +123,10 @@ def shot_video(sh: dict, dur: float, out: Path) -> None:
         slow = min(1.4, dur / avail)
     pad = max(0.0, dur - avail * slow)
     vf = f"setpts={slow:.4f}*(PTS-STARTPTS),fps={FPS},{cover},tpad=stop_mode=clone:stop_duration={pad + 0.1:.3f}"
+    z = float(sh.get("push", 0.04))   # 컷마다 살짝 밀고 들어가는 카메라 (화면이 멈춰 보이지 않게)
+    if z:
+        vf += (f",zoompan=z='1+{z}*on/({dur}*{FPS})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+               f":d=1:s={W}x{H}:fps={FPS}")
     run(["ffmpeg", "-y", "-v", "error", "-ss", f"{start:.3f}", "-i", str(src), "-t", f"{dur:.3f}", "-vf", vf,
          "-an", "-r", str(FPS), "-c:v", "libx264", "-crf", "16", "-pix_fmt", "yuv420p", str(out)])
 
@@ -194,7 +198,10 @@ def main(spec_path: str, out_dir: str, fake: bool = False) -> Path:
     mus = np.interp(np.arange(n), np.linspace(0, n, len(mus)), mus) if len(mus) != n else mus
     env = np.convolve((np.abs(voice) > 0.01).astype(float), np.ones(SR // 4) / (SR // 4), "same")
     duck = 1 - 0.65 * np.clip(env * 3, 0, 1)
-    mix = voice * 1.0 + fx * 0.8 + mus * 0.22 * duck
+    rng = np.random.default_rng(7)   # 바깥 공기·교실 웅성임 느낌의 낮은 환경음 (완전 무음 구간 없애기)
+    amb = np.convolve(rng.standard_normal(n), np.ones(60) / 60, "same")
+    amb *= (0.6 + 0.4 * np.sin(np.arange(n) / SR * 0.7)) / max(1e-9, np.abs(amb).max())
+    mix = voice * 1.0 + fx * 0.8 + mus * 0.22 * duck + amb * float(spec.get("ambient", 0.05))
     mix /= max(1e-9, np.abs(mix).max()) / 0.9
     raw = out / "mix.f32"
     raw.write_bytes(mix.astype(np.float32).tobytes())
@@ -213,13 +220,20 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
 Style: L,NanumSquare ExtraBold,78,&H00FFFFFF,&H000000FF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,7,3,2,70,70,560,1
 Style: I,NanumSquare ExtraBold,66,&H00E0E0E0,&H000000FF,&H00000000,&H96000000,-1,1,0,0,100,100,0,0,1,6,2,2,70,70,560,1
 Style: T,NanumSquare ExtraBold,64,&H00FFFFFF,&H000000FF,&H00000000,&HB4000000,-1,0,0,0,100,100,0,0,3,10,0,8,60,60,180,1
+Style: K,NanumSquare ExtraBold,88,&H00FFFFFF,&H000000FF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,9,4,8,60,60,230,1
 Style: N,NanumSquare ExtraBold,96,&H0000D7FF,&H000000FF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,8,4,2,60,60,260,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
-    ev = [f"Dialogue: 0,{ass_time(0)},{ass_time(2.6)},T,,0,0,0,,{{\\fad(0,300)}}"
+    hook = spec.get("hook")   # 첫 1~3초 훅 문구 (소리 없이 봐도 상황이 읽히게)
+    t0 = 2.8 if hook else 0
+    ev = [f"Dialogue: 0,{ass_time(t0)},{ass_time(t0 + 2.4)},T,,0,0,0,,{{\\fad(150,300)}}"
           f"{spec['series']} EP.{spec['episode']:02d}"]
+    if hook:
+        hl = hook.split("|")
+        txt = r"\N".join(f"{{\\c&H0000D7FF&}}{x}" if i == len(hl) - 1 else x for i, x in enumerate(hl))
+        ev.append(f"Dialogue: 2,{ass_time(0)},{ass_time(t0)},K,,0,0,0,,{{\\fad(0,200)}}{txt}")
     for c in timeline:
         for ln in c["lines"]:
             s = c["start"] + float(ln.get("at", 0.2))
