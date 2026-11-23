@@ -23,11 +23,13 @@ image = (
     .env({"HF_HOME": "/cache/hf", "HF_HUB_ENABLE_HF_TRANSFER": "1"})
 )
 W, H = 720, 1280
+import os
+GPU = os.environ.get("MODAL_GPU", "L40S")   # H100·A100은 카드 등록이 필요해서 무료 플랜에선 L40S(48GB)
 NEG_V = ("blurry, distorted face, deformed hands, extra fingers, morphing, flicker, low quality, watermark, text, "
          "cartoon, anime, static")
 
 
-@app.cls(image=image, gpu="H100", volumes={"/cache": vol}, timeout=3600, memory=81920, scaledown_window=120)
+@app.cls(image=image, gpu=GPU, volumes={"/cache": vol}, timeout=3600, memory=81920, scaledown_window=120)
 class EditStudio:
     @modal.enter()
     def load(self):
@@ -71,7 +73,7 @@ class EditStudio:
         return self._edit(buf.getvalue(), "Replace the whole image with a new photo: " + prompt, seed)
 
 
-@app.cls(image=image, gpu="H100", volumes={"/cache": vol}, timeout=3600, memory=98304, scaledown_window=120)
+@app.cls(image=image, gpu=GPU, volumes={"/cache": vol}, timeout=3600, memory=98304, scaledown_window=120)
 class VideoStudio:
     @modal.enter()
     def load(self):
