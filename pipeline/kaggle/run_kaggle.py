@@ -57,18 +57,21 @@ def main(jobs_path, out_dir):
             j["image_b64"] = b64(j.pop("image"), (j.get("w", 480), j.get("h", 832)))
         if j.get("ref"):     # 배우 얼굴 참조
             j["ref_b64"] = b64(j.pop("ref"), None)
-    tmpl = {"wan": "wan_i2v_kernel.py", "stills": "sdxl_stills_kernel.py"}[kind]
+        if j.get("still"):   # 이미 만든 스틸
+            j["still_b64"] = b64(j.pop("still"), None)
+    tmpl = {"wan": "wan_i2v_kernel.py", "stills": "sdxl_stills_kernel.py", "cpu": "cpu_shot_kernel.py"}[kind]
+    gpu = kind != "cpu"
     code = (HERE / tmpl).read_text().replace(
         "__JOBS__", base64.b64encode(json.dumps(jobs).encode()).decode())
-    slug = f"rrs-{kind}-{os.environ.get('GITHUB_RUN_ID', 'local')}"
+    slug = f"rrs-{kind}-{spec.get('tag', '') + '-' if isinstance(spec, dict) and spec.get('tag') else ''}{os.environ.get('GITHUB_RUN_ID', 'local')}"
     work = Path("/tmp/kernel")
     work.mkdir(exist_ok=True)
     (work / "main.py").write_text(code)
     (work / "kernel-metadata.json").write_text(json.dumps({
         "id": f"{user}/{slug}", "title": slug, "code_file": "main.py", "language": "python",
-        "kernel_type": "script", "is_private": True, "enable_gpu": True, "enable_internet": True,
+        "kernel_type": "script", "is_private": True, "enable_gpu": gpu, "enable_internet": True,
         "dataset_sources": [], "competition_sources": [], "kernel_sources": []}))
-    r = sh("kaggle", "kernels", "push", "-p", str(work), "--accelerator", "NvidiaTeslaT4", check=False)
+    r = sh("kaggle", "kernels", "push", "-p", str(work), *(["--accelerator", "NvidiaTeslaT4"] if gpu else []), check=False)
     print(r.stdout, r.stderr, flush=True)
     if r.returncode != 0:
         diagnose(user, work)
@@ -80,8 +83,8 @@ def main(jobs_path, out_dir):
         print(f"[{int(time.time() - t0)}s] {st}", flush=True)
         if any(w in st for w in ("complete", "error", "cancel")):
             break
-        if time.time() - t0 > 4 * 3600:
-            raise SystemExit("4시간 초과")
+        if time.time() - t0 > 5.5 * 3600:
+            raise SystemExit("5.5시간 초과")
     Path(out_dir).mkdir(parents=True, exist_ok=True)
     print(sh("kaggle", "kernels", "output", f"{user}/{slug}", "-p", out_dir, check=False).stdout)
     if "complete" not in st:

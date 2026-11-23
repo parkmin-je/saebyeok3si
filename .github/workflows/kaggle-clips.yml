@@ -11,7 +11,7 @@ concurrency: { group: "kaggle-${{ github.sha }}", cancel-in-progress: false }
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
@@ -31,7 +31,7 @@ jobs:
           p = sys.argv[1]; spec = json.load(open(p))
           jobs = spec if isinstance(spec, list) else spec["jobs"]
           for j in jobs:
-              for k in ("image", "ref"):
+              for k in ("image", "ref", "still"):
                   if j.get(k): j[k] = "/tmp/eo/" + j[k]
           json.dump(spec, open("/tmp/jobs.json", "w"))
           PY
