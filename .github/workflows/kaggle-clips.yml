@@ -28,9 +28,12 @@ jobs:
           git fetch -q origin experiment-output && git worktree add -q /tmp/eo origin/experiment-output
           python - "$J" <<'PY'
           import json, sys
-          p = sys.argv[1]; jobs = json.load(open(p))
-          for j in jobs: j["image"] = "/tmp/eo/" + j["image"]
-          json.dump(jobs, open("/tmp/jobs.json", "w"))
+          p = sys.argv[1]; spec = json.load(open(p))
+          jobs = spec if isinstance(spec, list) else spec["jobs"]
+          for j in jobs:
+              for k in ("image", "ref"):
+                  if j.get(k): j[k] = "/tmp/eo/" + j[k]
+          json.dump(spec, open("/tmp/jobs.json", "w"))
           PY
           python pipeline/kaggle/run_kaggle.py /tmp/jobs.json out/kaggle
       - name: Push results

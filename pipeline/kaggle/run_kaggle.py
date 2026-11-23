@@ -38,18 +38,29 @@ def main(jobs_path, out_dir):
     (kdir / "kaggle.json").write_text(json.dumps(cred))
     os.chmod(kdir / "kaggle.json", 0o600)
     user = cred["username"]
-    jobs = json.loads(Path(jobs_path).read_text())
-    for j in jobs:
-        # 커널 코드 크기 제한 때문에 입력 사진은 작은 JPEG로 넣는다
-        from PIL import Image
-        import io
-        im = Image.open(j.pop("image")).convert("RGB").resize((j.get("w", 480), j.get("h", 832)))
+    spec = json.loads(Path(jobs_path).read_text())
+    # 형식: 리스트(= wan 영상) 또는 {"kernel": "stills"|"wan", "jobs": [...]}
+    kind, jobs = ("wan", spec) if isinstance(spec, list) else (spec.get("kernel", "wan"), spec["jobs"])
+    from PIL import Image
+    import io
+
+    def b64(path, size):
+        im = Image.open(path).convert("RGB")
+        if size:
+            im = im.resize(size)
         buf = io.BytesIO()
         im.save(buf, "JPEG", quality=92)
-        j["image_b64"] = base64.b64encode(buf.getvalue()).decode()
-    code = (HERE / "wan_i2v_kernel.py").read_text().replace(
+        return base64.b64encode(buf.getvalue()).decode()
+
+    for j in jobs:
+        if j.get("image"):   # 영상 첫 프레임 (커널 코드 크기 제한 때문에 JPEG)
+            j["image_b64"] = b64(j.pop("image"), (j.get("w", 480), j.get("h", 832)))
+        if j.get("ref"):     # 배우 얼굴 참조
+            j["ref_b64"] = b64(j.pop("ref"), None)
+    tmpl = {"wan": "wan_i2v_kernel.py", "stills": "sdxl_stills_kernel.py"}[kind]
+    code = (HERE / tmpl).read_text().replace(
         "__JOBS__", base64.b64encode(json.dumps(jobs).encode()).decode())
-    slug = "rrs-wan-i2v"
+    slug = f"rrs-{kind}"
     work = Path("/tmp/kernel")
     work.mkdir(exist_ok=True)
     (work / "main.py").write_text(code)

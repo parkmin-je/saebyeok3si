@@ -1,0 +1,86 @@
+{
+ "kernel": "stills",
+ "jobs": [
+  {
+   "name": "s01-phone-hit",
+   "ref": null,
+   "prompt": "extreme close-up of an old silver flip phone flying through the air and cracking after being hit by an orange basketball, outdoor school basketball court, motion blur, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 200
+  },
+  {
+   "name": "s02-seojin-shock",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "prompt": "beautiful early 20s Korean actress playing a high school girl, long straight black hair with see-through bangs, navy school blazer with red ribbon tie, white shirt, standing on an outdoor school basketball court looking down in shock at a broken flip phone on the ground, mouth slightly open, other students far in background, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 207
+  },
+  {
+   "name": "s03-doyoon-walk",
+   "ref": "runs/cast-45178887634/doyoon-1.png",
+   "prompt": "handsome early 20s Korean actor playing a high school boy, tall, messy black hair, navy school blazer worn open over white shirt, walking slowly across an outdoor school basketball court toward the camera, wind in his hair, cool expression, red brick school building behind, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 214
+  },
+  {
+   "name": "s05-ots-seojin",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "prompt": "over-the-shoulder shot from behind a tall boy in a navy blazer, beautiful early 20s Korean actress playing a high school girl, long straight black hair with see-through bangs, navy school blazer with red ribbon tie, white shirt facing him with an angry face, arms crossed, schoolyard in winter, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 221
+  },
+  {
+   "name": "s06-doyoon-glance",
+   "ref": "runs/cast-45178887634/doyoon-1.png",
+   "prompt": "handsome early 20s Korean actor playing a high school boy, tall, messy black hair, navy school blazer worn open over white shirt, holding a basketball under his arm, glancing back over his shoulder with an indifferent look, school basketball court, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 228
+  },
+  {
+   "name": "s08-classmates",
+   "ref": null,
+   "prompt": "group of Korean high school students in navy blazers gathering and whispering at the edge of a basketball court, one short-bob haired girl covering her mouth in surprise, natural faces, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 235
+  },
+  {
+   "name": "s09-doyoon-close",
+   "ref": "runs/cast-45178887634/doyoon-1.png",
+   "prompt": "handsome early 20s Korean actor playing a high school boy, tall, messy black hair, navy school blazer worn open over white shirt, close-up, looking down at someone very close in front of him, slight smirk, soft winter backlight, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 242
+  },
+  {
+   "name": "s10-seojin-defiant",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "prompt": "beautiful early 20s Korean actress playing a high school girl, long straight black hair with see-through bangs, navy school blazer with red ribbon tie, white shirt, close-up, looking up defiantly at a taller boy, determined eyes, winter sky behind, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 249
+  },
+  {
+   "name": "s13-seojin-window",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "prompt": "beautiful early 20s Korean actress playing a high school girl, long straight black hair with see-through bangs, navy school blazer with red ribbon tie, white shirt, sitting by a classroom window in 2006, holding an open flip phone with a star charm, trying not to smile, old wooden desks and green chalkboard behind, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "n": 2,
+   "w": 768,
+   "h": 1344,
+   "seed": 256
+  }
+ ]
+}
