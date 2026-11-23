@@ -40,7 +40,13 @@ def main(jobs_path, out_dir):
     user = cred["username"]
     jobs = json.loads(Path(jobs_path).read_text())
     for j in jobs:
-        j["image_b64"] = base64.b64encode(Path(j.pop("image")).read_bytes()).decode()
+        # 커널 코드 크기 제한 때문에 입력 사진은 작은 JPEG로 넣는다
+        from PIL import Image
+        import io
+        im = Image.open(j.pop("image")).convert("RGB").resize((j.get("w", 480), j.get("h", 832)))
+        buf = io.BytesIO()
+        im.save(buf, "JPEG", quality=92)
+        j["image_b64"] = base64.b64encode(buf.getvalue()).decode()
     code = (HERE / "wan_i2v_kernel.py").read_text().replace(
         "__JOBS__", base64.b64encode(json.dumps(jobs).encode()).decode())
     slug = "rrs-wan-i2v"
