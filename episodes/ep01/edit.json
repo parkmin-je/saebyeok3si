@@ -25,8 +25,8 @@
  "shots": [
   {
    "src": "episodes/ep01/clips/s01-phone-hit.mp4",
-   "dur": 1.6,
-   "slow": 1.3,
+   "dur": 2.6,
+   "slow": 1.0,
    "sfx": [
     {
      "name": "whoosh",
@@ -34,9 +34,10 @@
     },
     {
      "name": "crack",
-     "at": 0.7
+     "at": 0.9
     }
-   ]
+   ],
+   "in": 0.6
   },
   {
    "src": "episodes/ep01/clips/s02-seojin-shock.mp4",

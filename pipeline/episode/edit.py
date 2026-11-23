@@ -220,7 +220,7 @@ Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour,
 Style: L,NanumSquare ExtraBold,78,&H00FFFFFF,&H000000FF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,7,3,2,70,70,560,1
 Style: I,NanumSquare ExtraBold,66,&H00E0E0E0,&H000000FF,&H00000000,&H96000000,-1,1,0,0,100,100,0,0,1,6,2,2,70,70,560,1
 Style: T,NanumSquare ExtraBold,64,&H00FFFFFF,&H000000FF,&H00000000,&HB4000000,-1,0,0,0,100,100,0,0,3,10,0,8,60,60,180,1
-Style: K,NanumSquare ExtraBold,88,&H00FFFFFF,&H000000FF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,9,4,8,60,60,230,1
+Style: K,NanumSquare ExtraBold,96,&H00FFFFFF,&H000000FF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,9,4,8,60,60,230,1
 Style: N,NanumSquare ExtraBold,96,&H0000D7FF,&H000000FF,&H00000000,&H96000000,-1,0,0,0,100,100,0,0,1,8,4,2,60,60,260,1
 
 [Events]
@@ -231,7 +231,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     ev = [f"Dialogue: 0,{ass_time(t0)},{ass_time(t0 + 2.4)},T,,0,0,0,,{{\\fad(150,300)}}"
           f"{spec['series']} EP.{spec['episode']:02d}"]
     if hook:
-        hl = hook.split("|")
+        hl = [y for x in hook.split("|") for y in wrap(x, 10).split(r"\N")]
         txt = r"\N".join(f"{{\\c&H0000D7FF&}}{x}" if i == len(hl) - 1 else x for i, x in enumerate(hl))
         ev.append(f"Dialogue: 2,{ass_time(0)},{ass_time(t0)},K,,0,0,0,,{{\\fad(0,200)}}{txt}")
     for c in timeline:
