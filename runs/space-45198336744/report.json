@@ -1,0 +1,6 @@
+{
+ "s01-phone-hit": {
+  "still": "s01-phone-hit-still.webp (black-forest-labs/FLUX.1-schnell)",
+  "clip": "s01-phone-hit.mp4 (zerogpu-aoti/wan2-2-fp8da-aoti-faster)"
+ }
+}
