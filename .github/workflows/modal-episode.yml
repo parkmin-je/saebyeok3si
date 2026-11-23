@@ -36,4 +36,7 @@ jobs:
                   if s.get(k) and not s[k].startswith("/"): s[k] = "/tmp/eo/" + s[k]
           json.dump(spec, open("/tmp/job.json", "w"))
           PY
+          export MODAL_GPU=$(python pipeline/experiments/modal_probe.py)
+          echo "사용 GPU: $MODAL_GPU"
+          [ "$MODAL_GPU" = NONE ] && { echo "카드 없이 쓸 수 있는 GPU 없음"; exit 1; }
           modal run pipeline/experiments/modal_app.py --job /tmp/job.json --out out/modal-${{ github.run_id }} --eo /tmp/eo
