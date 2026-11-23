@@ -15,6 +15,22 @@ def sh(*a, check=True):
     return subprocess.run(a, check=check, capture_output=True, text=True)
 
 
+def diagnose(user, work):
+    """push 400 원인 찾기: 작은 커널로 GPU/인터넷 옵션을 바꿔 가며 시도."""
+    import shutil
+    for gpu, net in ((False, False), (True, False), (True, True)):
+        d = Path(f"/tmp/diag-{gpu}-{net}")
+        d.mkdir(exist_ok=True)
+        (d / "main.py").write_text("print('hello')\n")
+        slug = f"rrs-diag-{int(gpu)}{int(net)}"
+        (d / "kernel-metadata.json").write_text(json.dumps({
+            "id": f"{user}/{slug}", "title": slug, "code_file": "main.py", "language": "python",
+            "kernel_type": "script", "is_private": True, "enable_gpu": gpu, "enable_internet": net}))
+        r = sh("kaggle", "kernels", "push", "-p", str(d), check=False)
+        print(f"[diag] gpu={gpu} internet={net} rc={r.returncode} {r.stdout.strip()} {r.stderr.strip()[-300:]}", flush=True)
+    print(f"[diag] main.py 크기 {(work / 'main.py').stat().st_size} bytes", flush=True)
+
+
 def main(jobs_path, out_dir):
     cred = json.loads(os.environ["KAGGLE_JSON"])
     kdir = Path.home() / ".kaggle"
@@ -38,6 +54,7 @@ def main(jobs_path, out_dir):
     r = sh("kaggle", "kernels", "push", "-p", str(work), check=False)
     print(r.stdout, r.stderr, flush=True)
     if r.returncode != 0:
+        diagnose(user, work)
         raise SystemExit("kaggle push 실패")
     t0 = time.time()
     while True:
