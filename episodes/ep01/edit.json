@@ -42,26 +42,35 @@
   },
   {
    "src": "episodes/ep01/clips/s02-seojin-shock.mp4",
-   "dur": 3.0,
+   "dur": 1.9,
    "lines": [
     {
      "who": "seojin",
-     "text": "전학 첫날이었다. 산 지 사흘 된 폰이었고.",
-     "at": 0.3,
+     "text": "전학 첫날.",
+     "at": 0.25,
      "inner": true,
-     "tone": "deadpan inner monologue, exasperated sigh"
+     "tone": "deadpan inner monologue"
     }
    ],
    "flash": true
   },
   {
    "src": "episodes/ep01/clips/s03-doyoon-walk.mp4",
-   "dur": 2.6,
+   "dur": 2.4,
    "sfx": [
     {
      "name": "heartbeat",
      "at": 0.6,
      "gain": 0.6
+    }
+   ],
+   "lines": [
+    {
+     "who": "seojin",
+     "text": "산 지 사흘 된 폰이었다.",
+     "at": 0.15,
+     "inner": true,
+     "tone": "deadpan inner monologue, exasperated sigh"
     }
    ]
   },
