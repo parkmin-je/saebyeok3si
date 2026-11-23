@@ -21,7 +21,7 @@ jobs:
           U=$(python -c "import json,os;print(json.loads(os.environ['KAGGLE_JSON'])['username'])")
           kaggle quota || true
           # collect <커널이름>: 끝난 커널 결과를 experiment-output runs/kaggle-<커널이름>/ 으로 가져오기
-          C=$(grep '^collect ' pipeline/kaggle/status-ping.txt 2>/dev/null | cut -d' ' -f2)
+          C=$(grep '^collect ' pipeline/kaggle/status-ping.txt 2>/dev/null | cut -d' ' -f2- | tr '\n' ' ')
           if [ -n "$C" ]; then
             git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
             git fetch -q origin experiment-output && git worktree add -q -B eo-work /tmp/eo origin/experiment-output
