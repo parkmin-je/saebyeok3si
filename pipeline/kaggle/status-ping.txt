@@ -1,1 +1,1 @@
-ping 5
+ping 6
