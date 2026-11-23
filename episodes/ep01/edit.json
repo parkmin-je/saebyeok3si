@@ -36,7 +36,9 @@
      "at": 0.9
     }
    ],
-   "in": 0.6
+   "in": 0.6,
+   "shake": true,
+   "shake_at": 0.9
   },
   {
    "src": "episodes/ep01/clips/s02-seojin-shock.mp4",
@@ -48,7 +50,8 @@
      "at": 0.3,
      "inner": true
     }
-   ]
+   ],
+   "flash": true
   },
   {
    "src": "episodes/ep01/clips/s03-doyoon-walk.mp4",

@@ -125,6 +125,14 @@ def shot_video(sh: dict, dur: float, out: Path) -> None:
     # 16fps 생성 컷을 움직임 보간으로 30fps (그냥 복제하면 뚝뚝 끊겨 보임)
     interp = f"minterpolate=fps={FPS}:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1" if media_fps(src) < 25 else f"fps={FPS}"
     vf = f"setpts={slow:.4f}*(PTS-STARTPTS),{interp},{cover},tpad=stop_mode=clone:stop_duration={pad + 0.1:.3f}"
+    if sh.get("shake"):   # 충격 장면 카메라 흔들림 (처음 0.6초, 점점 잦아듦)
+        a = float(sh["shake"]) if not isinstance(sh["shake"], bool) else 18
+        t0 = float(sh.get("shake_at", 0))
+        k = f"gte(t\\,{t0})*{a}*exp(-(t-{t0})*5)"
+        vf += (f",scale={W + 2 * int(a)}:{H + 2 * int(a)},crop={W}:{H}:"
+               f"x='{int(a)}+{k}*sin(t*67)':y='{int(a)}+{k}*cos(t*53)'")
+    if sh.get("flash"):   # 컷 첫 순간 하얗게 번쩍
+        vf += ",eq=brightness=0.45:enable='lt(t,0.07)'"
     z = float(sh.get("push", 0.04))   # 컷마다 살짝 밀고 들어가는 카메라 (화면이 멈춰 보이지 않게)
     if z:
         vf += (f",zoompan=z='1+{z}*on/({dur}*{FPS})':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
@@ -177,7 +185,7 @@ def main(spec_path: str, out_dir: str, fake: bool = False) -> Path:
             wav = tts(ln["text"], cast[ln["who"]]["voice"], out / "voice" / f"{i:02d}-{k}.wav", fake)
             d = media.duration(wav)
             lines.append({**ln, "wav": wav, "len": d})
-            end_need = max(end_need, float(ln.get("at", 0.2)) + d + 0.25)
+            end_need = max(end_need, float(ln.get("at", 0.2)) + d + 0.12)
         timeline.append({"i": i, "start": t, "dur": end_need, "lines": lines, "sh": sh})
         t += end_need
     total = t
@@ -258,7 +266,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             if ln.get("inner"):
                 txt = f"({txt})"
             ev.append(f"Dialogue: 0,{ass_time(s)},{ass_time(e)},{style},,0,0,0,,"
-                      f"{{\\c{bgr(col)}\\fad(60,80)}}{txt}")
+                      f"{{\\c{bgr(col)}\\fad(40,80)\\fscx118\\fscy118\\t(0,110,\\fscx100\\fscy100)}}{txt}")
     if spec.get("next"):
         ev.append(f"Dialogue: 1,{ass_time(total - 2.2)},{ass_time(total)},N,,0,0,0,,{{\\fad(200,0)}}{spec['next']}")
     assf = out / "captions.ass"
