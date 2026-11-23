@@ -24,7 +24,8 @@ _clients = {}
 
 def client(space):
     if space not in _clients:
-        _clients[space] = Client(space, verbose=False)
+        import os
+        _clients[space] = Client(space, verbose=False, hf_token=os.environ.get("HF_TOKEN") or None)
     return _clients[space]
 
 
@@ -149,8 +150,11 @@ def push(eo, out, msg):
             break
 
 
-def main(job, out, eo=None):
+def main(job, out, eo=None, only=None):
     spec = json.loads(Path(job).read_text())
+    if only:   # 일부 컷만 다시 만들기 (예: "1,2,3")
+        keep = {int(x) for x in only.split(",")}
+        spec["shots"] = [s for i, s in enumerate(spec["shots"]) if i in keep]
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     rep = {}
@@ -183,4 +187,4 @@ def main(job, out, eo=None):
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:4])
+    main(*sys.argv[1:5])
