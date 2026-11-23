@@ -4,7 +4,6 @@
  "episode": 1,
  "title": "물어내",
  "next": "EP.02 남의 폰",
- "music": "piano_minor",
  "cast": {
   "seojin": {
    "name": "서진",
@@ -204,5 +203,29 @@
   }
  ],
  "hook": "전학 첫날,|학교 최고 인기남이 내 폰을 박살냈다",
- "ambient": 0.05
+ "ambient": 0.05,
+ "cues": [
+  {
+   "shot": 0,
+   "type": "tension"
+  },
+  {
+   "shot": 3,
+   "type": "banter"
+  },
+  {
+   "shot": 11,
+   "type": "flutter"
+  },
+  {
+   "shot": 12,
+   "type": "flutter",
+   "at": 0.0
+  },
+  {
+   "shot": 13,
+   "type": "stop"
+  }
+ ],
+ "music_gain": 0.3
 }

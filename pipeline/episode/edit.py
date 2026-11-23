@@ -194,14 +194,19 @@ def main(spec_path: str, out_dir: str, fake: bool = False) -> Path:
             a = BANK[fxs["name"]]() * float(fxs.get("gain", 1.0))
             s = int((c["start"] + float(fxs.get("at", 0))) * SR)
             fx[s:s + len(a)] += a[: max(0, n - s)]
-    mus = compose(total + 0.5, preset=spec.get("music", "piano_minor"))
+    if spec.get("cues"):   # 장면별 음악: {"shot": 컷 번호, "type": tension|banter|flutter|stop, "at"?: 컷 안 초}
+        from .score import compose_cues
+        mus = compose_cues([{"t": timeline[min(c["shot"], len(timeline) - 1)]["start"] + float(c.get("at", 0)),
+                             "type": c["type"], "gain": c.get("gain", 1.0)} for c in spec["cues"]], total + 0.5)
+    else:
+        mus = compose(total + 0.5, preset=spec.get("music", "piano_minor"))
     mus = np.interp(np.arange(n), np.linspace(0, n, len(mus)), mus) if len(mus) != n else mus
     env = np.convolve((np.abs(voice) > 0.01).astype(float), np.ones(SR // 4) / (SR // 4), "same")
     duck = 1 - 0.65 * np.clip(env * 3, 0, 1)
     rng = np.random.default_rng(7)   # 바깥 공기·교실 웅성임 느낌의 낮은 환경음 (완전 무음 구간 없애기)
     amb = np.convolve(rng.standard_normal(n), np.ones(60) / 60, "same")
     amb *= (0.6 + 0.4 * np.sin(np.arange(n) / SR * 0.7)) / max(1e-9, np.abs(amb).max())
-    mix = voice * 1.0 + fx * 0.8 + mus * 0.22 * duck + amb * float(spec.get("ambient", 0.05))
+    mix = voice * 1.0 + fx * 0.8 + mus * float(spec.get("music_gain", 0.22)) * duck + amb * float(spec.get("ambient", 0.05))
     mix /= max(1e-9, np.abs(mix).max()) / 0.9
     raw = out / "mix.f32"
     raw.write_bytes(mix.astype(np.float32).tobytes())
