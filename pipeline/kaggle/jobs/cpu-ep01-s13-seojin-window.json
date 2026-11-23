@@ -1,0 +1,17 @@
+{
+ "kernel": "cpu",
+ "tag": "s13",
+ "jobs": [
+  {
+   "name": "s13-seojin-window",
+   "prompt": "beautiful early 20s Korean actress playing a high school girl, long straight black hair with see-through bangs, navy school blazer with white piping trim and a gold school crest with big red bow tie, white shirt, sitting by a classroom window in 2006, holding an open flip phone with a star charm, trying not to smile, old wooden desks and green chalkboard behind, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "motion": "she looks at the flip phone, bites her lip trying not to smile, then glances out the window, curtains moving gently",
+   "seed": 256,
+   "frames": 65,
+   "w": 704,
+   "h": 1232,
+   "steps": 26
+  }
+ ]
+}
