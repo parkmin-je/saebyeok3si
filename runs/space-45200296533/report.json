@@ -1,5 +1,8 @@
 {
  "s02-seojin-shock": {
   "error": "zerogpu-aoti/wan2-2-fp8da-aoti-faster: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | zerogpu-aoti/wan2-2-fp8da-aoti: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | KingNish/wan2-2-fast: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | r3gm/wan2-2-fp8da-aoti-preview: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token'"
+ },
+ "s03-doyoon-walk": {
+  "error": "linoyts/Qwen-Image-Edit-2509-Fast: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | Menyu/Qwen-Image-Edit-Fast-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | LPX55/Qwen-Image-Edit-2509-Turbo-Lightning: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | akhaliq/Qwen-Image-Edit-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | Qwen/Qwen-Image-Edit-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token'"
  }
 }
