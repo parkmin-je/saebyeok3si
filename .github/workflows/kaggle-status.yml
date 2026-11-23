@@ -5,6 +5,8 @@ on:
     branches: [feat/sample-video-veo]
     paths: [.github/workflows/kaggle-status.yml, pipeline/kaggle/status-ping.txt]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   status:
     runs-on: ubuntu-latest
@@ -18,6 +20,17 @@ jobs:
           mkdir -p ~/.kaggle && echo "$KAGGLE_JSON" > ~/.kaggle/kaggle.json && chmod 600 ~/.kaggle/kaggle.json
           U=$(python -c "import json,os;print(json.loads(os.environ['KAGGLE_JSON'])['username'])")
           kaggle quota || true
+          # collect <커널이름>: 끝난 커널 결과를 experiment-output runs/kaggle-<커널이름>/ 으로 가져오기
+          C=$(grep '^collect ' pipeline/kaggle/status-ping.txt 2>/dev/null | cut -d' ' -f2)
+          if [ -n "$C" ]; then
+            git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
+            git fetch -q origin experiment-output && git worktree add -q -B eo-work /tmp/eo origin/experiment-output
+            for k in $C; do
+              st=$(kaggle kernels status "$U/$k" 2>&1); echo "$st"
+              case "$st" in *COMPLETE*|*ERROR*) mkdir -p /tmp/eo/runs/kaggle-$k && kaggle kernels output "$U/$k" -p /tmp/eo/runs/kaggle-$k || true;; esac
+            done
+            (cd /tmp/eo && git add runs && git commit -qm "kaggle collect" && for i in 1 2 3; do git pull -q --rebase origin experiment-output && git push -q origin HEAD:experiment-output && break; done) || true
+          fi
           if grep -q '^cpudiag' pipeline/kaggle/status-ping.txt; then
             mkdir -p /tmp/cd && printf 'import os,subprocess\nprint(os.cpu_count(), subprocess.run(["free","-g"],capture_output=True,text=True).stdout)\n' > /tmp/cd/main.py
             python -c "import json,sys;u=sys.argv[1];json.dump({'id':f'{u}/rrs-cpudiag','title':'rrs-cpudiag','code_file':'main.py','language':'python','kernel_type':'script','is_private':True,'enable_gpu':False,'enable_internet':True},open('/tmp/cd/kernel-metadata.json','w'))" "$U"
