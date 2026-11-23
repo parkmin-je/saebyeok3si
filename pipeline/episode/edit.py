@@ -31,7 +31,7 @@ FONT_DIR = REPO / "assets" / "fonts"
 W, H, FPS = 1080, 1920, 30
 GRADE = ("eq=contrast=1.05:saturation=0.9:gamma=0.98,"
          "colorbalance=rs=0.03:gs=0.01:bs=-0.03:rh=0.02:bh=-0.02,"
-         "vignette=PI/5,noise=alls=5:allf=t")
+         "vignette=PI/5,noise=alls=3:allf=t")
 
 
 def run(cmd):
@@ -265,7 +265,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     final = out / "final.mp4"
     run(["ffmpeg", "-y", "-v", "error", *inputs, "-i", str(mixwav), "-filter_complex", ";".join(fc),
          "-map", "[v]", "-map", f"{k}:a", "-t", f"{total:.2f}", "-r", str(FPS), "-c:v", "libx264", "-preset", "slow",
-         "-crf", "17", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(final)])
+         "-crf", "21", "-maxrate", "9M", "-bufsize", "18M", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(final)])
     print(f"[edit] {final} {total:.1f}s, 컷 {len(clips)}개", flush=True)
     return final
 

@@ -1,2 +1,2 @@
-ping 7
-gpudiag
+ping 8
+delete rrs-wan-45197097753
