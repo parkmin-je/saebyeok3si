@@ -25,7 +25,7 @@ _clients = {}
 def client(space):
     if space not in _clients:
         import os
-        _clients[space] = Client(space, verbose=False, hf_token=os.environ.get("HF_TOKEN") or None)
+        _clients[space] = Client(space, verbose=False, token=os.environ.get("HF_TOKEN") or None)
     return _clients[space]
 
 
