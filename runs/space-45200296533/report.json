@@ -7,5 +7,8 @@
  },
  "s05-ots-seojin": {
   "error": "linoyts/Qwen-Image-Edit-2509-Fast: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | Menyu/Qwen-Image-Edit-Fast-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | LPX55/Qwen-Image-Edit-2509-Turbo-Lightning: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | akhaliq/Qwen-Image-Edit-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | Qwen/Qwen-Image-Edit-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token'"
+ },
+ "s06-doyoon-glance": {
+  "error": "linoyts/Qwen-Image-Edit-2509-Fast: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | Menyu/Qwen-Image-Edit-Fast-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | LPX55/Qwen-Image-Edit-2509-Turbo-Lightning: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | akhaliq/Qwen-Image-Edit-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token' | Qwen/Qwen-Image-Edit-2509: TypeError: Client.__init__() got an unexpected keyword argument 'hf_token'"
  }
 }
