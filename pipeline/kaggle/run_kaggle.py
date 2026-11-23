@@ -79,7 +79,7 @@ def main(jobs_path, out_dir):
     t0 = time.time()
     while True:
         time.sleep(60)
-        st = sh("kaggle", "kernels", "status", f"{user}/{slug}", check=False).stdout.strip()
+        st = sh("kaggle", "kernels", "status", f"{user}/{slug}", check=False).stdout.strip().lower()   # 새 CLI는 KernelWorkerStatus.COMPLETE (대문자)
         print(f"[{int(time.time() - t0)}s] {st}", flush=True)
         if any(w in st for w in ("complete", "error", "cancel")):
             break
