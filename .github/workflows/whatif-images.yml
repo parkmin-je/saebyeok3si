@@ -28,6 +28,7 @@ jobs:
           python pipeline/whatif/gen_images.py "$J" out ${{ matrix.shard }} 8
       - name: Push
         run: |
+          ls out/*.jpg >/dev/null 2>&1 || { echo "이 몫은 그림 없음"; exit 0; }
           git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
           git fetch -q origin experiment-output && git worktree add -q -B eo-${{ matrix.shard }} /tmp/eo origin/experiment-output
           mkdir -p /tmp/eo/runs/img-${{ github.run_id }} && cp out/*.jpg /tmp/eo/runs/img-${{ github.run_id }}/
