@@ -15,6 +15,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -35,6 +36,23 @@ def dur(p):
                                 capture_output=True, text=True).stdout.strip())
 
 
+def pieces(text, short=46, long=60):
+    """긴 낭독 한 덩어리를 자막 두세 줄 크기로 나눈다 (문장 → 너무 길면 쉼표)."""
+    out = []
+    for sen in re.split(r"(?<=[.?!…])\s+", text.strip()):
+        if len(sen) > long and ", " in sen:
+            cut = min((m.start() for m in re.finditer(", ", sen)), key=lambda i: abs(i - len(sen) / 2)) + 1
+            parts = [sen[:cut].strip(), sen[cut:].strip()]
+        else:
+            parts = [sen]
+        for x in parts:
+            if out and len(out[-1]) + len(x) + 1 <= short:
+                out[-1] += " " + x
+            else:
+                out.append(x)
+    return out
+
+
 def voice_file(work, line, voice):
     say = f"[{line['tone']}] {line['text']}" if line.get("tone") else line["text"]
     return say, work / "voice" / f"{hashlib.md5((say + voice).encode()).hexdigest()[:12]}.wav"
@@ -48,12 +66,32 @@ def all_lines(ep):
     yield from ep["outro"]["lines"]
 
 
+_ST = {}
+
+
+def supertonic(text, voice, out, speed=0.92, steps=10):
+    """Supertonic 3 (코드 MIT, 모델 OpenRAIL-M): CPU에서 도는 무료 한국어 목소리. voice = M1~M5, F1~F5."""
+    import soundfile as sf
+    if "tts" not in _ST:
+        from supertonic import TTS
+        _ST["tts"] = TTS(auto_download=True)
+    tts = _ST["tts"]
+    style = _ST.setdefault(voice, tts.get_voice_style(voice_name=voice))
+    wav, _ = tts.synthesize(text, voice_style=style, lang="ko", speed=speed, total_steps=steps, silence_duration=0.35)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    sf.write(str(out), np.asarray(wav).reshape(-1), tts.sample_rate)
+
+
 def make_voices(ep, work, fake):
     from pipeline.episode.edit import tts
     todo = [(ln, *voice_file(work, ln, ep["voices"][ln["who"]])) for ln in all_lines(ep)]
     for i, (ln, say, out) in enumerate(todo):
         if not out.exists():
-            tts(say, ep["voices"][ln["who"]], out, fake)
+            v = ep["voices"][ln["who"]]
+            if re.fullmatch(r"[MF][1-5]", v) and not fake:
+                supertonic(ln["text"], v, out, ep.get("speed", {}).get(ln["who"], 0.92))
+            else:
+                tts(say, v, out, fake)
             print(f"목소리 {i + 1}/{len(todo)}", out.name, flush=True)
 
 
@@ -70,8 +108,15 @@ def timeline(ep, work):
             _, f = voice_file(work, ln, ep["voices"][ln["who"]])
             t += (0.9 if k == 0 else GAP_LINE)
             d = dur(f)
-            lines.append({"who": ln["who"], "name": ep.get("names", {}).get(ln["who"], ""), "text": ln["text"],
-                          "start": round(t, 3), "end": round(t + d, 3), "wav": str(f)})
+            ps = pieces(ln["text"])
+            w = [len(x.replace(" ", "")) + 2 for x in ps]
+            u = t
+            for j, (x, wj) in enumerate(zip(ps, w)):
+                e = u + d * wj / sum(w)
+                lines.append({"who": ln["who"], "name": ep.get("names", {}).get(ln["who"], ""), "text": x,
+                              "start": round(u, 3), "end": round(e - (.12 if j < len(ps) - 1 else 0), 3),
+                              **({"wav": str(f)} if j == 0 else {})})
+                u = e
             t += d
         t += sc.get("hold", 0.8 if sc.get("lines") else REST)
         segs.append({"scene": sc["scene"], "o": sc.get("o", {}), "start": round(start, 3), "end": round(t, 3),
@@ -187,6 +232,8 @@ def mix(tl, work):
     N = int(total * SR)
     voice = np.zeros(N)
     for ln in tl["lines"]:
+        if "wav" not in ln:
+            continue
         v = rd(ln["wav"])
         v = v / (np.abs(v).max() + 1e-9) * .85
         i = int(ln["start"] * SR)
@@ -260,11 +307,14 @@ def main():
     ap.add_argument("--jobs", type=int, default=max(1, (os.cpu_count() or 4)))
     ap.add_argument("--fake-tts", action="store_true")
     ap.add_argument("--no-render", action="store_true")
+    ap.add_argument("--voices-only", action="store_true")
     a = ap.parse_args()
     ep = json.loads(Path(a.episode).read_text())
     work = Path(a.work)
     work.mkdir(parents=True, exist_ok=True)
     make_voices(ep, work, a.fake_tts)
+    if a.voices_only:
+        return
     tl = timeline(ep, work)
     print(f"길이 {tl['total'] / 60:.1f}분, 장면 {len(tl['segments'])}개, 대사 {len(tl['lines'])}줄", flush=True)
     (work / "chapters.txt").write_text(chapters(ep, tl))
