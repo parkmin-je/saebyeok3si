@@ -31,6 +31,10 @@ def lines(ep):
 
 
 def make_voices(ep, work, fake):
+    if ep.get("gvoices") and not fake:
+        from pipeline.whatif import gvoice
+        gvoice.make(ep, work, lines(ep))
+        return
     from pipeline.episode.edit import tts
     for ln in lines(ep):
         v = ep["voices"][ln["who"]]
@@ -70,7 +74,11 @@ def chunks(text, n=11):
 
 def vpath(ep, work, ln):
     """목소리 파일. ep["fx"][who] = 음높이 배수 (예: 1.25) 면 높고 작은 목소리(강아지)로 바꾼 사본을 쓴다."""
-    _, f = voice_file(work, {"text": plain(ln["text"])}, ep["voices"][ln["who"]] + str(ep.get("speed", {}).get(ln["who"], 1.0)))
+    if ep.get("gvoices") and not ep.get("_fake"):
+        from pipeline.whatif import gvoice
+        f = gvoice.path_of(ep, work, ln)
+    else:
+        _, f = voice_file(work, {"text": plain(ln["text"])}, ep["voices"][ln["who"]] + str(ep.get("speed", {}).get(ln["who"], 1.0)))
     k = ep.get("fx", {}).get(ln["who"])
     if not k:
         return f
@@ -110,10 +118,11 @@ def timeline(ep, work):
         cuts.append(start)
         if s.get("stage"):
             stages.append(start)
+    shots[-1]["end"] = round(t + CARD, 3)   # 끝 질문 카드 뒤에도 마지막 장면이 보이게
     card = {"start": round(t, 3), "end": round(t + CARD, 3), "q": ep["card"]["q"], "s": ep["card"].get("s", "")}
     t += CARD
     tl = {"brand": ep.get("brand", ""), "hook": ep.get("hook", ""), "hookEnd": ep.get("hookEnd", 2.6), "shots": shots, "caps": caps,
-          "card": card, "total": round(t, 3), "vertical": True, "cuts": cuts, "stages": stages,
+          "card": card, "total": round(t, 3), "vertical": True, "mood": ep.get("mood", ""), "cuts": cuts, "stages": stages,
           "soft_from": next((s["start"] for s in shots if s.get("soft")), t)}
     (work / "timeline.json").write_text(json.dumps(tl, ensure_ascii=False, indent=1))
     return tl
@@ -177,6 +186,50 @@ def music(total, soft_from, seed=1):
     return x / (np.abs(x).max() + 1e-9)
 
 
+def music_mystery(total, soft_from, seed=1):
+    """살금살금 미스터리 (A단조 96bpm): 짧게 튕기는 피아노 + 째깍 하이햇 + 스타카토 베이스. soft_from 이후 = 낮은 드론 + 심장박동."""
+    rng = np.random.default_rng(seed)
+    tr = Track(total + 2)
+    beat = 60 / 96
+    bar = 4 * beat
+    prog = [("A2", ["A3", "C4", "E4"]), ("F2", ["A3", "C4", "F4"]), ("D2", ["A3", "D4", "F4"]), ("E2", ["G#3", "B3", "E4"])]
+    walk = [["A2", None, "E2", None, "A2", "C3", None, "E3"], ["F2", None, "C3", None, "F2", "A2", None, "C3"],
+            ["D2", None, "A2", None, "D2", "F2", None, "A2"], ["E2", None, "B2", None, "E2", "G#2", None, "B2"]]
+    mel = [["E5", None, "C5", None, "A4", None, None, "B4"], ["C5", None, "A4", None, "F4", None, None, None],
+           ["D5", None, "F5", None, "A5", None, "G#5", None], ["E5", None, None, None, "B4", None, "G#4", None]]
+    m = 0
+    while m * bar < total:
+        t0 = m * bar
+        root, ch = prog[m % 4]
+        soft = t0 >= soft_from
+        tr.add(pad([hz(c) for c in ch], bar + .4, .22 if soft else .12), t0)
+        if soft:
+            tr.add(bass(hz(root) / 2, bar, .35), t0)
+            for k in (0, 2):
+                tr.add(kick(.3) * .5, t0 + k * beat)
+                tr.add(kick(.25) * .3, t0 + k * beat + .22)
+        for k in range(8):
+            tt = t0 + k * beat / 2
+            if not soft:
+                n = walk[m % 4][k]
+                if n:
+                    tr.add(bass(hz(n), beat * .3, .4), tt)
+                tr.add(clap(rng, .03) * .05, tt)
+                if m >= 1 and mel[m % 4][k]:
+                    tr.add(epiano(hz(mel[m % 4][k]), beat * .3, .09), tt)
+            elif mel[m % 4][k] and k % 4 == 0:
+                tr.add(bell(hz(mel[m % 4][k]), beat * 2, .05), tt)
+        m += 1
+    x = reverb(tr.x, 1.8, .3)[:int(total * SR)]
+    return x / (np.abs(x).max() + 1e-9)
+
+
+def boom(n_s=1.6):
+    tt = _t(n_s)
+    f = 38 + 60 * np.exp(-tt * 6)
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 2.2)
+
+
 def mix(tl, work):
     total = tl["total"]
     N = int(total * SR)
@@ -187,7 +240,7 @@ def mix(tl, work):
             v = v / (np.abs(v).max() + 1e-9) * .9
             i = int(c["start"] * SR)
             voice[i:i + len(v)] += v[:max(0, N - i)]
-    mus = music(total, tl["soft_from"])
+    mus = (music_mystery if tl.get("mood") == "mystery" else music)(total, tl["soft_from"])
     speak = (np.abs(voice) > .02).astype(float)
     duck = np.convolve(speak, np.ones(int(SR * .3)) / (SR * .3), "same")
     mus = mus * .32 * (1 - .55 * np.clip(duck * 3, 0, 1))
@@ -202,6 +255,9 @@ def mix(tl, work):
         b = b1[:min(len(b1), len(b2))] + b2[:min(len(b1), len(b2))]
         i = int(s * SR)
         sfx[i:i + len(b)] += b[:N - i] * .5
+        if tl.get("mood") == "mystery":
+            w = boom()
+            sfx[i:i + len(w)] += w[:N - i] * .7
     i = int(tl["card"]["start"] * SR)
     b = bell(hz("E5"), .5, .3)
     sfx[i:i + len(b)] += b[:N - i] * .4
@@ -242,6 +298,7 @@ def main():
     ap.add_argument("--no-render", action="store_true")
     a = ap.parse_args()
     ep = json.loads(Path(a.episode).read_text())
+    ep["_fake"] = a.fake_tts
     work = Path(a.work)
     work.mkdir(parents=True, exist_ok=True)
     make_voices(ep, work, a.fake_tts)

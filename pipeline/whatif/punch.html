@@ -24,13 +24,20 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 #cap.dog{color:#ffe2b8}
 #who{position:absolute;left:50%;top:1340px;transform:translateX(-50%);font-family:Gothic;font-size:40px;color:#fff;background:#e8914a;padding:6px 22px;border-radius:30px;opacity:0;white-space:nowrap}
 #brand{position:absolute;right:36px;top:64px;font-family:Gothic;font-size:34px;color:#fff;opacity:.85;paint-order:stroke fill;-webkit-text-stroke:6px rgba(0,0,0,.6)}
+#cctv{position:absolute;inset:0;pointer-events:none;opacity:0;font-family:Gothic;color:#e8ffe8;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 3px,rgba(0,0,0,0) 3px 7px),radial-gradient(ellipse at center,rgba(0,0,0,0) 45%,rgba(0,0,0,.7) 100%)}
+#cctv .ts{position:absolute;left:48px;bottom:120px;font-size:52px;letter-spacing:2px;text-shadow:0 0 8px #000}
+#cctv .rec{position:absolute;right:48px;top:150px;font-size:56px;color:#ff4a3a;text-shadow:0 0 8px #000}
+#cctv .cam{position:absolute;left:48px;top:150px;font-size:48px;text-shadow:0 0 8px #000}
 #card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,8,6,.72);opacity:0}
 #card .q{font-family:Gothic;font-size:96px;line-height:1.25;color:#fff;text-align:center;word-break:keep-all;paint-order:stroke fill;-webkit-text-stroke:14px #000;padding:0 50px}
+#card b{color:#ffd23f;font-weight:inherit}
 #card .s{margin-top:60px;font-family:Gothic;font-size:44px;color:#1a1208;background:#ffd23f;padding:14px 36px;border-radius:20px}
 </style></head>
 <body><div id="stage">
 <div id="shots"></div>
 <div id="vig"></div><div id="topfade"></div>
+<div id="cctv"><div class="cam"></div><div class="rec">● REC</div><div class="ts"></div></div>
 <div id="flash"></div>
 <div id="bar"></div><div id="tag"></div><div id="brand"></div>
 <div id="stamp"></div>
@@ -39,6 +46,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 <div id="card"><div class="q"></div><div class="s"></div></div>
 </div>
 <script src="art.js"></script>
+<script src="apt.js"></script>
 <script>
 // TIMELINE = {brand, hook, shots:[{scene|img, o, start, end, cam:[cx,cy,w], cam2, kb:[z0,z1,dx,dy], stage}], caps:[{who,name,text,start,end}], card:{start,end,q,s}, total}
 const TL = window.TIMELINE, L = window.SCENE_LIBRARY;
@@ -92,6 +100,16 @@ window.render = function (t) {
   window.SPEAK = sp ? sp.who : null;
   TL.shots.forEach((s, i) => { const d = built.get(i); if (d && !s.img && L[s.scene].tick) L[s.scene].tick(d, t, 0, s.o || {}); });
 
+  // CCTV 화면 (shot.cctv = {cam, ts:[시,분,초]})
+  const cc = $('cctv'), cs = cur && cur.cctv;
+  cc.style.opacity = cs ? 1 : 0;
+  $('shots').style.filter = cs ? 'grayscale(.75) sepia(.35) hue-rotate(60deg) contrast(1.15) brightness(1.05)' : '';
+  if (cs) {
+    const sec = cs.ts[2] + Math.floor(t - cur.start), pad = n => String(n).padStart(2, '0');
+    cc.querySelector('.cam').textContent = cs.cam || 'CAM 05';
+    cc.querySelector('.ts').textContent = `2026-11-25  ${pad(cs.ts[0])}:${pad(cs.ts[1])}:${pad(sec)}`;
+    cc.querySelector('.rec').style.opacity = (t % 1) < .6 ? 1 : .2;
+  }
   // 컷 순간 하얀 번쩍 (단계가 바뀔 때만)
   const st = STG.findLast ? STG.findLast(x => t >= x[1]) : [...STG].reverse().find(x => t >= x[1]);
   const sinceSt = st ? t - st[1] : 99;

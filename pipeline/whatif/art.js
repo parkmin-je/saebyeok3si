@@ -22,6 +22,7 @@ function dog2(id, o = {}) {
   <g id="${id}-tail" transform="translate(-150 -120)">
    <path d="M0 0 q-120 -30 -100 -190 q30 -70 80 -30 q40 40 -10 90 q-20 40 50 110z" fill="url(#${id}b)"/>
    <path d="M-88 -196 q30 -40 66 -14 q-30 4 -40 40z" fill="${cream}"/></g>
+  ${o.bag ? `<g transform="translate(-150 -330) rotate(-10)"><rect x="-70" y="-20" width="150" height="190" rx="40" fill="${o.bag}"/><rect x="-52" y="60" width="114" height="70" rx="20" fill="#000" opacity=".18"/><path d="M-50 10 q60 -40 120 0" stroke="#fff" stroke-width="8" fill="none" opacity=".5"/></g>` : ''}
   <path d="M-200 0 q-50 -250 70 -330 q120 -70 230 10 q90 80 60 320z" fill="url(#${id}b)"/>
   <path d="M-30 -320 q130 20 130 180 q0 110 -50 140 h-150 q-50 -170 70 -320z" fill="url(#${id}c)"/>
   <path d="M-10 -300 l20 30 l18 -26 l14 34 l20 -24" stroke="${cream}" stroke-width="10" fill="none" stroke-linejoin="round"/>
@@ -30,6 +31,7 @@ function dog2(id, o = {}) {
   <g stroke="${fur2}" stroke-width="4" opacity=".5"><path d="M-24 -6 v-10 M-6 -6 v-12 M10 -6 v-10 M66 -6 v-10 M84 -6 v-12 M100 -6 v-10"/></g>
   ${o.vest ? `<path d="M-170 -290 q130 -50 260 0 l14 170 h-288z" fill="${o.vest}"/><rect x="-110" y="-250" width="150" height="56" rx="10" fill="#ffd84a"/>
    <path d="M-170 -290 q130 -50 260 0" stroke="#fff" stroke-width="8" fill="none" opacity=".6"/>` : ''}
+  ${o.bag ? `<path d="M-150 -320 q60 120 40 260 M120 -300 q-30 120 0 250" stroke="${o.bag}" stroke-width="22" fill="none" stroke-linecap="round"/>` : ''}
   ${o.cape ? `<path d="M-180 -300 q140 -40 270 10 l60 280 q-200 30 -380 -10z" fill="${o.cape}" opacity=".95"/>` : ''}
   <path d="M-90 -300 q130 50 250 -16" stroke="#c8302a" stroke-width="26" fill="none" stroke-linecap="round"/>
   <path d="M-90 -306 q130 46 250 -20" stroke="#ff6a5a" stroke-width="6" fill="none" stroke-linecap="round" opacity=".7"/>
@@ -57,6 +59,7 @@ function dog2(id, o = {}) {
     <ellipse cx="0" cy="40" rx="26" ry="16" fill="#ff7a86"/></g>
    <path d="M10 70 v14 M10 84 q-30 18 -54 -4 M10 84 q30 18 54 -4" stroke="#3a2016" stroke-width="7" fill="none" stroke-linecap="round"/>
    ${o.headset ? `<path d="M-200 -20 q0 -230 200 -230 q200 0 200 230" stroke="#2a2a3a" stroke-width="26" fill="none"/><rect x="-232" y="-40" width="60" height="110" rx="24" fill="#3a3a5a"/><rect x="172" y="-40" width="60" height="110" rx="24" fill="#3a3a5a"/>` : ''}
+   ${o.bow ? `<g transform="translate(-110 -150) rotate(-20)"><path d="M0 0 l-70 -40 q-20 40 0 80z M0 0 l70 -40 q20 40 0 80z" fill="${o.bow}"/><circle r="20" fill="${o.bow}"/><circle cx="-6" cy="-6" r="7" fill="#fff" opacity=".6"/></g>` : ''}
    ${o.lamp ? `<rect x="-90" y="-176" width="180" height="40" rx="14" fill="#2a2a2a"/><circle cx="0" cy="-160" r="26" fill="#fff8c0"/>` : ''}
   </g>
  </g>`;
@@ -107,9 +110,11 @@ function human(id, o = {}) {
   <g fill="url(#${id}k)">${hands}</g>
   <rect x="-34" y="-700" width="68" height="70" fill="${skin}"/>
   <g id="${id}-head" transform="translate(0 -820)">
-   <path d="M-150 -20 q-20 -170 150 -180 q170 10 150 180 l10 150 q-40 20 -60 -10 l-10 -90 h-180 l-10 90 q-20 30 -60 10z" fill="${hair}"/>
+   ${o.short ? `<path d="M-132 0 q-10 -160 132 -164 q142 4 132 164 l-10 20 h-244z" fill="${hair}"/><ellipse cx="-128" cy="20" rx="26" ry="36" fill="${skin}"/><ellipse cx="128" cy="20" rx="26" ry="36" fill="${skin}"/>` : `<path d="M-150 -20 q-20 -170 150 -180 q170 10 150 180 l10 150 q-40 20 -60 -10 l-10 -90 h-180 l-10 90 q-20 30 -60 10z" fill="${hair}"/>`}
    <ellipse cx="0" cy="0" rx="124" ry="140" fill="url(#${id}k)"/>
    <path d="M-128 -30 q10 -130 128 -136 q118 6 128 136 q-60 -70 -128 -76 q-70 6 -128 76z" fill="${hair}"/>
+   ${o.cap ? `<path d="M-140 -60 q0 -130 140 -130 q140 0 140 130z" fill="${o.cap}"/><path d="M-150 -60 h300 q20 0 10 20 h-320 q-10 -20 10 -20z" fill="#1a2238"/><path d="M-40 -60 q40 34 160 14 q-40 -10 -60 -14z" fill="#141a2c"/><g transform="translate(0 -120)"><path d="M0 -26 l22 10 v20 q0 20 -22 28 q-22 -8 -22 -28 v-20z" fill="#f2c24a"/></g>` : ''}
+   ${o.stache ? `<path d="M-60 36 q30 -24 60 -4 q30 -20 60 4 q-30 20 -60 6 q-30 14 -60 -6z" fill="${o.hair || '#2a2228'}"/>` : ''}
    ${o.gray ? `<path d="M-60 -150 q60 -20 120 0" stroke="#bdb6b0" stroke-width="12" fill="none" opacity=".8"/>` : ''}
    ${eyes}
    <ellipse cx="-80" cy="40" rx="24" ry="13" fill="#ff8a8a" opacity=".4"/><ellipse cx="80" cy="40" rx="24" ry="13" fill="#ff8a8a" opacity=".4"/>
