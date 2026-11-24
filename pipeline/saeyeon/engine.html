@@ -121,7 +121,7 @@ window.render = function (t) {
   if (c) {
     card.querySelector('.kicker').textContent = c.kicker || '';
     card.querySelector('.main').innerHTML = c.main || '';
-    card.querySelector('.s').textContent = c.s || '';
+    card.querySelector('.s').innerHTML = c.s || '';
     const o = clamp((t - c.start) / .8) * clamp((c.end - t) / .8);
     card.style.opacity = o;
     card.querySelector('.rule').style.width = ease(clamp((t - c.start - .5) / 1.6)) * 420 + 'px';

@@ -40,8 +40,9 @@ def pieces(text, short=46, long=60):
     """긴 낭독 한 덩어리를 자막 두세 줄 크기로 나눈다 (문장 → 너무 길면 쉼표)."""
     out = []
     for sen in re.split(r"(?<=[.?!…])\s+", text.strip()):
-        if len(sen) > long and ", " in sen:
-            cut = min((m.start() for m in re.finditer(", ", sen)), key=lambda i: abs(i - len(sen) / 2)) + 1
+        cuts = [m.start() for m in re.finditer(", ", sen) if 8 <= m.start() <= len(sen) - 9]
+        if len(sen) > long and cuts:
+            cut = min(cuts, key=lambda i: abs(i - len(sen) / 2)) + 1
             parts = [sen[:cut].strip(), sen[cut:].strip()]
         else:
             parts = [sen]
