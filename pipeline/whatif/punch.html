@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Gothic;src:url(../../assets/fonts/NanumSquareEB.ttf)}
+@font-face{font-family:Myeongjo;src:url(../../assets/fonts/NanumMyeongjoBold.ttf)}
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+#shots{position:absolute;inset:0;z-index:0}
+.shot{position:absolute;inset:0;overflow:hidden}
+.shot svg{position:absolute;inset:0;width:1080px;height:1920px}
+.shot img{position:absolute;left:0;top:0;width:1080px;height:1920px;object-fit:cover;transform-origin:50% 50%}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 60%,rgba(0,0,0,.45) 100%)}
+#topfade{position:absolute;left:0;right:0;top:0;height:420px;background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0));pointer-events:none}
+#hook{position:absolute;left:40px;right:40px;top:250px;text-align:center;font-family:Gothic;font-size:104px;line-height:1.18;color:#fff;
+  paint-order:stroke fill;-webkit-text-stroke:16px #000;letter-spacing:-2px;word-break:keep-all;opacity:0}
+#hook b,#cap b{color:#ffd23f;font-weight:inherit}
+#bar{position:absolute;left:0;top:0;height:12px;background:#ffd23f;width:0}
+#stamp{position:absolute;left:50%;top:190px;transform:translateX(-50%);font-family:Gothic;font-size:96px;color:#1a1208;background:#ffd23f;
+  padding:14px 44px;border-radius:24px;box-shadow:0 12px 0 #b8901a,0 20px 40px rgba(0,0,0,.4);opacity:0;white-space:nowrap}
+#tag{position:absolute;left:36px;top:60px;font-family:Gothic;font-size:44px;color:#1a1208;background:#ffd23f;padding:8px 22px;border-radius:14px;opacity:0}
+#cap{position:absolute;left:50px;right:50px;top:1420px;text-align:center;font-family:Gothic;font-size:92px;line-height:1.2;color:#fff;
+  paint-order:stroke fill;-webkit-text-stroke:15px #000;letter-spacing:-2px;word-break:keep-all}
+#cap.dog{color:#ffe2b8}
+#who{position:absolute;left:50%;top:1340px;transform:translateX(-50%);font-family:Gothic;font-size:40px;color:#fff;background:#e8914a;padding:6px 22px;border-radius:30px;opacity:0;white-space:nowrap}
+#brand{position:absolute;right:36px;top:64px;font-family:Gothic;font-size:34px;color:#fff;opacity:.85;paint-order:stroke fill;-webkit-text-stroke:6px rgba(0,0,0,.6)}
+#cctv{position:absolute;inset:0;pointer-events:none;opacity:0;font-family:Gothic;color:#e8ffe8;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 3px,rgba(0,0,0,0) 3px 7px),radial-gradient(ellipse at center,rgba(0,0,0,0) 45%,rgba(0,0,0,.7) 100%)}
+#cctv .ts{position:absolute;left:48px;bottom:120px;font-size:52px;letter-spacing:2px;text-shadow:0 0 8px #000}
+#cctv .rec{position:absolute;right:48px;top:150px;font-size:56px;color:#ff4a3a;text-shadow:0 0 8px #000}
+#cctv .cam{position:absolute;left:48px;top:150px;font-size:48px;text-shadow:0 0 8px #000}
+#grain{position:absolute;inset:0;width:1080px;height:1920px;opacity:.10;mix-blend-mode:overlay;pointer-events:none;image-rendering:pixelated}
+#bokeh{position:absolute;inset:0;pointer-events:none;opacity:0}
+#bokeh i{position:absolute;border-radius:50%;filter:blur(22px);mix-blend-mode:screen}
+#card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,8,6,.72);opacity:0}
+#card .q{font-family:Gothic;font-size:96px;line-height:1.25;color:#fff;text-align:center;word-break:keep-all;paint-order:stroke fill;-webkit-text-stroke:14px #000;padding:0 50px}
+#card b{color:#ffd23f;font-weight:inherit}
+#card .s{margin-top:60px;font-family:Gothic;font-size:44px;color:#1a1208;background:#ffd23f;padding:14px 36px;border-radius:20px}
+</style></head>
+<body><div id="stage">
+<div id="shots"></div>
+<div id="bokeh"></div><div id="vig"></div><canvas id="grain" width="360" height="640"></canvas><div id="topfade"></div>
+<div id="cctv"><div class="cam"></div><div class="rec">● REC</div><div class="ts"></div></div>
+<div id="flash"></div>
+<div id="bar"></div><div id="tag"></div><div id="brand"></div>
+<div id="stamp"></div>
+<div id="hook"></div>
+<div id="who"></div><div id="cap"></div>
+<div id="card"><div class="q"></div><div class="s"></div></div>
+</div>
+<script src="art.js"></script>
+<script src="apt.js"></script>
+<script src="jobs.js"></script>
+<script src="office.js"></script>
+<script>
+// TIMELINE = {brand, hook, shots:[{scene|img, o, start, end, cam:[cx,cy,w], cam2, kb:[z0,z1,dx,dy], stage}], caps:[{who,name,text,start,end}], card:{start,end,q,s}, total}
+const TL = window.TIMELINE, L = window.SCENE_LIBRARY;
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const back = x => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const mark = s => s.replace(/\*([^*]+)\*/g, '<b>$1</b>');
+$('brand').textContent = TL.brand || '';
+$('hook').innerHTML = mark(TL.hook || '').replace(/\|/g, '<br>');
+const STG = TL.shots.filter(s => s.stage).filter((s, i, a) => a.findIndex(x => x.stage === s.stage) === i).map(s => [s.stage, s.start]);
+
+const built = new Map();
+const BK = Array.from({length: 9}, (_, i) => { const e = document.createElement('i'); $('bokeh').appendChild(e); return e; });
+const gctx = $('grain').getContext('2d'), gimg = gctx.createImageData(360, 640);
+function grain(t) {   // 프레임마다 다른 필름 입자 (같은 t면 같은 무늬)
+  let x = (Math.floor(t * 30) * 2654435761) >>> 0;
+  const d = gimg.data;
+  for (let i = 0; i < d.length; i += 4) { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; const v = 128 + ((x >>> 0) % 120) - 60; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+  gctx.putImageData(gimg, 0, 0);
+}
+function mount(i) {
+  if (built.has(i)) return built.get(i);
+  const s = TL.shots[i], px = `s${i}-`, d = document.createElement('div');
+  d.className = 'shot'; d.dataset.px = px;
+  if (s.img) d.innerHTML = `<img src="${s.img}">`;
+  else {
+    let svg = L[s.scene].build(s.o || {});
+    svg = svg.replace(/id="([^"]+)"/g, `id="${px}$1"`).replace(/url\(#([^)]+)\)/g, `url(#${px}$1)`);
+    d.innerHTML = `<svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">${svg}</svg>`;
+  }
+  $('shots').appendChild(d); built.set(i, d); return d;
+}
+function unmount(i) { const d = built.get(i); if (d) { d.remove(); built.delete(i); } }
+
+window.render = function (t) {
+  let cur = null;
+  TL.shots.forEach((s, i) => {
+    const vis = t >= s.start - .001 && t < s.end + (s.xf || 0);
+    if (!vis) return unmount(i);
+    const d = mount(i); cur = cur || (t < s.end ? s : null);
+    if (t >= s.start && t < s.end) cur = s;
+    d.style.zIndex = i;
+    d.style.opacity = s.xf && t > s.end ? clamp(1 - (t - s.end) / s.xf) : 1;
+    const p = clamp((t - s.start) / Math.max(.1, s.end - s.start)), e = ease(p);
+    const punch = 1 + .06 * (1 - clamp((t - s.start) / .22));   // 컷이 바뀔 때 살짝 튀어 들어옴
+    const shake = s.shake ? Math.sin(t * 50) * s.shake * (1 - p) : 0;
+    if (s.img) {
+      const [z0, z1, dx, dy] = s.kb || [1.05, 1.18, 0, 0];
+      d.firstChild.style.transform = `translate(${dx * e + shake}px,${dy * e}px) scale(${(z0 + (z1 - z0) * e) * punch})`;
+    } else {
+      const c0 = s.cam || [1020, 700, 1100], c1 = s.cam2 || [c0[0], c0[1], c0[2] * .9];
+      const w = (c0[2] + (c1[2] - c0[2]) * e) / punch, cx = c0[0] + (c1[0] - c0[0]) * e + shake, cy = c0[1] + (c1[1] - c0[1]) * e;
+      const h = w * 1920 / 1080;
+      d.firstChild.setAttribute('viewBox', `${cx - w / 2} ${cy - h / 2} ${w} ${h}`);
+    }
+  });
+  const sp = TL.caps.find(c => t >= c.start && t <= c.end + .05);
+  window.SPEAK = sp ? sp.who : null;
+  TL.shots.forEach((s, i) => { const d = built.get(i); if (d && !s.img && L[s.scene].tick) L[s.scene].tick(d, t, t - s.start, s.o || {}); });
+
+  grain(t);
+  // 앞쪽 흐린 빛망울 (shot.bokeh = 색) : 깊이감
+  const bk = $('bokeh'), bc = cur && cur.bokeh;
+  bk.style.opacity = bc ? .55 : 0;
+  if (bc) BK.forEach((e, i) => {
+    const r = 120 + (i * 53) % 160, x = ((i * 397) % 1180) - 50 + Math.sin(t * .3 + i) * 40, y = (i % 2 ? 80 + (i * 131) % 360 : 1500 + (i * 89) % 380) + Math.cos(t * .25 + i) * 30;
+    e.style.cssText = `left:${x}px;top:${y}px;width:${r}px;height:${r}px;background:radial-gradient(circle,${bc} 0,${bc}88 45%,transparent 70%);opacity:${.5 + (i % 3) * .2}`;
+  });
+  // CCTV 화면 (shot.cctv = {cam, ts:[시,분,초]})
+  const cc = $('cctv'), cs = cur && cur.cctv;
+  cc.style.opacity = cs ? 1 : 0;
+  $('shots').style.filter = cs ? 'grayscale(.75) sepia(.35) hue-rotate(60deg) contrast(1.15) brightness(1.05)' : 'contrast(1.06) saturate(1.12)';
+  if (cs) {
+    const sec = cs.ts[2] + Math.floor(t - cur.start), pad = n => String(n).padStart(2, '0');
+    cc.querySelector('.cam').textContent = cs.cam || 'CAM 05';
+    cc.querySelector('.ts').textContent = `2026-11-25  ${pad(cs.ts[0])}:${pad(cs.ts[1])}:${pad(sec)}`;
+    cc.querySelector('.rec').style.opacity = (t % 1) < .6 ? 1 : .2;
+  }
+  // 컷 순간 하얀 번쩍 (단계가 바뀔 때만)
+  const st = STG.findLast ? STG.findLast(x => t >= x[1]) : [...STG].reverse().find(x => t >= x[1]);
+  const sinceSt = st ? t - st[1] : 99;
+  $('flash').style.opacity = st && sinceSt < .25 ? .55 * (1 - sinceSt / .25) : 0;
+  // 단계 도장: 크게 튀어나왔다가 1.2초 뒤 왼쪽 위 작은 태그로
+  const stamp = $('stamp'), tag = $('tag');
+  const inCard = TL.card && t >= TL.card.start;
+  if (st && !inCard) {
+    stamp.textContent = st[0]; tag.textContent = st[0];
+    const a = clamp(sinceSt / .3), out = clamp((sinceSt - 1.1) / .2);
+    stamp.style.opacity = a * (1 - out);
+    stamp.style.transform = `translateX(-50%) scale(${.3 + .7 * back(a)}) rotate(${-4 + 4 * a}deg)`;
+    tag.style.opacity = out;
+  } else { stamp.style.opacity = 0; tag.style.opacity = 0; }
+  // 진행 막대
+  $('bar').style.width = clamp(t / (TL.card ? TL.card.start : TL.total)) * 1080 + 'px';
+  // 첫 화면 질문
+  const hk = $('hook'), ht = TL.hookEnd || 2.6;
+  hk.style.opacity = t < ht ? clamp(t / .15) * clamp((ht - t) / .25) : 0;
+  hk.style.transform = `scale(${.85 + .15 * back(clamp(t / .3))})`;
+  // 자막: 짧은 덩어리가 하나씩 튀어나옴
+  const cap = $('cap'), who = $('who');
+  if (sp && !inCard) {
+    cap.innerHTML = mark(sp.text); cap.className = sp.who === 'nar' ? '' : 'dog';
+    const a = clamp((t - sp.start) / .12);
+    cap.style.opacity = a; cap.style.transform = `scale(${.8 + .2 * back(a)})`;
+    if (sp.who !== 'nar' && sp.name) { who.textContent = sp.name; who.style.opacity = 1; } else who.style.opacity = 0;
+  } else { cap.style.opacity = 0; who.style.opacity = 0; }
+  // 끝 질문 카드
+  const card = $('card');
+  if (inCard) {
+    card.querySelector('.q').innerHTML = mark(TL.card.q).replace(/\|/g, '<br>');
+    card.querySelector('.s').textContent = TL.card.s || '';
+    const a = clamp((t - TL.card.start) / .3);
+    card.style.opacity = a; card.querySelector('.q').style.transform = `scale(${.7 + .3 * back(a)})`;
+  } else card.style.opacity = 0;
+  $('brand').style.opacity = inCard ? 0 : .85;
+};
+</script></body></html>

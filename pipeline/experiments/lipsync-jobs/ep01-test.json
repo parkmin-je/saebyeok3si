@@ -1,0 +1,6 @@
+{
+ "items": [
+  {"name": "s09-eolmamyeon", "video": "eo:runs/enhance-45285397430/s09-doyoon-close-hq.mp4", "audio": "episodes/ep01/voice/07-eolmamyeon.wav", "lead": 0.15},
+  {"name": "s02-mureonae", "video": "eo:runs/enhance-45205841101/s02-seojin-shock-hq.mp4", "audio": "episodes/ep01/voice/05-mureonae.wav", "lead": 0.15, "rev": 2}
+ ]
+}

@@ -1,0 +1,40 @@
+name: space-episode
+# 무료 Hugging Face Space(ZeroGPU)로 에피소드 컷 만들기: 스틸(Qwen-Image-Edit) → 영상(Wan 2.2). 컷마다 바로 experiment-output에 올림.
+on:
+  push:
+    branches: [feat/sample-video-veo]
+    paths: [pipeline/experiments/space-jobs/**]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: "space-${{ github.sha }}", cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q gradio_client pillow
+      - name: Generate
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
+          J=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- pipeline/experiments/space-jobs | head -1)
+          [ -z "$J" ] && J=$(git log -1 --name-only --format= -- pipeline/experiments/space-jobs | head -1)
+          echo "jobs=$J"
+          git fetch -q origin experiment-output && git worktree add -q -B eo-work /tmp/eo origin/experiment-output
+          python - "$J" <<'PY'
+          import json, sys
+          spec = json.load(open(sys.argv[1]))
+          for s in spec["shots"]:
+              if s.get("still") == "auto": s.pop("still")
+              for k in ("ref", "still"):
+                  if s.get(k) and not s[k].startswith("/"): s[k] = "/tmp/eo/" + s[k]
+              if s.get("refs"): s["refs"] = [x if x.startswith("/") else "/tmp/eo/" + x for x in s["refs"]]
+          json.dump(spec, open("/tmp/job.json", "w"))
+          PY
+          python pipeline/experiments/space_runner.py /tmp/job.json out/space-${{ github.run_id }} /tmp/eo "$(python -c "import json,sys;print(json.load(open(sys.argv[1])).get('only',''))" "$J")"

@@ -1,0 +1,35 @@
+name: enhance-clips
+# 무료 CPU로 생성 컷 화질 올리기 (Real-ESRGAN 4배 + GFPGAN 얼굴). 입력: pipeline/experiments/enhance-jobs/<이름>.json {"clips": [experiment-output 경로...]}
+on:
+  push:
+    branches: [feat/sample-video-veo]
+    paths: [pipeline/experiments/enhance-jobs/**]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: "enhance-${{ github.sha }}", cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -q spandrel "opencv-python-headless<5" "numpy<2.4"
+      - name: Enhance
+        run: |
+          git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
+          J=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- pipeline/experiments/enhance-jobs | head -1)
+          [ -z "$J" ] && J=$(git log -1 --name-only --format= -- pipeline/experiments/enhance-jobs | head -1)
+          git fetch -q origin experiment-output && git worktree add -q -B eo-work /tmp/eo origin/experiment-output
+          OUT=/tmp/eo/runs/enhance-${{ github.run_id }}; mkdir -p $OUT
+          for c in $(python -c "import json,sys;print(' '.join(json.load(open(sys.argv[1]))['clips']))" "$J"); do
+            n=$(basename $c .mp4)
+            python pipeline/experiments/enhance_clips.py /tmp/eo/$c $OUT/$n-hq.mp4 || echo "실패 $c"
+            (cd /tmp/eo && git add runs && git commit -qm "enhance $n" && for k in 1 2 3; do git pull -q --rebase origin experiment-output && git push -q origin HEAD:experiment-output && break; done) || true
+          done

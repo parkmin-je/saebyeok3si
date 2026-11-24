@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Myeongjo;src:url(file:///home/user/retro-romance-shorts/assets/fonts/NanumMyeongjoBold.ttf)}
+@font-face{font-family:Gothic;src:url(file:///home/user/retro-romance-shorts/assets/fonts/NanumGothicExtraBold.ttf)}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#1b1410}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden}
+.scene{position:absolute;inset:0;opacity:0}
+.scene svg{position:absolute;inset:-60px;width:2040px;height:1200px}
+#grain{position:absolute;inset:0;pointer-events:none;opacity:.10;mix-blend-mode:overlay}
+#vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(0,0,0,.55) 100%)}
+#sub{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);max-width:1500px;padding:26px 54px;border-radius:18px;
+  background:rgba(20,14,10,.72);color:#fff8ec;font-family:Myeongjo;font-size:58px;line-height:1.38;text-align:center;
+  letter-spacing:-.5px;text-wrap:balance;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;word-break:keep-all}
+#sub .who{display:block;font-family:Gothic;font-size:30px;color:#f2c27b;margin-bottom:6px;letter-spacing:1px}
+#sub.quote{background:rgba(64,38,18,.80);border:2px solid rgba(242,194,123,.6)}
+#chapter{position:absolute;top:56px;left:70px;font-family:Gothic;font-size:30px;color:#f6e3c4;letter-spacing:3px;opacity:0;
+  padding:10px 22px;border-left:6px solid #e0a458;background:rgba(0,0,0,.25)}
+#title{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;
+  background:radial-gradient(ellipse at center,#3a2a1c 0%,#160f0a 75%)}
+#title .kicker{font-family:Gothic;font-size:36px;color:#e0a458;letter-spacing:8px;margin-bottom:34px}
+#title .main{font-family:Myeongjo;font-size:104px;color:#fff3dd;text-align:center;line-height:1.3;word-break:keep-all}
+#title .rule{width:0;height:4px;background:#e0a458;margin-top:44px}
+#endcard{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;
+  background:radial-gradient(ellipse at center,#2f2216 0%,#120c08 80%)}
+#endcard .q{font-family:Myeongjo;font-size:76px;color:#fff3dd;text-align:center;line-height:1.45;word-break:keep-all}
+#endcard .s{font-family:Gothic;font-size:34px;color:#e0a458;margin-top:50px;letter-spacing:2px}
+</style></head>
+<body><div id="stage">
+
+<!-- 1. 저녁 시장 골목 -->
+<div class="scene" id="alley"><svg viewBox="0 0 2040 1200">
+ <defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2140"/><stop offset=".55" stop-color="#b0574a"/><stop offset="1" stop-color="#f0a35e"/></linearGradient>
+  <radialGradient id="lampglow"><stop offset="0" stop-color="#ffd890" stop-opacity=".9"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+  <linearGradient id="win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe2a3"/><stop offset="1" stop-color="#f2a65a"/></linearGradient>
+ </defs>
+ <rect width="2040" height="1200" fill="url(#sky)"/>
+ <g id="far" fill="#3b2a35" opacity=".85">
+  <rect x="0" y="420" width="260" height="500"/><rect x="250" y="360" width="200" height="560"/><rect x="1580" y="380" width="230" height="540"/><rect x="1800" y="430" width="260" height="500"/>
+  <rect x="300" y="330" width="14" height="40"/><path d="M1580 380 L1695 330 L1810 380Z"/>
+ </g>
+ <g id="near">
+  <path d="M0 300 L560 470 L560 1200 L0 1200Z" fill="#231722"/>
+  <path d="M2040 300 L1480 470 L1480 1200 L2040 1200Z" fill="#231722"/>
+  <path d="M560 470 L1480 470 L1480 1200 L560 1200Z" fill="#2c1e1c"/>
+  <path d="M560 1200 L860 760 L1180 760 L1480 1200Z" fill="#4a3528"/>
+  <g stroke="#1a1015" stroke-width="5" opacity=".7"><line x1="0" y1="250" x2="2040" y2="210"/><line x1="0" y1="275" x2="2040" y2="300"/></g>
+  <!-- 시계방 -->
+  <rect x="780" y="520" width="480" height="300" fill="#3a2620"/>
+  <rect x="820" y="560" width="250" height="200" fill="url(#win)"/>
+  <g stroke="#3a2620" stroke-width="8"><line x1="945" y1="560" x2="945" y2="760"/><line x1="820" y1="660" x2="1070" y2="660"/></g>
+  <circle cx="880" cy="615" r="28" fill="none" stroke="#7a4a2a" stroke-width="6"/><circle cx="1010" cy="710" r="22" fill="none" stroke="#7a4a2a" stroke-width="5"/>
+  <rect x="1100" y="580" width="120" height="240" fill="#21150f"/><rect x="1100" y="580" width="120" height="240" fill="url(#win)" opacity=".25"/>
+  <rect x="800" y="480" width="440" height="50" fill="#5a3a26"/>
+  <text x="1020" y="518" font-family="Gothic" font-size="34" fill="#f6dfb5" text-anchor="middle" letter-spacing="10">시 계 수 리</text>
+  <!-- 걸린 등 -->
+  <g id="lamp"><line x1="1290" y1="210" x2="1290" y2="430" stroke="#1a1015" stroke-width="4"/>
+   <circle cx="1290" cy="460" r="200" fill="url(#lampglow)"/><path d="M1255 430 h70 l-12 55 h-46z" fill="#ffcf7a"/></g>
+  <circle cx="700" cy="420" r="150" fill="url(#lampglow)" opacity=".6"/>
+  <!-- 사람 실루엣: 시계방으로 걸어가는 노신사 -->
+  <g id="walker" fill="#120b0e"><ellipse cx="0" cy="-205" rx="26" ry="30"/><path d="M-30 -250 q30 -24 60 0 v8 h-60z"/>
+   <path d="M-42 -172 q42 -18 84 0 l14 170 h-112z"/><rect x="-34" y="-4" width="24" height="96"/><rect x="10" y="-4" width="24" height="96"/></g>
+ </g>
+</svg></div>
+
+<!-- 2. 손목시계 클로즈업 -->
+<div class="scene" id="watch"><svg viewBox="0 0 2040 1200">
+ <defs>
+  <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b4226"/><stop offset="1" stop-color="#3b2314"/></linearGradient>
+  <radialGradient id="face" cx=".45" cy=".4"><stop offset="0" stop-color="#fffaf0"/><stop offset="1" stop-color="#e7d9bd"/></radialGradient>
+  <radialGradient id="spot" cx=".5" cy=".45"><stop offset="0" stop-color="#fff0c8" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5d48a"/><stop offset=".5" stop-color="#b88a3e"/><stop offset="1" stop-color="#f0cf86"/></linearGradient>
+ </defs>
+ <rect width="2040" height="1200" fill="url(#wood)"/>
+ <g stroke="#2e1a0e" stroke-width="3" opacity=".35"><path d="M0 200 q500 40 1020 0 t1020 10"/><path d="M0 520 q600 -30 1100 10 t940 -20"/><path d="M0 900 q500 30 1000 -10 t1040 20"/></g>
+ <rect width="2040" height="1200" fill="url(#spot)"/>
+ <g transform="translate(1020 520) scale(.78)">
+  <path d="M-150 -560 h300 l-20 330 h-260z" fill="#4a2b1a"/><path d="M-150 560 h300 l-20 -330 h-260z" fill="#4a2b1a"/>
+  <g stroke="#6b4129" stroke-width="3" opacity=".7"><line x1="-125" y1="-520" x2="125" y2="-520"/><line x1="-125" y1="520" x2="125" y2="520"/></g>
+  <circle r="300" fill="url(#gold)"/><circle r="268" fill="url(#face)"/>
+  <g id="ticks"></g>
+  <text y="-150" font-family="Myeongjo" font-size="34" fill="#5a4630" text-anchor="middle" letter-spacing="6">1974</text>
+  <g id="hourH"><rect x="-9" y="-140" width="18" height="160" rx="9" fill="#2a1d12"/></g>
+  <g id="minH"><rect x="-6" y="-215" width="12" height="235" rx="6" fill="#2a1d12"/></g>
+  <g id="secH"><rect x="-2.5" y="-240" width="5" height="290" fill="#a3322a"/><circle r="14" fill="#a3322a"/></g>
+  <circle r="6" fill="#f0cf86"/>
+  <ellipse cx="-90" cy="-130" rx="120" ry="60" fill="#fff" opacity=".18" transform="rotate(-30)"/>
+ </g>
+</svg></div>
+
+<!-- 3. 시계 속 톱니 -->
+<div class="scene" id="gears"><svg viewBox="0 0 2040 1200">
+ <defs><radialGradient id="dark" cx=".5" cy=".5"><stop offset="0" stop-color="#3b2d22"/><stop offset="1" stop-color="#120c08"/></radialGradient>
+ <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3d68f"/><stop offset=".6" stop-color="#b48535"/><stop offset="1" stop-color="#7d5a22"/></linearGradient>
+ <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6e6e6"/><stop offset="1" stop-color="#8b8f96"/></linearGradient></defs>
+ <rect width="2040" height="1200" fill="url(#dark)"/>
+ <g id="gearwrap"></g>
+ <circle cx="1020" cy="600" r="520" fill="none" stroke="#b48535" stroke-width="14" opacity=".5"/>
+</svg></div>
+
+<!-- 4. 회상: 새벽 첫차 정류장 (세피아) -->
+<div class="scene" id="memory" style="filter:sepia(.85) contrast(1.05) brightness(.95)"><svg viewBox="0 0 2040 1200">
+ <defs><linearGradient id="dawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2638"/><stop offset=".7" stop-color="#6f7f99"/><stop offset="1" stop-color="#c9b49a"/></linearGradient>
+ <radialGradient id="head"><stop offset="0" stop-color="#fff4cf"/><stop offset="1" stop-color="#fff4cf" stop-opacity="0"/></radialGradient></defs>
+ <rect width="2040" height="1200" fill="url(#dawn)"/>
+ <g fill="#26303f"><rect x="0" y="560" width="2040" height="90"/><path d="M0 560 L120 470 L260 520 L420 430 L600 500 L800 440 L1000 510 L1240 420 L1460 500 L1700 450 L2040 520 V560Z"/></g>
+ <rect x="0" y="650" width="2040" height="550" fill="#3d4553"/>
+ <g stroke="#cfc6b0" stroke-width="10" stroke-dasharray="80 70" opacity=".6"><line x1="0" y1="900" x2="2040" y2="900"/></g>
+ <!-- 정류장 -->
+ <g transform="translate(560 0)"><rect x="0" y="380" width="16" height="300" fill="#1d1f24"/><rect x="-60" y="330" width="140" height="70" rx="8" fill="#e8dcc0"/>
+  <text x="10" y="377" font-family="Gothic" font-size="36" fill="#2b2b2b" text-anchor="middle">정 류 장</text></g>
+ <!-- 아버지 -->
+ <g id="father" transform="translate(760 690)" fill="#141821">
+  <ellipse cx="0" cy="-268" rx="30" ry="34"/><path d="M-46 -298 h92 l-10 -26 h-72z"/><rect x="-62" y="-302" width="124" height="10" rx="5"/>
+  <path d="M-58 -230 q58 -22 116 0 l20 230 h-156z"/><rect x="-40" y="0" width="28" height="70"/><rect x="12" y="0" width="28" height="70"/>
+  <rect x="58" y="-130" width="44" height="70" rx="6" fill="#3a2d22"/>
+ </g>
+ <!-- 첫차 -->
+ <g id="bus"><rect x="0" y="560" width="520" height="260" rx="30" fill="#2d4a6b"/><rect x="30" y="600" width="400" height="90" fill="#cfd8e0" opacity=".85"/>
+  <rect x="440" y="600" width="60" height="150" fill="#cfd8e0" opacity=".7"/><circle cx="110" cy="830" r="44" fill="#111"/><circle cx="410" cy="830" r="44" fill="#111"/>
+  <circle cx="515" cy="770" r="140" fill="url(#head)"/><rect x="40" y="570" width="200" height="26" fill="#e9d48a"/>
+ </g>
+ <text id="year" x="1840" y="160" font-family="Myeongjo" font-size="64" fill="#efe3c8" text-anchor="end" opacity=".85">1978년 겨울</text>
+</svg></div>
+
+<!-- 5. 해돋이와 손목 -->
+<div class="scene" id="sunrise"><svg viewBox="0 0 2040 1200">
+ <defs><linearGradient id="morning" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3e5f8a"/><stop offset=".6" stop-color="#f3b07a"/><stop offset="1" stop-color="#ffe0b0"/></linearGradient>
+ <radialGradient id="sun"><stop offset="0" stop-color="#fff6d8"/><stop offset=".35" stop-color="#ffd27a"/><stop offset="1" stop-color="#ffb35a" stop-opacity="0"/></radialGradient></defs>
+ <rect width="2040" height="1200" fill="url(#morning)"/>
+ <circle id="sunball" cx="1020" cy="820" r="420" fill="url(#sun)"/>
+ <path d="M0 860 Q300 720 620 820 T1260 790 T2040 840 V1200 H0Z" fill="#5a4a5e" opacity=".85"/>
+ <path d="M0 960 Q400 860 900 940 T2040 920 V1200 H0Z" fill="#3a2f3e"/>
+ <!-- 손목과 시계 실루엣 -->
+ <g id="wrist" fill="#1e1620">
+  <path d="M-40 1200 L560 760 Q610 730 650 760 L700 800 Q720 840 690 870 L120 1200Z"/>
+  <circle cx="610" cy="800" r="70" fill="#2a1f25" stroke="#e7b462" stroke-width="10"/>
+  <line x1="610" y1="800" x2="610" y2="752" stroke="#e7b462" stroke-width="7"/><line x1="610" y1="800" x2="642" y2="808" stroke="#e7b462" stroke-width="7"/>
+ </g>
+</svg></div>
+
+<canvas id="grain" width="480" height="270"></canvas>
+<div id="vignette"></div>
+<div id="chapter"></div>
+<div id="title"><div class="kicker">오늘의 이야기</div><div class="main">아버지의 시계는<br>왜 늘 5분 빨랐을까</div><div class="rule"></div></div>
+<div id="sub"></div>
+<div id="endcard"><div class="q">여러분 곁에도<br>늘 5분 먼저 와 있던 사람이 있나요?</div><div class="s">댓글로 그분 이야기를 들려주세요</div></div>
+</div>
+<script>
+const TL = window.TIMELINE;   // {lines:[{scene,who,text,start,end}], end_card, total}
+const SCENES = ["alley","watch","gears","memory","sunrise"];
+const CHAP = {alley:"시장 골목 끝 시계방", watch:"아버지의 손목시계", gears:"5분의 비밀", memory:"1978년, 새벽 첫차", sunrise:"그리고 오늘"};
+const WHO = {son:"김영수 (72)", old:"시계방 주인"};
+const $ = id => document.getElementById(id);
+const clamp = (x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const ease = x => x<.5 ? 2*x*x : 1-Math.pow(-2*x+2,2)/2;
+
+// 시계 눈금
+(function(){let g='';for(let i=0;i<60;i++){const a=i*6, L=i%5?14:34, w=i%5?3:8;
+ g+=`<rect x="${-w/2}" y="-258" width="${w}" height="${L}" fill="#4a3b2a" transform="rotate(${a})"/>`;}
+ for(let h=1;h<=12;h++){const a=(h*30-90)*Math.PI/180;g+=`<text x="${Math.cos(a)*195}" y="${Math.sin(a)*195+16}" font-family="Myeongjo" font-size="46" fill="#3a2c1e" text-anchor="middle">${h}</text>`;}
+ $("ticks").innerHTML=g;})();
+// 톱니바퀴
+function gearPath(r,n,d){let p='';for(let i=0;i<n;i++){const a0=i/n*2*Math.PI,a1=(i+.25)/n*2*Math.PI,a2=(i+.5)/n*2*Math.PI,a3=(i+.75)/n*2*Math.PI;
+ const P=(a,rr)=>`${(Math.cos(a)*rr).toFixed(1)} ${(Math.sin(a)*rr).toFixed(1)}`;
+ p+=(i?'L':'M')+P(a0,r)+' L'+P(a1,r+d)+' L'+P(a2,r+d)+' L'+P(a3,r);}return p+'Z';}
+const GEARS=[[1020,600,190,30,1,"brass"],[1300,380,110,18,-1.7,"steel"],[760,860,140,22,-1.36,"brass"],[1330,840,80,14,2.4,"brass"],[700,380,90,16,2.1,"steel"]];
+$("gearwrap").innerHTML=GEARS.map((g,i)=>`<g id="g${i}" transform="translate(${g[0]} ${g[1]})"><path d="${gearPath(g[2],g[3],g[2]*.13)}" fill="url(#${g[5]})" stroke="#4a3415" stroke-width="3"/>
+ <circle r="${g[2]*.62}" fill="#2a1e14" opacity=".55"/><circle r="${g[2]*.18}" fill="url(#${g[5]})"/>${[0,1,2,3,4].map(k=>`<rect x="-8" y="${-g[2]*.6}" width="16" height="${g[2]*.42}" fill="url(#${g[5]})" transform="rotate(${k*72})"/>`).join('')}
+ <circle r="10" fill="#a3322a"/></g>`).join('');
+// 필름 그레인 (고정 시드)
+const gc=$("grain").getContext("2d"); let seed=7; const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+function grain(){const im=gc.createImageData(480,270);for(let i=0;i<im.data.length;i+=4){const v=rnd()*255;im.data[i]=im.data[i+1]=im.data[i+2]=v;im.data[i+3]=255;}gc.putImageData(im,0,0);}
+
+function sceneSpan(name){const ls=TL.lines.filter(l=>l.scene===name);return [ls[0].start-0.9, ls[ls.length-1].end+0.5];}
+const SPAN=Object.fromEntries(SCENES.map(s=>[s,sceneSpan(s)]));
+SPAN.alley[0]=3.4;
+
+window.render = function(t){
+  grain();
+  // 제목 카드
+  const tt = t<3.6 ? clamp(t/0.8) : clamp((4.4-t)/0.8);
+  $("title").style.opacity = tt;
+  document.querySelector("#title .rule").style.width = (ease(clamp((t-0.6)/1.6))*420)+"px";
+  document.querySelector("#title .main").style.transform = `scale(${1.04-0.04*ease(clamp(t/3.6))})`;
+  // 장면 (겹치며 전환, 천천히 밀고 들어가는 카메라)
+  let cur=null;
+  for(const s of SCENES){
+    const [a,b]=SPAN[s]; const fade=1.0;
+    let o = clamp((t-a)/fade) * clamp((b+fade-t)/fade);
+    if(s==="sunrise") o = clamp((t-a)/fade) * clamp((TL.end_card+0.6-t)/0.9);
+    const el=$(s); el.style.opacity=o;
+    const p=clamp((t-a)/(b-a+fade));
+    const z = 1.0 + 0.07*ease(p);
+    const dx = {alley:-30,watch:0,gears:0,memory:40,sunrise:0}[s]*p;
+    el.querySelector("svg").style.transform=`translate(${dx}px,0) scale(${z})`;
+    if(o>0.5) cur=s;
+  }
+  // 골목: 노신사가 시계방 쪽으로 걸어간다, 등불 흔들림
+  const wp=clamp((t-3.4)/(SPAN.alley[1]-3.4));
+  const wx=380+wp*560, wy=1150-wp*330, ws=1.0-wp*0.55, bob=Math.sin(t*6.5)*6*(1-wp);
+  $("walker").setAttribute("transform",`translate(${wx} ${wy+bob}) scale(${ws})`);
+  $("lamp").setAttribute("transform",`rotate(${Math.sin(t*1.3)*2.5} 1290 210)`);
+  // 시계: 초침이 실제로 돈다 (5분 빠른 시각)
+  const sec=(t*1)%60; $("secH").setAttribute("transform",`rotate(${Math.floor(sec)*6 + Math.min(1,(sec%1)*8)*0})`);
+  $("secH").setAttribute("transform",`rotate(${Math.floor(sec*1)*6})`);
+  $("minH").setAttribute("transform",`rotate(${(47+sec/60)*6})`);
+  $("hourH").setAttribute("transform",`rotate(${(5+47/60)*30})`);
+  // 톱니
+  GEARS.forEach((g,i)=>$("g"+i).setAttribute("transform",`translate(${g[0]} ${g[1]}) rotate(${t*14*g[4]})`));
+  // 회상: 버스가 들어오고 아버지가 한 발 앞으로
+  const mp=clamp((t-SPAN.memory[0])/(SPAN.memory[1]-SPAN.memory[0]));
+  $("bus").setAttribute("transform",`translate(${2100-ease(mp)*1100} 0)`);
+  $("father").setAttribute("transform",`translate(${760+ease(clamp((mp-.55)/.45))*60} 690)`);
+  $("year").setAttribute("opacity", clamp((t-SPAN.memory[0]-0.4)/1)*0.85);
+  // 해돋이
+  const sp=clamp((t-SPAN.sunrise[0])/(TL.end_card-SPAN.sunrise[0]));
+  $("sunball").setAttribute("cy", 860-ease(sp)*260);
+  $("wrist").setAttribute("transform",`translate(${-80+ease(sp)*60} ${40-ease(sp)*40})`);
+  // 장 제목
+  const ch=$("chapter"); if(cur && CHAP[cur]){ch.textContent=CHAP[cur];
+    const [a]=SPAN[cur]; ch.style.opacity=clamp((t-a-0.3)/0.6)*clamp((a+5-t)/0.8)*0.95;} else ch.style.opacity=0;
+  // 자막 (대사는 말한 사람 이름 + 따옴표 상자)
+  const sub=$("sub"); const l=TL.lines.find(l=>t>=l.start-0.25 && t<=l.end+0.35);
+  if(l){ sub.className = l.who==="nar" ? "" : "quote";
+    sub.innerHTML=(l.who!=="nar"?`<span class="who">${WHO[l.who]}</span>“${l.text}”`:l.text);
+    const o=clamp((t-l.start+0.25)/0.25)*clamp((l.end+0.35-t)/0.25); sub.style.opacity=o;
+    sub.style.transform=`translateX(-50%) translateY(${(1-o)*14}px)`;} else sub.style.opacity=0;
+  // 끝 카드
+  const e=clamp((t-TL.end_card)/1.0); $("endcard").style.opacity=e;
+  document.querySelector("#endcard .q").style.transform=`translateY(${(1-ease(e))*24}px)`;
+};
+</script></body></html>

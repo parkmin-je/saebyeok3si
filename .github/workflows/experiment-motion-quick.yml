@@ -1,0 +1,32 @@
+name: experiment-motion-quick
+# 움직임 컷을 한 개씩 만들 때마다 바로 experiment-output 브랜치에 올린다 (빨리 확인용).
+on:
+  push:
+    branches: [feat/sample-video-veo]
+    paths: [.github/workflows/experiment-motion-quick.yml]
+permissions:
+  contents: write
+concurrency: { group: motion-quick, cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Install CPU torch + diffusers
+        run: |
+          pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+          pip install diffusers==0.31.0 transformers==4.46.3 accelerate==1.1.1 peft==0.13.2 safetensors pillow numpy huggingface_hub
+      - name: Generate and push each clip
+        run: |
+          git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
+          D=runs/quick-${{ github.run_id }}
+          for k in run hair swing; do
+            python pipeline/experiments/motion_clips.py s $k || true
+            rm -rf /tmp/w; git fetch -q origin experiment-output && git worktree add -q -B experiment-output /tmp/w origin/experiment-output
+            mkdir -p /tmp/w/$D && cp -r out/* /tmp/w/$D/ && (cd /tmp/w && git add runs && git commit -qm "quick $k" && git push -q origin experiment-output) || true
+            git worktree remove --force /tmp/w || true
+          done

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+@font-face{font-family:Myeongjo;src:url(../../assets/fonts/NanumMyeongjoBold.ttf)}
+@font-face{font-family:Gothic;src:url(../../assets/fonts/NanumGothicExtraBold.ttf)}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#1b1410}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden}
+#scenes{position:absolute;inset:0;z-index:0}
+.scene{position:absolute;inset:0}
+.scene svg{position:absolute;left:-60px;top:-60px;width:2040px;height:1200px}
+.memory{filter:sepia(.85) contrast(1.05) brightness(.95)}
+#grain{position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none;opacity:.10;mix-blend-mode:overlay}
+#vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(0,0,0,.55) 100%)}
+#sub{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);max-width:1500px;padding:26px 54px;border-radius:18px;
+  background:rgba(20,14,10,.74);color:#fff8ec;font-family:Myeongjo;font-size:58px;line-height:1.38;text-align:center;
+  letter-spacing:-.5px;text-wrap:balance;box-shadow:0 10px 40px rgba(0,0,0,.35);opacity:0;word-break:keep-all}
+#sub .who{display:block;font-family:Gothic;font-size:30px;color:#f2c27b;margin-bottom:6px;letter-spacing:1px}
+#sub.quote{background:rgba(64,38,18,.82);border:2px solid rgba(242,194,123,.6)}
+#chapter{position:absolute;top:56px;left:70px;font-family:Gothic;font-size:32px;color:#f6e3c4;letter-spacing:3px;opacity:0;
+  padding:10px 22px;border-left:6px solid #e0a458;background:rgba(0,0,0,.28)}
+#brand{position:absolute;top:56px;right:70px;font-family:Myeongjo;font-size:30px;color:#f6e3c4;opacity:.75;letter-spacing:2px}
+.card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;
+  background:radial-gradient(ellipse at center,#3a2a1c 0%,#160f0a 75%)}
+.card .kicker{font-family:Gothic;font-size:38px;color:#e0a458;letter-spacing:8px;margin-bottom:34px}
+.card .main{font-family:Myeongjo;font-size:100px;color:#fff3dd;text-align:center;line-height:1.3;word-break:keep-all;text-wrap:balance;max-width:1600px}
+.card .rule{width:0;height:4px;background:#e0a458;margin-top:44px}
+.card .s{font-family:Gothic;font-size:36px;color:#e0a458;margin-top:50px;letter-spacing:2px}
+#title{display:none}
+/* 세로 쇼츠 1080×1920: 위 제목, 가운데 장면(1080×960), 아래 큰 자막. 아래 350px·오른쪽은 쇼츠 버튼 자리라 비운다 */
+body.v,body.v #stage{width:1080px;height:1920px}
+body.v #stage{background:radial-gradient(ellipse at 50% 40%,#3a2a1c 0%,#140d08 80%)}
+body.v #scenes{top:330px;height:960px;bottom:auto;overflow:hidden;box-shadow:0 0 0 4px rgba(242,194,123,.35)}
+body.v #grain{width:1080px;height:1920px}
+body.v #title{display:block;position:absolute;top:120px;left:40px;right:40px;text-align:center;font-family:Myeongjo;font-size:64px;
+  line-height:1.25;color:#fff3dd;word-break:keep-all;text-shadow:0 4px 18px rgba(0,0,0,.6)}
+body.v #brand{top:58px;right:auto;left:50%;transform:translateX(-50%);font-size:30px;color:#e0a458;opacity:.9}
+body.v #chapter{top:352px;left:24px;font-size:30px;padding:8px 18px}
+body.v #sub{top:1318px;bottom:auto;max-width:1000px;width:max-content;box-sizing:border-box;padding:22px 34px;font-size:60px;line-height:1.35}
+body.v #sub .who{font-size:32px}
+body.v .card .main{font-size:92px;max-width:960px}
+body.v .card .kicker{font-size:40px}
+#stages{display:none}
+body.v.st #title{top:96px;font-size:58px}
+body.v.st #stages{display:flex;position:absolute;top:262px;left:60px;right:60px;height:44px;align-items:center;justify-content:space-between}
+#stages .ln{position:absolute;left:14px;right:14px;top:50%;height:6px;margin-top:-3px;background:rgba(255,243,221,.18);border-radius:3px}
+#stages .fill{position:absolute;left:0;top:0;bottom:0;background:#f2c27b;border-radius:3px}
+#stages .dot{position:relative;width:28px;height:28px;border-radius:50%;background:#3a2c20;border:4px solid rgba(255,243,221,.35);box-sizing:border-box}
+#stages .dot.on{background:#f2c27b;border-color:#fff3dd}
+#stages .dot span{position:absolute;top:34px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:Gothic;font-size:28px;color:rgba(255,243,221,.6)}
+#stages .dot.on span{color:#fff3dd}
+body.v.st #scenes{top:350px}
+body.v.st #chapter{top:372px;left:28px;font-size:64px;padding:10px 30px;border-left-width:10px;background:rgba(20,14,10,.72);color:#fff3dd;letter-spacing:2px}
+body.v .card .s{font-size:34px;max-width:960px;text-align:center;line-height:1.5}
+</style></head>
+<body><div id="stage">
+<div id="scenes"></div>
+<canvas id="grain" width="480" height="270"></canvas>
+<div id="vignette"></div>
+<div id="chapter"></div>
+<div id="brand"></div>
+<div id="title"></div>
+<div id="stages"></div>
+<div id="sub"></div>
+<div class="card" id="card"><div class="kicker"></div><div class="main"></div><div class="rule"></div><div class="s"></div></div>
+</div>
+<script src="library.js"></script>
+<script src="whatif.js"></script>
+<script>
+// TIMELINE = {brand, segments:[{scene,o,start,end,label,memory,snow}], lines:[{who,name,text,start,end}], cards:[{start,end,kicker,main,s}]}
+const TL = window.TIMELINE, L = window.SCENE_LIBRARY;
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+const FADE = 1.0;
+$('brand').textContent = TL.brand || '';
+if (TL.vertical) { document.body.classList.add('v'); document.documentElement.style.cssText = 'width:1080px;height:1920px'; $('title').innerHTML = TL.title || ''; $('grain').width = 270; $('grain').height = 480; }
+const STG = TL.segments.map((s, i) => [s.stage, s.start]).filter(x => x[0]).filter((x, i, a) => a.findIndex(y => y[0] === x[0]) === i);
+if (TL.vertical && STG.length) {
+  document.body.classList.add('st');
+  $('stages').innerHTML = '<div class="ln"><div class="fill"></div></div>' + STG.map(x => `<div class="dot"><span>${x[0]}</span></div>`).join('');
+}
+const GW = TL.vertical ? 270 : 480, GH = TL.vertical ? 480 : 270;
+
+// 장면은 보일 때만 DOM에 만든다 (id 앞에 구간 번호를 붙여 겹치지 않게)
+const built = new Map();
+function mount(i) {
+  if (built.has(i)) return built.get(i);
+  const seg = TL.segments[i], px = `s${i}-`;
+  let svg = L[seg.scene].build(seg.o || {});
+  svg = svg.replace(/id="([^"]+)"/g, `id="${px}$1"`).replace(/url\(#([^)]+)\)/g, `url(#${px}$1)`);
+  const d = document.createElement('div');
+  d.className = 'scene' + (seg.memory ? ' memory' : '');
+  d.dataset.px = px;
+  d.innerHTML = `<svg viewBox="0 0 2040 1200"${TL.vertical ? ` style="left:${Math.round(clamp(540 - (seg.fx ?? .5) * 1632, -552, 0))}px;top:0;width:1632px;height:960px"` : ''}>${svg}${seg.snow ? `<g class="snow">${window.SNOW.snowLayer(seg.snow === true ? 90 : seg.snow)}</g>` : ''}</svg>`;
+  $('scenes').appendChild(d);
+  built.set(i, d);
+  return d;
+}
+function unmount(i) { const d = built.get(i); if (d) { d.remove(); built.delete(i); } }
+
+const gc = $('grain').getContext('2d'); let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+function grain() { const im = gc.createImageData(GW, GH); for (let i = 0; i < im.data.length; i += 4) { const v = rnd() * 255; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } gc.putImageData(im, 0, 0); }
+
+window.render = function (t) {
+  grain();
+  const sp = TL.lines.find(l => t >= l.start && t <= l.end + .05);
+  window.SPEAK = sp ? sp.who : null;
+  // 장면: 앞뒤로 1초씩 겹쳐 전환, 천천히 밀고 들어가는 카메라
+  let cur = null;
+  TL.segments.forEach((seg, i) => {
+    const a = seg.start, b = seg.end;
+    const vis = t > a - FADE && t < b + FADE;
+    if (!vis) return unmount(i);
+    const d = mount(i);
+    const o = clamp((t - a + FADE) / FADE) * clamp((b + FADE - t) / FADE);
+    d.style.opacity = o;
+    d.style.zIndex = i;
+    const p = clamp((t - a) / Math.max(.1, b - a));
+    const z = 1 + (seg.zoom ?? .07) * ease(p), dx = (seg.pan || 0) * p;
+    const svg = d.querySelector('svg');
+    svg.style.transform = `translate(${dx * (TL.vertical ? .5 : 1)}px,0) scale(${z})`;
+    const S = L[seg.scene]; if (S.tick) S.tick(d, t, p, seg.o || {});
+    if (seg.snow) window.SNOW.tickSnow(d, t);
+    if (t >= a && t < b) cur = seg;
+  });
+  // 장 제목: 장면이 바뀔 때 5초간
+  const ch = $('chapter');
+  if (STG.length && TL.vertical) {
+    let k = -1; STG.forEach((x, i) => { if (t >= x[1]) k = i; });
+    document.querySelectorAll('#stages .dot').forEach((d, i) => d.classList.toggle('on', i <= k));
+    const nx = STG[k + 1] ? STG[k + 1][1] : TL.total - 3.5, pv = k >= 0 ? STG[k][1] : 0;
+    $('stages').querySelector('.fill').style.width = (Math.max(0, k) + clamp((t - pv) / Math.max(.1, nx - pv))) / Math.max(1, STG.length - 1) * 100 + '%';
+    if (k >= 0) {
+      const a = t - STG[k][1];
+      ch.textContent = STG[k][0];
+      ch.style.opacity = clamp(a / .2) * (TL.cards.some(c => t >= c.start) ? 0 : 1);
+      ch.style.transform = `scale(${1 + .6 * (1 - ease(clamp(a / .35)))})`;
+      ch.style.transformOrigin = 'left top';
+    } else ch.style.opacity = 0;
+  } else if (cur && cur.label) { ch.textContent = cur.label; ch.style.opacity = clamp((t - cur.start - .3) / .6) * clamp((cur.start + 5.5 - t) / .8) * .95; }
+  else ch.style.opacity = 0;
+  // 자막
+  const sub = $('sub'), l = TL.lines.find(l => t >= l.start - .25 && t <= l.end + .35);
+  if (l) {
+    sub.className = l.who === 'nar' ? '' : 'quote';
+    sub.innerHTML = l.who !== 'nar' ? `<span class="who">${l.name || ''}</span>“${l.text}”` : l.text;
+    const o = clamp((t - l.start + .25) / .25) * clamp((l.end + .35 - t) / .25);
+    sub.style.opacity = o; sub.style.transform = `translateX(-50%) translateY(${(1 - o) * 14}px)`;
+  } else sub.style.opacity = 0;
+  // 카드 (제목, 편지 번호, 끝)
+  const c = TL.cards.find(c => t >= c.start - .1 && t <= c.end + .1), card = $('card');
+  if (c) {
+    card.querySelector('.kicker').textContent = c.kicker || '';
+    card.querySelector('.main').innerHTML = c.main || '';
+    card.querySelector('.s').innerHTML = c.s || '';
+    const o = clamp((t - c.start) / .8) * clamp((c.end - t) / .8);
+    card.style.opacity = o;
+    card.querySelector('.rule').style.width = ease(clamp((t - c.start - .5) / 1.6)) * 420 + 'px';
+    card.querySelector('.main').style.transform = `scale(${1.04 - .04 * ease(clamp((t - c.start) / (c.end - c.start)))})`;
+  } else card.style.opacity = 0;
+  $('brand').style.opacity = c ? 0 : (TL.vertical ? .9 : .75);
+  if (TL.vertical) $('title').style.opacity = c ? 0 : 1;
+};
+</script></body></html>

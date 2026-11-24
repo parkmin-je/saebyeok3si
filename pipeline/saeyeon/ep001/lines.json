@@ -1,0 +1,11 @@
+[
+ {"scene":"alley","who":"nar","tone":"calm, warm","text":"시장 골목 끝, 간판도 없는 작은 시계방이 있습니다."},
+ {"scene":"alley","who":"nar","tone":"calm, warm","text":"일흔두 살 김영수 씨는 오늘, 아버지가 남긴 손목시계를 들고 그 문을 열었습니다."},
+ {"scene":"watch","who":"son","tone":"hesitant","text":"이 시계가요, 늘 오 분씩 빨랐어요. 고칠 수 있을까요?"},
+ {"scene":"gears","who":"nar","tone":"calm","text":"주인 할아버지는 뒷뚜껑을 열고, 한참을 말없이 들여다봤습니다."},
+ {"scene":"gears","who":"old","tone":"gently","text":"고장이 아닙니다. 누가 일부러 이렇게 맞춰 놓은 거예요."},
+ {"scene":"memory","who":"nar","tone":"softly, reminiscing","text":"영수 씨는 그제야 떠올랐습니다. 새벽마다 첫차를 타던 아버지."},
+ {"scene":"memory","who":"nar","tone":"softly, reminiscing","text":"단 한 번도 늦은 적이 없던, 남들보다 오 분 먼저 하루를 시작하던 사람."},
+ {"scene":"sunrise","who":"nar","tone":"warm","text":"영수 씨는 시계를 고치지 않기로 했습니다."},
+ {"scene":"sunrise","who":"nar","tone":"warm","text":"오늘부터 그의 하루도, 오 분 일찍 시작됩니다."}
+]

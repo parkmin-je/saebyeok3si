@@ -1,0 +1,82 @@
+name: daily
+# (이전 실험, 자동 일정 꺼 둠) 하루 1편 자동 제작 (전부 무료): 대본·음성은 Gemini 무료 등급, 실사 이미지·깊이는 러너에서 오픈소스 모델로.
+# 결과 영상은 videos 브랜치에 날짜별로 커밋하고, 이슈로 보고한다.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "이어서 돌릴 런 ID (비우면 새로 만든다)"
+        default: ""
+  push:
+    branches: [feat/sample-video-veo]
+    paths: [runs/**, .github/workflows/daily.yml]
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: daily
+  cancel-in-progress: false
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      HF_HUB_DISABLE_PROGRESS_BARS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Cache models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-${{ hashFiles('config/pipeline.yaml') }}
+      - name: Install
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+          pip install -q --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+          pip install -q diffusers==0.31.0 transformers==4.46.3 accelerate==1.1.1 peft==0.13.2 safetensors \
+            pillow opencv-python-headless numpy requests PyYAML jsonschema
+      - name: Load history (videos 브랜치)
+        run: |
+          mkdir -p data
+          git fetch -q origin videos && git show origin/videos:history.json > data/history.json || echo "[]" > data/history.json
+      - name: Produce
+        id: produce
+        run: |
+          RID="${{ inputs.run_id }}"
+          if [ -z "$RID" ] && [ "${{ github.event_name }}" = "push" ]; then
+            RID=$(git diff --name-only --diff-filter=AMR HEAD~1 HEAD -- runs | head -1 | cut -d/ -f2)
+            [ -z "$RID" ] && RID=$(git ls-files runs | head -1 | cut -d/ -f2)
+          fi
+          [ -z "$RID" ] && RID="$(TZ=Asia/Seoul date +%Y%m%d)-2000s-${{ github.run_id }}"
+          echo "rid=$RID" >> "$GITHUB_OUTPUT"
+          python -m pipeline.cli daily --run-id "$RID"
+      - name: Publish to videos branch
+        if: always() && steps.produce.outputs.rid != ''
+        run: |
+          RID=${{ steps.produce.outputs.rid }}
+          mkdir -p /tmp/pub && cp -r runs/$RID /tmp/pub/ && cp data/history.json /tmp/pub/history.json
+          git config user.name "rrs-bot"; git config user.email "rrs-bot@users.noreply.github.com"
+          git fetch -q origin videos || true
+          if git rev-parse -q --verify origin/videos >/dev/null; then git checkout -q -B videos origin/videos; else git checkout -q --orphan videos; git rm -rqf . ; fi
+          find . -mindepth 1 -maxdepth 1 ! -name .git ! -name episodes -exec rm -rf {} +
+          cp /tmp/pub/history.json history.json
+          mkdir -p episodes/$RID
+          cp /tmp/pub/$RID/render/final.mp4 /tmp/pub/$RID/render/cover.jpg /tmp/pub/$RID/script.json episodes/$RID/ 2>/dev/null || true
+          cp /tmp/pub/$RID/logs.txt /tmp/pub/$RID/qa/video.json episodes/$RID/ 2>/dev/null || true
+          cp -r /tmp/pub/$RID/images episodes/$RID/ 2>/dev/null || true
+          git add episodes history.json && git commit -qm "episode $RID" && git push -q origin videos
+      - name: Report
+        if: always() && github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RID=${{ steps.produce.outputs.rid }}
+          gh issue create --title "[${{ job.status }}] $(TZ=Asia/Seoul date +%m/%d) 오늘의 영상 $RID" \
+            --body "영상: https://github.com/${{ github.repository }}/blob/videos/episodes/$RID/final.mp4
+          로그: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" || true

@@ -1,0 +1,68 @@
+{
+ "shots": [
+  {
+   "name": "s01-phone-hit",
+   "t2i": "Close-up of a cracked old silver flip phone with no logo lying open on a cold asphalt school basketball court, an orange basketball bouncing just beyond it, winter 2006, photorealistic cinematic still, shallow depth of field, vertical 9:16 frame",
+   "motion": "the orange basketball bounces away and rolls out of frame, the cracked flip phone screen flickers, slow camera push-in, cinematic",
+   "dur": 4
+  },
+  {
+   "name": "s02-seojin-shock",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "edit": "Keep this exact girl's face, identity and long black hair with bangs unchanged. She wears a navy school blazer with a red ribbon tie and a white shirt. She stands on an outdoor school basketball court, looking down in shock with her mouth slightly open, upper body shot, red brick school building and a few students far in the background. Photorealistic cinematic still from a 2006 Korean high school drama, winter, soft overcast daylight, film look, natural skin texture, realistic background people, vertical 9:16 frame.",
+   "motion": "she looks down in shock, then slowly raises a hand to her mouth, cold wind moves her hair, subtle handheld camera",
+   "dur": 5,
+   "still": "runs/space-45198336744/s02-seojin-shock-still.webp"
+  },
+  {
+   "name": "s03-doyoon-walk",
+   "ref": "runs/cast-45178887634/doyoon-1.png",
+   "edit": "Keep this exact young man's face, identity and hairstyle unchanged. He wears a navy school blazer open over a white shirt with a loose navy tie. He walks across an outdoor school basketball court toward the camera, full body, cool expression, red brick school building behind. Photorealistic cinematic still from a 2006 Korean high school drama, winter, soft overcast daylight, film look, natural skin texture, realistic background people, vertical 9:16 frame.",
+   "motion": "he walks slowly toward the camera with a cool expression, hair moving in the wind, camera tracking backward",
+   "dur": 4
+  },
+  {
+   "name": "s05-ots-seojin",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "edit": "Keep this exact girl's face, identity and long black hair with bangs unchanged. She wears a navy school blazer with a red ribbon tie and a white shirt. Over-the-shoulder shot: the out-of-focus back and shoulder of a tall boy in a navy blazer fills the left foreground, she faces him with an angry face and crossed arms, winter schoolyard behind. Photorealistic cinematic still from a 2006 Korean high school drama, winter, soft overcast daylight, film look, natural skin texture, realistic background people, vertical 9:16 frame.",
+   "motion": "she glares at the boy and speaks angrily, tilting her head, arms crossed, the boy's shoulder in the foreground barely moves",
+   "dur": 4
+  },
+  {
+   "name": "s06-doyoon-glance",
+   "ref": "runs/cast-45178887634/doyoon-1.png",
+   "edit": "Keep this exact young man's face, identity and hairstyle unchanged. He wears a navy school blazer open over a white shirt with a loose navy tie. He holds an orange basketball under one arm and glances back over his shoulder with an indifferent look, outdoor school basketball court. Photorealistic cinematic still from a 2006 Korean high school drama, winter, soft overcast daylight, film look, natural skin texture, realistic background people, vertical 9:16 frame.",
+   "motion": "he turns his head back over his shoulder, looks with an indifferent expression, then slowly turns away",
+   "dur": 4
+  },
+  {
+   "name": "s08-classmates",
+   "t2i": "Four Korean high school students in navy blazers whispering together at the edge of an outdoor basketball court in winter 2006, a girl with a short bob in the center covering her mouth in surprise, natural realistic detailed faces, photorealistic cinematic still, shallow depth of field, vertical 9:16 frame",
+   "motion": "the bob-haired girl gasps and covers her mouth, the classmates lean in and whisper to each other",
+   "dur": 4
+  },
+  {
+   "name": "s09-doyoon-close",
+   "ref": "runs/cast-45178887634/doyoon-1.png",
+   "edit": "Keep this exact young man's face, identity and hairstyle unchanged. He wears a navy school blazer open over a white shirt with a loose navy tie. Close-up from slightly below, he looks down at someone standing very close in front of him with a slight smirk, soft winter backlight. Photorealistic cinematic still from a 2006 Korean high school drama, winter, soft overcast daylight, film look, natural skin texture, realistic background people, vertical 9:16 frame.",
+   "motion": "he looks down, tilts his head slightly and a small smirk appears, hair moves softly in the wind",
+   "dur": 4.5
+  },
+  {
+   "name": "s10-seojin-defiant",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "edit": "Keep this exact girl's face, identity and long black hair with bangs unchanged. She wears a navy school blazer with a red ribbon tie and a white shirt. Close-up, she looks up defiantly at a taller boy, determined eyes, gray winter sky behind. Photorealistic cinematic still from a 2006 Korean high school drama, winter, soft overcast daylight, film look, natural skin texture, realistic background people, vertical 9:16 frame.",
+   "motion": "she looks up with determined eyes and lifts her chin defiantly, then blinks slowly, faint breath visible in the cold air",
+   "dur": 4.5
+  },
+  {
+   "name": "s13-seojin-window",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "edit": "Keep this exact girl's face, identity and long black hair with bangs unchanged. She wears a navy school blazer with a red ribbon tie and a white shirt. She sits at an old wooden desk by a classroom window, holding an open silver flip phone with a small star charm, trying not to smile, green chalkboard and wooden desks behind, 2006 Korean classroom. Photorealistic cinematic still from a 2006 Korean high school drama, winter, soft overcast daylight, film look, natural skin texture, realistic background people, vertical 9:16 frame.",
+   "motion": "she looks at the flip phone, bites her lip trying not to smile, then glances out the window, curtains moving gently",
+   "dur": 5
+  }
+ ],
+ "only": "3,5,6,7,8",
+ "rev": 4
+}

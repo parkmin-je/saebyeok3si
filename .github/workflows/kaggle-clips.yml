@@ -1,0 +1,45 @@
+name: kaggle-clips
+# Kaggle 무료 GPU(Wan 2.2)로 사진→영상 컷 만들기. 입력: pipeline/kaggle/jobs/<이름>.json (image 경로는 experiment-output 브랜치 기준)
+on:
+  push:
+    branches: [feat/sample-video-veo]
+    paths: [pipeline/kaggle/jobs/**, pipeline/kaggle/wan_i2v_kernel.py, .github/workflows/kaggle-clips.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: "kaggle-${{ github.sha }}", cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 2 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q kaggle six pillow
+      - name: Run on Kaggle GPU
+        env:
+          KAGGLE_JSON: ${{ secrets.KAGGLE_JSON }}
+        run: |
+          J=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- pipeline/kaggle/jobs | head -1)
+          [ -z "$J" ] && J=$(git log -1 --name-only --format= -- pipeline/kaggle/jobs | head -1)
+          echo "jobs=$J"
+          git fetch -q origin experiment-output && git worktree add -q /tmp/eo origin/experiment-output
+          python - "$J" <<'PY'
+          import json, sys
+          p = sys.argv[1]; spec = json.load(open(p))
+          jobs = spec if isinstance(spec, list) else spec["jobs"]
+          for j in jobs:
+              for k in ("image", "ref", "still"):
+                  if j.get(k): j[k] = "/tmp/eo/" + j[k]
+          json.dump(spec, open("/tmp/jobs.json", "w"))
+          PY
+          python pipeline/kaggle/run_kaggle.py /tmp/jobs.json out/kaggle
+      - name: Push results
+        if: always()
+        run: |
+          git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
+          cd /tmp/eo && git checkout -q -B experiment-output && git pull -q origin experiment-output || true
+          mkdir -p runs/kaggle-${{ github.run_id }} && cp -r $GITHUB_WORKSPACE/out/kaggle/* runs/kaggle-${{ github.run_id }}/ 2>/dev/null || true
+          git add runs && git commit -qm "kaggle ${{ github.run_id }}" && git push -q origin experiment-output || true

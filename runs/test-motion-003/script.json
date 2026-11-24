@@ -1,0 +1,164 @@
+{
+  "schema_version": "1.0.0",
+  "id": "2000s-003",
+  "era": "2000s",
+  "title": "술래는 일부러 잡혔다",
+  "logline": "놀이터 지옥탈출에서 늘 그 애한테만 잡히던 아이가, 중2 빼빼로데이에 끝내 못 준 상자를 그 놀이터에서 건넨다.",
+  "theme": [
+    "첫사랑",
+    "놀이터",
+    "빼빼로데이"
+  ],
+  "target_duration_sec": 55,
+  "aspect_ratio": "9:16",
+  "style": {
+    "visual": "early 2000s Korean shoujo manhwa style illustration, soft pastel cel shading, sparkles, warm sunset glow, vertical 9:16",
+    "negative": "text, watermark, logo, brand packaging, smartphone in 2004 scenes, extra fingers, distorted face",
+    "bgm": "밝고 아련한 피아노 왈츠, 오르골 느낌",
+    "narrator_voice": "30대 남성, 담담하고 따뜻한 목소리"
+  },
+  "characters": [
+    {
+      "key": "A",
+      "name": "민호",
+      "look": "a Korean boy, 10 years old in 2004 then 14 in a navy middle school uniform, short messy black hair, shy",
+      "voice": "수줍은 10대 남성"
+    },
+    {
+      "key": "B",
+      "name": "지수",
+      "look": "a Korean girl, 10 years old in 2004 then 14 in a navy middle school uniform with a red ribbon, long ponytail, bright smile",
+      "voice": "밝은 10대 여성"
+    },
+    {
+      "key": "C",
+      "name": "요즘 아이",
+      "look": "a Korean kid in 2026 sitting alone on a swing, face lit by a smartphone",
+      "voice": "대사 없음"
+    }
+  ],
+  "scenes": [
+    {
+      "no": 1,
+      "beat": "hook",
+      "duration_sec": 5,
+      "location": "2026 저녁 놀이터",
+      "image_prompt": "an empty playground at dusk, {C} alone on a swing looking at a glowing phone",
+      "motion_prompt": "slow push in",
+      "narration": "요즘 놀이터엔 아무도 술래를 안 한다.",
+      "dialogue": [],
+      "captions": [
+        "요즘 놀이터엔 아무도",
+        "술래를 안 한다."
+      ],
+      "sfx": "그네 삐걱"
+    },
+    {
+      "no": 2,
+      "beat": "memory",
+      "duration_sec": 11,
+      "location": "2004 동네 놀이터",
+      "image_prompt": "kids climbing a jungle gym at golden hour playing tag, {B} pointing and laughing at {A} who stepped on the sand",
+      "motion_prompt": "slow pan right",
+      "narration": "2004년, 우리 동네 놀이터. 해 질 때까지 지옥탈출을 했다.",
+      "dialogue": [
+        {
+          "speaker": "B",
+          "line": "야, 땅 밟았지! 너 술래야!"
+        }
+      ],
+      "captions": [
+        "2004년, 우리 동네",
+        "놀이터. 해 질 때까지",
+        "지옥탈출을 했다. 야, 땅",
+        "밟았지! 너 술래야!"
+      ],
+      "sfx": "아이들 웃음소리"
+    },
+    {
+      "no": 3,
+      "beat": "memory",
+      "duration_sec": 10,
+      "location": "정글짐 아래",
+      "image_prompt": "close-up of {B} tagging {A}'s shoulder, sparkles and soft light, {A} blushing",
+      "motion_prompt": "slow push in",
+      "narration": "나는 일부러 그 애한테만 잡혔다. 그래야 그 애가 날 보니까.",
+      "dialogue": [],
+      "captions": [
+        "나는 일부러 그 애한테만",
+        "잡혔다. 그래야 그 애가",
+        "날 보니까."
+      ],
+      "sfx": "반짝 효과음"
+    },
+    {
+      "no": 4,
+      "beat": "conflict",
+      "duration_sec": 11,
+      "location": "2008 중학교 교실",
+      "image_prompt": "a middle school classroom on November 11, a long pink snack box hidden in {A}'s bag, autumn light",
+      "motion_prompt": "slow zoom in",
+      "narration": "중2 빼빼로데이. 결국 못 줬다. 하루 종일 가방 속에서 과자만 다 부러졌다.",
+      "dialogue": [],
+      "captions": [
+        "중2 빼빼로데이. 결국 못",
+        "줬다. 하루 종일 가방",
+        "속에서 과자만 다",
+        "부러졌다."
+      ],
+      "sfx": "교실 종소리"
+    },
+    {
+      "no": 5,
+      "beat": "turn",
+      "duration_sec": 11,
+      "location": "해 질 녘 놀이터",
+      "image_prompt": "{B} sitting on top of the jungle gym at sunset, {A} below holding the box behind his back, sparkles",
+      "motion_prompt": "slow push in",
+      "narration": "",
+      "dialogue": [
+        {
+          "speaker": "B",
+          "line": "술래 해 줄게. 잡히면 그거 나 주는 거다?"
+        },
+        {
+          "speaker": "A",
+          "line": "…어, 응."
+        }
+      ],
+      "captions": [
+        "술래 해 줄게. 잡히면",
+        "그거 나 주는 거다?",
+        "…어, 응."
+      ],
+      "sfx": "바람 소리"
+    },
+    {
+      "no": 6,
+      "beat": "ending",
+      "duration_sec": 7,
+      "location": "2026 저녁 놀이터",
+      "image_prompt": "the same playground at dusk, empty jungle gym, mirrors the first scene",
+      "motion_prompt": "slow zoom out",
+      "narration": "그 놀이터는 아직 있다. 이제 술래만 없을 뿐.",
+      "dialogue": [],
+      "captions": [
+        "그 놀이터는 아직 있다.",
+        "이제 술래만 없을 뿐."
+      ],
+      "sfx": ""
+    }
+  ],
+  "upload": {
+    "yt_title": "놀이터 지옥탈출 기억나는 사람? #shorts",
+    "ig_caption": "술래는 일부러 잡혔다. 그래야 그 애가 날 보니까.",
+    "hashtags": [
+      "#2000년대",
+      "#지옥탈출",
+      "#빼빼로데이",
+      "#추억",
+      "#숏드라마"
+    ],
+    "cover_text": "술래는 일부러 잡혔다"
+  }
+}

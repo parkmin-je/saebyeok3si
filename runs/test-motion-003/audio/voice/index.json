@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "segments": [
+    {
+      "no": 1,
+      "seq": 1,
+      "speaker": "N",
+      "text": "요즘 놀이터엔 아무도 술래를 안 한다.",
+      "file": "audio/voice/scene-01-1.wav",
+      "duration_sec": 2.565
+    },
+    {
+      "no": 2,
+      "seq": 1,
+      "speaker": "N",
+      "text": "2004년, 우리 동네 놀이터. 해 질 때까지 지옥탈출을 했다.",
+      "file": "audio/voice/scene-02-1.wav",
+      "duration_sec": 4.432
+    },
+    {
+      "no": 2,
+      "seq": 2,
+      "speaker": "B",
+      "text": "야, 땅 밟았지! 너 술래야!",
+      "file": "audio/voice/scene-02-2.wav",
+      "duration_sec": 2.064
+    },
+    {
+      "no": 3,
+      "seq": 1,
+      "speaker": "N",
+      "text": "나는 일부러 그 애한테만 잡혔다. 그래야 그 애가 날 보니까.",
+      "file": "audio/voice/scene-03-1.wav",
+      "duration_sec": 4.548
+    },
+    {
+      "no": 4,
+      "seq": 1,
+      "speaker": "N",
+      "text": "중2 빼빼로데이. 결국 못 줬다. 하루 종일 가방 속에서 과자만 다 부러졌다.",
+      "file": "audio/voice/scene-04-1.wav",
+      "duration_sec": 8.191
+    },
+    {
+      "no": 5,
+      "seq": 1,
+      "speaker": "B",
+      "text": "술래 해 줄게. 잡히면 그거 나 주는 거다?",
+      "file": "audio/voice/scene-05-1.wav",
+      "duration_sec": 2.917
+    },
+    {
+      "no": 5,
+      "seq": 2,
+      "speaker": "A",
+      "text": "…어, 응.",
+      "file": "audio/voice/scene-05-2.wav",
+      "duration_sec": 0.858
+    },
+    {
+      "no": 6,
+      "seq": 1,
+      "speaker": "N",
+      "text": "그 놀이터는 아직 있다. 이제 술래만 없을 뿐.",
+      "file": "audio/voice/scene-06-1.wav",
+      "duration_sec": 3.591
+    }
+  ]
+}

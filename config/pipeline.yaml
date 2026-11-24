@@ -1,0 +1,76 @@
+# 공급자 설정. 모델 ID나 단가가 바뀌면 여기만 고친다.
+# 단가(usd_*)는 예산 추적용 추정치다. 실제 청구액은 Google Cloud 결제 화면 기준.
+providers:
+  gemini:
+    image:                       # 위에서부터 시도, 실패 시 다음 (폴백 체인)
+      - { model: gemini-3-pro-image-preview, usd_per_image: 0.134 }   # 나노바나나 Pro
+      - { model: gemini-2.5-flash-image,     usd_per_image: 0.039 }   # 나노바나나
+    video:
+      fast:                      # 기본값: 샘플·일상 운영용
+        - { model: veo-3.1-fast-generate-preview, usd_per_sec: 0.15, resolution: 1080p }
+      max:                       # --quality max
+        - { model: veo-3.1-generate-preview,      usd_per_sec: 0.40, resolution: 1080p }
+        - { model: veo-3.1-fast-generate-preview, usd_per_sec: 0.15, resolution: 1080p }
+    text:                        # 대본 작성 (무료 등급)
+      - gemini-3.5-flash
+      - gemini-3.8-flash
+      - gemini-3-flash-preview
+      - gemini-2.5-flash
+    tts:                         # gemini-3.8-flash-tts는 무료 등급에서 동작 (2026-11-22 확인)
+      - { model: gemini-3.8-flash-tts,         usd_per_char: 0.0 }
+      - { model: gemini-3.8-flash-lite-tts,    usd_per_char: 0.0 }
+
+  local:                         # 러너에서 직접 돌리는 무료 오픈소스 모델 (실험 결과로 선택)
+    image:
+      model: SG161222/Realistic_Vision_V5.1_noVAE      # CreativeML OpenRAIL-M
+      vae: stabilityai/sd-vae-ft-mse
+      lcm_lora: latent-consistency/lcm-lora-sdv1-5
+      steps: 6
+      guidance: 1.5
+      width: 512
+      height: 896
+    depth: depth-anything/Depth-Anything-V2-Small-hf   # Apache-2.0
+    motion:                      # 인물이 실제로 움직이는 컷 (AnimateDiff-Lightning, CreativeML OpenRAIL-M)
+      model: SG161222/Realistic_Vision_V5.1_noVAE
+      vae: stabilityai/sd-vae-ft-mse
+      adapter_repo: ByteDance/AnimateDiff-Lightning
+      adapter_file: animatediff_lightning_4step_diffusers.safetensors
+      steps: 4
+      frames: 16
+      width: 384                 # CPU 2코어 기준 컷당 약 23분. 공개 저장소(4코어)면 약 절반
+      height: 672
+      fps_in: 7                  # 16프레임을 7fps로 → 약 2.3초, 30fps로 보간
+      max_scenes: 6              # 0이면 끔 (사진+카메라 움직임만)
+
+video:
+  clip_sec: 8                    # Veo 클립 길이 (4, 6, 8 중 하나)
+  ambient_gain_db: -20           # Veo가 만든 환경음을 깔아 둘 음량
+  max_slowdown: 1.6              # 장면이 클립보다 길 때 최대 슬로모션 배율
+
+voices:                          # Gemini TTS 프리셋 목소리. 대본 voice 설명의 성별·나이로 고른다
+  female_old: Gacrux             # 성숙하고 낮은 여성
+  female_mid: Vindemiatrix
+  female: Leda                   # 젊은 여성
+  male_old: Charon
+  male_mid: Charon
+  male: Achird                   # 젊고 다정한 남성
+  speed_old: 0.92                # 노년 목소리는 조금 느리게
+
+music:                           # 시대별 배경음악 프리셋 (pipeline/stages/music.py)
+  2000s: musicbox_major
+  default: piano_minor
+
+budget:
+  per_episode_usd: 30.0
+
+captions:
+  font: assets/fonts/NanumMyeongjoBold.ttf
+  font_name: NanumMyeongjo
+  size: 70
+  margin_v: 400                  # 아래 여백 (쇼츠·릴스 하단 UI 피하기)
+
+eras:                            # 시대별 색감 (ffmpeg 필터)
+  1930s: "eq=contrast=1.08:saturation=0.82:gamma=0.97,colorbalance=rm=0.04:bm=-0.05:rh=0.03:bh=-0.04,noise=c0s=6:c0f=t+u"
+  1970s: "eq=contrast=1.04:saturation=1.15:gamma_r=1.06:gamma_b=0.92,noise=c0s=5:c0f=t+u,vignette=PI/5"
+  2000s: "eq=contrast=1.02:saturation=0.95:gamma_b=1.04,noise=c0s=3:c0f=t+u,vignette=PI/6"
+  default: "noise=c0s=4:c0f=t+u,vignette=PI/5"

@@ -1,0 +1,18 @@
+{
+ "kernel": "cpu",
+ "tag": "s05",
+ "jobs": [
+  {
+   "name": "s05-ots-seojin",
+   "prompt": "indoor school hallway, over-the-shoulder shot from behind a tall boy in a navy blazer, beautiful early 20s Korean actress playing a high school girl, long straight black hair with see-through bangs, dark navy blue school blazer (not beige) with white piping trim and a gold school crest with big red bow tie, white shirt facing him with an angry face, arms crossed, schoolyard in winter, RAW photo, cinematic still from a Korean high school romance drama, winter 2006, Kodak Portra 400 film look, soft natural light, shallow depth of field, highly detailed background, sharp focus on face, 8k",
+   "ref": "runs/cast-45178887634/seojin-3.png",
+   "motion": "she glares at the boy with eyes wide open, a small defiant head tilt, lips pressed then a short sharp line, arms crossed, the boy's shoulder in the foreground barely moves, steady camera",
+   "seed": 331,
+   "frames": 65,
+   "w": 704,
+   "h": 1232,
+   "steps": 26
+  }
+ ],
+ "rev": 2
+}

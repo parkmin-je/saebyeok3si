@@ -1,0 +1,199 @@
+{
+ "id": "ep02",
+ "series": "우리가 열여덟이던 겨울",
+ "episode": 2,
+ "title": "남의 폰",
+ "next": "EP.03 옥상 4시",
+ "hook": "남의 폰으로 온 문자,|'오늘 고백 대답 들으러 갈게'",
+ "cast": {
+  "seojin": {
+   "name": "서진",
+   "voice": "Leda",
+   "color": "FFD3DE"
+  },
+  "doyoon": {
+   "name": "도윤",
+   "voice": "Achird",
+   "color": "C4E4FF"
+  },
+  "chaerin": {
+   "name": "채린",
+   "voice": "Kore",
+   "color": "E6C8FF"
+  }
+ },
+ "music_gain": 0.3,
+ "ambient": 0.05,
+ "shots": [
+  {
+   "src": "episodes/ep02/clips/e2s01-phone-buzz.mp4",
+   "dur": 2.2,
+   "phone": "채린: 도윤아, 4시에 옥상. 고백 대답 들으러 갈게.",
+   "sfx": [
+    {
+     "name": "buzz",
+     "at": 0.0
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s02-seojin-read.mp4",
+   "dur": 2.4,
+   "lines": [
+    {
+     "who": "seojin",
+     "text": "이걸 왜 내가 보고 있냐고.",
+     "at": 0.3,
+     "inner": true,
+     "tone": "exasperated inner monologue"
+    }
+   ],
+   "flash": true
+  },
+  {
+   "src": "episodes/ep02/clips/e2s03-chaerin-hall.mp4",
+   "dur": 2.6,
+   "lines": [
+    {
+     "who": "chaerin",
+     "text": "오늘 대답 듣기로 했거든.",
+     "at": 0.4,
+     "tone": "smug, confident"
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s02-seojin-read.mp4",
+   "in": 2.0,
+   "dur": 1.8,
+   "lines": [
+    {
+     "who": "seojin",
+     "text": "...폰만 돌려주고 오자.",
+     "at": 0.2,
+     "inner": true,
+     "tone": "determined whisper"
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s04-rooftop-door.mp4",
+   "dur": 1.8,
+   "sfx": [
+    {
+     "name": "whoosh",
+     "at": 0.1
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s05-seojin-rooftop.mp4",
+   "dur": 2.4,
+   "lines": [
+    {
+     "who": "seojin",
+     "text": "강도윤? 없네.",
+     "at": 0.4,
+     "tone": "nervous, looking around"
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s06-doyoon-behind.mp4",
+   "dur": 2.4,
+   "lines": [
+    {
+     "who": "doyoon",
+     "text": "찾았어? 내 폰.",
+     "at": 0.5,
+     "tone": "teasing, low"
+    }
+   ],
+   "sfx": [
+    {
+     "name": "heartbeat",
+     "at": 0.0,
+     "gain": 0.6
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s07-seojin-close.mp4",
+   "dur": 2.4,
+   "lines": [
+    {
+     "who": "seojin",
+     "text": "가져가. 네 고백 문자 왔어.",
+     "at": 0.3,
+     "tone": "annoyed, embarrassed"
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s08-doyoon-close.mp4",
+   "dur": 2.6,
+   "lines": [
+    {
+     "who": "doyoon",
+     "text": "답장해 줘. 싫다고.",
+     "at": 0.6,
+     "tone": "calm, serious"
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s07-seojin-close.mp4",
+   "in": 2.0,
+   "dur": 1.8,
+   "lines": [
+    {
+     "who": "seojin",
+     "text": "...내가 왜?",
+     "at": 0.3,
+     "tone": "flustered"
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s08-doyoon-close.mp4",
+   "in": 2.0,
+   "dur": 2.4,
+   "lines": [
+    {
+     "who": "doyoon",
+     "text": "좋아하는 애가 따로 있어서.",
+     "at": 0.3,
+     "tone": "soft, sincere"
+    }
+   ]
+  },
+  {
+   "src": "episodes/ep02/clips/e2s09-chaerin-door.mp4",
+   "dur": 3.0,
+   "sfx": [
+    {
+     "name": "sting",
+     "at": 0.4
+    }
+   ]
+  }
+ ],
+ "cues": [
+  {
+   "shot": 0,
+   "type": "tension"
+  },
+  {
+   "shot": 2,
+   "type": "banter"
+  },
+  {
+   "shot": 6,
+   "type": "flutter"
+  },
+  {
+   "shot": 11,
+   "type": "stop"
+  }
+ ]
+}

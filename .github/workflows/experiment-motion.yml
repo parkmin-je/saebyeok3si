@@ -1,0 +1,40 @@
+name: experiment-motion
+# 무료 CPU 러너에서 AnimateDiff-Lightning 움직임 컷 실험. 결과는 experiment-output 브랜치에 커밋한다.
+on:
+  workflow_dispatch:
+    inputs:
+      sizes:
+        description: "해상도 (s m)"
+        default: "s m"
+permissions:
+  contents: write
+concurrency: { group: experiment-output, cancel-in-progress: false }
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - uses: actions/cache@v4
+        with: { path: ~/.cache/huggingface, key: hf-motion-v1 }
+      - name: Install CPU torch + diffusers
+        run: |
+          pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+          pip install diffusers==0.31.0 transformers==4.46.3 accelerate==1.1.1 peft==0.13.2 safetensors pillow numpy huggingface_hub
+      - name: Generate
+        run: |
+          nproc; free -g
+          python pipeline/experiments/motion_clips.py ${{ inputs.sizes || 's m' }}
+      - name: Push results
+        if: always()
+        run: |
+          mkdir -p /tmp/o && cp -r out /tmp/o/ || true
+          git config user.name "rrs-bot"; git config user.email "rrs-bot@users.noreply.github.com"
+          git fetch origin experiment-output || true
+          if git rev-parse -q --verify origin/experiment-output >/dev/null; then git checkout -q -B experiment-output origin/experiment-output; else git checkout -q --orphan experiment-output; git rm -rqf . ; fi
+          find . -mindepth 1 -maxdepth 1 ! -name .git ! -name runs -exec rm -rf {} +
+          mkdir -p runs/motion-${{ github.run_id }} && cp -r /tmp/o/out/* runs/motion-${{ github.run_id }}/ || true
+          git add runs && git commit -qm "motion experiment ${{ github.run_id }}" && git push origin experiment-output
