@@ -1,0 +1,90 @@
+{
+ "id": "short03-bicycle",
+ "short": true,
+ "title": "아버지는 언제|손을 놓으셨을까",
+ "brand": "느린 우체통",
+ "voices": {
+  "nar": "M1",
+  "son": "M2",
+  "father": "M3",
+  "maker": "M4",
+  "friend": "M5"
+ },
+ "speed": {
+  "nar": 0.95,
+  "son": 0.92,
+  "father": 0.9,
+  "maker": 0.88,
+  "friend": 0.95
+ },
+ "names": {
+  "son": "김영수 (72)",
+  "father": "아버지",
+  "maker": "시계방 할아버지",
+  "friend": "옛 짝꿍 철수"
+ },
+ "scenes": [
+  {
+   "scene": "countryhouse",
+   "o": {
+    "time": "day",
+    "person": "man"
+   },
+   "memory": true,
+   "label": "열두 살",
+   "lines": [
+    {
+     "who": "nar",
+     "text": "열두 살, 아버지는 짐자전거 뒤에서 안장을 꼭 붙잡고 같이 뛰어 주셨습니다."
+    },
+    {
+     "who": "father",
+     "text": "앞만 봐라. 아버지가 잡고 있다. 절대 안 놓는다."
+    },
+    {
+     "who": "nar",
+     "text": "한참 달리다 돌아보니, 아버지는 저만치 뒤에서 손을 흔들고 계셨습니다."
+    }
+   ]
+  },
+  {
+   "scene": "station",
+   "o": {
+    "name": "읍 내 역",
+    "hat": true,
+    "bike": true,
+    "time": "dawn"
+   },
+   "fx": 0.6,
+   "memory": true,
+   "label": "스무 살",
+   "lines": [
+    {
+     "who": "nar",
+     "text": "스무 살, 서울 가는 기차가 움직이자 창밖으로 아버지가 보였습니다. 그 짐자전거로 기찻길 옆 둑길을 따라 달리고 계셨지요."
+    },
+    {
+     "who": "son",
+     "text": "그때 알았습니다. 아버지는 손만 놓으셨을 뿐, 눈은 한 번도 떼지 않으셨다는 걸요."
+    }
+   ]
+  },
+  {
+   "scene": "snowroad",
+   "o": {
+    "person": "man"
+   },
+   "snow": true,
+   "lines": [
+    {
+     "who": "nar",
+     "text": "자전거는 오래전에 없어졌지만, 아버지는 열쇠만은 서랍 깊숙이 간직하셨습니다. 영수 씨는 요즘 그 열쇠를 달고 손주에게 자전거를 가르칩니다."
+    }
+   ]
+  }
+ ],
+ "end": {
+  "question": "여러분은 누구에게|자전거를 배우셨나요?",
+  "s": "다음 이야기 · 부치지 않은 편지<br>지어낸 창작 이야기입니다"
+ }
+}

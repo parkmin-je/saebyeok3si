@@ -4,7 +4,7 @@ name: saeyeon-voices
 on:
   push:
     branches: [feat/sample-video-veo]
-    paths: [pipeline/saeyeon/ep*/episode.json, .github/workflows/saeyeon-voices.yml]
+    paths: [pipeline/saeyeon/ep*/episode.json, pipeline/saeyeon/shorts/*.json]
   workflow_dispatch:
 permissions:
   contents: write
@@ -25,21 +25,11 @@ jobs:
       - name: Voices
         run: |
           git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
-          E=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'pipeline/saeyeon/ep*/episode.json' | head -1)
-          [ -z "$E" ] && E=$(ls pipeline/saeyeon/ep*/episode.json | tail -1)
-          ID=$(python -c "import json,sys;print(json.load(open(sys.argv[1]))['id'])" "$E")
+          FILES=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'pipeline/saeyeon/ep*/episode.json' 'pipeline/saeyeon/shorts/*.json')
+          [ -z "$FILES" ] && FILES=$(ls pipeline/saeyeon/ep*/episode.json | tail -1)
           git fetch -q origin experiment-output && git worktree add -q -B eo-work /tmp/eo origin/experiment-output
-          OUT=/tmp/eo/runs/voices-$ID-${{ github.run_id }}
-          mkdir -p $OUT/samples
-          python - "$OUT/samples" <<'PY'
-          import sys, soundfile as sf, numpy as np
-          from supertonic import TTS
-          t = TTS(auto_download=True)
-          line = "안녕하세요, 느린 우체통입니다. 오늘도 지나간 시간에서 늦게 도착한 편지 한 통을 천천히 읽어드리겠습니다."
-          for v in [f"{g}{i}" for g in "MF" for i in range(1, 6)]:
-              w, _ = t.synthesize(line, voice_style=t.get_voice_style(voice_name=v), lang="ko", speed=0.92, total_steps=10)
-              sf.write(f"{sys.argv[1]}/{v}.wav", np.asarray(w).reshape(-1), t.sample_rate)
-          PY
-          time python pipeline/saeyeon/build.py "$E" /tmp/work --voices-only
-          cp -r /tmp/work/voice $OUT/voice
-          cd /tmp/eo && git add runs && git commit -qm "voices $ID ${{ github.run_id }}" && for i in 1 2 3; do git pull -q --rebase origin experiment-output && git push -q origin HEAD:experiment-output && break; sleep 5; done
+          OUT=/tmp/eo/runs/voices-${{ github.run_id }}
+          mkdir -p $OUT/voice
+          for E in $FILES; do python pipeline/saeyeon/build.py "$E" /tmp/work --voices-only; done
+          cp /tmp/work/voice/*.wav $OUT/voice/
+          cd /tmp/eo && git add runs && git commit -qm "voices ${{ github.run_id }}" && for i in 1 2 3; do git pull -q --rebase origin experiment-output && git push -q origin HEAD:experiment-output && break; sleep 5; done

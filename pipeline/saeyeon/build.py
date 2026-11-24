@@ -59,6 +59,10 @@ def voice_file(work, line, voice):
 
 
 def all_lines(ep):
+    if ep.get("short"):
+        for sc in ep["scenes"]:
+            yield from sc.get("lines", [])
+        return
     yield from ep["intro"]["lines"]
     for st in ep["stories"]:
         for sc in st["scenes"]:
@@ -108,7 +112,7 @@ def timeline(ep, work):
             _, f = voice_file(work, ln, ep["voices"][ln["who"]])
             t += (0.9 if k == 0 else GAP_LINE)
             d = dur(f)
-            ps = pieces(ln["text"])
+            ps = pieces(ln["text"], 30, 38) if ep.get("short") else pieces(ln["text"])
             w = [len(x.replace(" ", "")) + 2 for x in ps]
             u = t
             for j, (x, wj) in enumerate(zip(ps, w)):
@@ -119,12 +123,24 @@ def timeline(ep, work):
                 u = e
             t += d
         t += sc.get("hold", 0.8 if sc.get("lines") else REST)
-        segs.append({"scene": sc["scene"], "o": sc.get("o", {}), "start": round(start, 3), "end": round(t, 3),
+        segs.append({"scene": sc["scene"], "o": sc.get("o", {}), "start": round(max(0, start), 3), "end": round(t, 3), "fx": sc.get("fx", .5),
                      "label": sc.get("label"), "memory": sc.get("memory", False), "snow": sc.get("snow", False),
                      "zoom": sc.get("zoom", .07), "pan": sc.get("pan", 0)})
         cues.append({"t": start, "mood": "memory" if sc.get("memory") else kind, "scene": sc["scene"]})
         t += GAP_SCENE * 0
 
+    if ep.get("short"):   # 세로 쇼츠: 제목 카드 없이 바로 장면 + 첫 줄 훅, 끝에 짧은 질문 카드
+        cards.clear()
+        t = -0.6
+        for sc in ep["scenes"]:
+            scene(sc, "warm")
+        cards.append({"start": round(t, 3), "end": round(t + 3.5, 3), "kicker": ep.get("brand", ""),
+                      "main": ep["end"]["question"].replace("|", "<br>"), "s": ep["end"].get("s", "")})
+        t += 3.5
+        tl = {"brand": ep.get("brand", ""), "title": ep["title"].replace("|", "<br>"), "vertical": True,
+              "segments": segs, "lines": lines, "cards": cards, "cues": cues, "total": round(t, 3)}
+        (work / "timeline.json").write_text(json.dumps(tl, ensure_ascii=False, indent=1))
+        return tl
     intro = dict(ep["intro"]["scene"], lines=ep["intro"]["lines"], label=ep["intro"].get("label"))
     scene(intro, "warm")
     for st in ep["stories"]:
@@ -293,6 +309,8 @@ def encode(tl, work, out):
 
 def chapters(ep, tl):
     """유튜브 설명란용 챕터 (이야기마다)."""
+    if ep.get("short"):
+        return ep["title"].replace("|", " ")
     rows = ["00:00 " + ep["title"].replace("|", " ")]
     for c in tl["cards"][1:-1]:
         s = int(c["start"])

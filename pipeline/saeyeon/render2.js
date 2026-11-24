@@ -10,7 +10,7 @@ const path = require('path');
   const fps = 30;
   fs.mkdirSync(out, { recursive: true });
   const b = await chromium.launch({ args: ['--allow-file-access-from-files'] });
-  const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
+  const p = await b.newPage({ viewport: tl.vertical ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 } });
   await p.addInitScript(`window.TIMELINE=${JSON.stringify(tl)}`);
   p.on('pageerror', e => console.log('ERR', e.message));
   await p.goto('file://' + path.join(__dirname, 'engine.html'));
