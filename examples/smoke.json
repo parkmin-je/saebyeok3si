@@ -1,0 +1,14 @@
+{
+  "_doc": "제작기 점검용 짧은 대본 (테스트가 씀). 실제 화는 series/kongsawon/epNNN.json.",
+  "id": "smoke", "series": "kongsawon", "day": 1, "mood": "bright",
+  "hook": "신입 자리,|*아직* 있을까?",
+  "shots": [
+    {"scene": "studio", "o": {"screen": "q", "job": "신입 개발자", "face": "worried", "sweat": true}, "cam": [1020, 400, 1300],
+     "say": {"who": "kong", "text": "신입 자리… *아직* 있겠지?", "inner": true}},
+    {"scene": "studio", "o": {"screen": "big", "title": "AI가 고친 버그", "num": 3, "unit": "초", "face": "shock"}, "cam": [1020, 300, 1200],
+     "say": {"who": "bot", "text": "3초 만에 고쳤습니다, 팀장님~", "how": "상냥하고 아첨하듯"}, "sfx": [["code", 0.1]]},
+    {"scene": "studio", "o": {"screen": "q", "job": "콩사원", "face": "sly"}, "cam": [1020, 500, 1100],
+     "say": {"who": "cat", "text": "*AI한테* 물어봤어?", "how": "답답하다는 듯"}}
+  ],
+  "tip": "AI 결과물, 배포 전에 직접 확인하기", "tip_no": 1, "end_q": "당신 팀에도 AI대리 들어왔나요?"
+}

@@ -1,18 +1,17 @@
-.env
-.env.*
-!.env.example
+# 작업 폴더·결과물
+work/
+out/
+*.mp4
+*.wav
+*.f32
+# 파이썬·노드
 __pycache__/
 *.pyc
 .venv/
+.pytest_cache/
+.ruff_cache/
 node_modules/
+# 비밀값
+.env
+.env.*
 .DS_Store
-output/*
-!output/.gitkeep
-assets/images/*
-!assets/images/.gitkeep
-assets/audio/*
-!assets/audio/.gitkeep
-
-# 런 디렉터리 (생성물)
-runs/
-data/
