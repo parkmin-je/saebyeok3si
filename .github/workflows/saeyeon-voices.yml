@@ -32,5 +32,6 @@ jobs:
           mkdir -p $OUT/voice
           for E in $FILES; do python pipeline/saeyeon/build.py "$E" /tmp/work --voices-only; done
           for E in $(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'pipeline/whatif/w*.json' | grep -v -- '-shots.json'); do python pipeline/whatif/make.py "$E" /tmp/work --voices-only; done
+          ls /tmp/work/voice/*.wav >/dev/null 2>&1 || { echo "만들 목소리 없음"; exit 0; }
           cp /tmp/work/voice/*.wav $OUT/voice/
           cd /tmp/eo && git add runs && git commit -qm "voices ${{ github.run_id }}" && for i in 1 2 3; do git pull -q --rebase origin experiment-output && git push -q origin HEAD:experiment-output && break; sleep 5; done
