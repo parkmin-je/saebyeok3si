@@ -18,4 +18,4 @@
 [parallax] 장면 5 11.6s
 [parallax] 장면 6 7.0s
 [music] musicbox_major 55.0s 합성
-[gate] video passed=True {'duration_sec': 55.0, 'lufs': -14.1, 'true_peak_dbtp': -1.4, 'size_mb': 19.8} []
+[gate] video passed=True {'duration_sec': 55.0, 'lufs': -14.1, 'true_peak_dbtp': -1.4, 'size_mb': 19.5} []
