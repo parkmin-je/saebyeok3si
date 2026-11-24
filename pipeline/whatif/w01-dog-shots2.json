@@ -1,0 +1,51 @@
+{
+ "style": "3D animated feature film still, stylized cute characters, expressive faces, soft global illumination, cinematic lighting, rich warm colors, highly detailed, shallow depth of field, vertical composition",
+ "neg": "text, letters, words, watermark, logo, signature, deformed, extra legs, extra limbs, extra tail, bad anatomy, blurry, lowres, ugly, photo, photorealistic, grainy",
+ "chars": {
+  "DOG": "an adorable fluffy orange-and-white shiba inu puppy with big round shiny brown eyes and a red collar with a small gold tag",
+  "OLDDOG": "an old fluffy orange-and-white shiba inu dog with a gray muzzle, gentle tired brown eyes and a red collar with a small gold tag",
+  "OWNER": "a young Korean woman with a short black bob haircut"
+ },
+ "shots": [
+  {
+   "name": "17-gift",
+   "prompt": "{DOG} sitting proudly next to an open gift box with a red ribbon, a pair of brand new white sneakers inside the box, cozy bedroom in morning sunlight, happy proud face",
+   "seeds": [
+    171,
+    172
+   ]
+  },
+  {
+   "name": "18-nightcry",
+   "prompt": "{OWNER} in her early thirties sitting on a sofa at night hugging her knees and crying with tears, dim warm lamp light, {DOG} sitting beside her on the sofa looking up at her with a worried face, cozy dark living room",
+   "seeds": [
+    181,
+    182
+   ]
+  },
+  {
+   "name": "19-nightdog",
+   "prompt": "close-up of {DOG} on a sofa at night looking up with a serious comforting face, dim warm lamp light, dark cozy living room background bokeh",
+   "seeds": [
+    191,
+    192
+   ]
+  },
+  {
+   "name": "20-nightlaugh",
+   "prompt": "{OWNER} in her early thirties on a sofa at night laughing through her tears, wiping her eyes, {DOG} next to her tilting its head proudly, dim warm lamp light, cozy living room",
+   "seeds": [
+    201,
+    202
+   ]
+  },
+  {
+   "name": "21-porchtalk",
+   "prompt": "a woman in her late thirties with a short black bob haircut sitting on a wooden porch at golden sunset, looking down tenderly and talking to {OLDDOG} sitting beside her, peaceful countryside, warm nostalgic light",
+   "seeds": [
+    211,
+    212
+   ]
+  }
+ ]
+}
