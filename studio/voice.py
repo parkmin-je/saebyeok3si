@@ -11,6 +11,7 @@
 import base64
 import hashlib
 import io
+import itertools
 import json
 import os
 import re
@@ -100,8 +101,40 @@ def with_fx(ep, path: Path, who: str) -> Path:
     return out
 
 
+def tighten(x, max_gap=0.22) -> np.ndarray:
+    """줄 안의 긴 쉼(0.3초 넘는 것)을 max_gap 초로 줄인다. 쇼츠는 숨 돌릴 틈이 짧아야 한다."""
+    segs = segments(x, min_gap=0.3)
+    if len(segs) < 2:
+        return x
+    keep = int(max_gap * SR)
+    out = [x[: int(segs[0][1] * SR)]]
+    for (_, b), (a2, b2) in itertools.pairwise(segs):
+        gap = x[int(b * SR) : int(a2 * SR)]
+        out += [gap[: keep // 2], gap[-(keep - keep // 2) :], x[int(a2 * SR) : int(b2 * SR)]]
+    out.append(x[int(segs[-1][1] * SR) :])
+    return np.concatenate(out)
+
+
+def with_speed(ep, path: Path) -> Path:
+    """줄 안 쉼을 줄이고, ep["speed"] (예: 1.08) 만큼 빠르게 (음높이는 그대로)."""
+    sp = ep.get("speed", 1.0)
+    out = path.with_name(path.stem + f"-t{sp}.wav")
+    if out.exists():
+        return out
+    x, sr = read_wav(path)
+    tmp = path.with_name(path.stem + "-tight.wav")
+    write_wav(tmp, tighten(x) if sr == SR else x, sr)
+    if sp == 1.0:
+        tmp.replace(out)
+    else:
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(tmp), "-af", f"atempo={sp}", str(out)], check=True)
+        tmp.unlink()
+    return out
+
+
 def final_path(ep, work, ln, fake=False) -> Path:
-    return with_fx(ep, path_of(ep, work, ln, fake), ln["who"])
+    p = path_of(ep, work, ln, fake)
+    return with_fx(ep, p if fake else with_speed(ep, p), ln["who"])
 
 
 # ---------- 묶기 ----------
@@ -283,6 +316,8 @@ def fake(ep, work, lines) -> None:
 
 def make(ep, work, lines, log=print) -> None:
     """없는 줄만 녹음한다. 묶음 원본은 work/voice/raw/ 에 남겨서 다시 돌려도 요청을 아낀다."""
+    if all(path_of(ep, work, ln).exists() for ln in lines):
+        return
     if not os.environ.get("GEMINI_API_KEY"):
         raise VoiceError("GEMINI_API_KEY 가 없음 (길이만 보려면 --fake-voice)")
     raw = Path(work) / "voice" / "raw"

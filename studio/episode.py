@@ -52,6 +52,7 @@ def prepare(ep: dict) -> dict:
     ep.setdefault("gdirect", DIRECT)
     ep.setdefault("fx", {k: c["fx"] for k, c in cast.items() if c.get("fx", 1.0) != 1.0})
     ep.setdefault("mood", "bright")
+    ep.setdefault("speed", ch["format"].get("voice_speed", 1.0))
     if ep.get("day") and ch["format"].get("badge"):
         ep.setdefault("badge", ch["format"]["badge"].format(day=ep["day"]))
     if "card" not in ep and ep.get("tip"):

@@ -46,3 +46,8 @@ def test_inner_voice_captions_are_marked():
     assert kong and all(c["inner"] and c["name"] == "콩사원 속마음" for c in kong)
     assert sum("wav" in c for c in tl["caps"]) == 2  # 줄마다 첫 덩어리에만 소리
     assert all(c["start"] < c["end"] for c in tl["caps"])
+
+
+def test_chunks_do_not_split_short_emphasis():
+    cs = chunks("오늘부터 우리 팀 *새 식구*다!")
+    assert any("*새 식구*다!" in c for c in cs)

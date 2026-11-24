@@ -114,7 +114,7 @@ window.render = function (t) {
     }
   });
   const sp = TL.caps.find(c => t >= c.start && t <= c.end + .05);
-  window.SPEAK = sp ? sp.who : null;
+  window.SPEAK = sp && !sp.inner ? sp.who : null;   // 속마음은 입이 안 움직임
   TL.shots.forEach((s, i) => { const d = built.get(i); if (d && !s.img && L[s.scene].tick) L[s.scene].tick(d, t, t - s.start, s.o || {}); });
 
   grain(t);

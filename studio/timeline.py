@@ -13,9 +13,9 @@ def plain(s: str) -> str:
 
 
 def chunks(text: str, n: int = 11) -> list[str]:
-    """자막을 2~4어절 덩어리로 나눈다. *강조*가 두 덩어리에 걸치면 양쪽을 각각 닫고 연다."""
+    """자막을 2~4어절 덩어리로 나눈다. *여러 어절 강조*는 쪼개지 않는다 (너무 길면 양쪽을 각각 닫고 연다)."""
     out, cur = [], ""
-    for w in text.split():
+    for w in re.findall(r"\S*\*[^*]+\*\S*|\S+", text):
         if cur and len(plain(cur + " " + w)) > n:
             out.append(cur)
             cur = w

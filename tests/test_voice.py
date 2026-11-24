@@ -73,8 +73,15 @@ def test_tts_body_single_and_multi_speaker():
 def test_make_needs_key(monkeypatch, tmp_path):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     try:
-        voice.make({"gvoices": {}}, tmp_path, [])
+        voice.make({"gvoices": {"kong": "Puck"}}, tmp_path, [L("kong")])
     except voice.VoiceError as e:
         assert "GEMINI_API_KEY" in str(e)
     else:
         raise AssertionError("키 없이 통과하면 안 됨")
+
+
+def test_tighten_shortens_long_pauses_only():
+    x, _ = bursts([(1.0, 0.8), (1.0, 0.2), (1.0, 0)])
+    y = voice.tighten(x)
+    assert abs(len(x) / SR - len(y) / SR - (0.8 - 0.22)) < 0.06  # 긴 쉼 하나만 줄어듦
+    assert len(voice.segments(y)) == 2 or len(voice.segments(y, 0.15)) == 3
