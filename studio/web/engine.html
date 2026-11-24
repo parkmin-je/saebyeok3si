@@ -14,7 +14,6 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 #hook{position:absolute;left:40px;right:40px;top:250px;text-align:center;font-family:Gothic;font-size:104px;line-height:1.18;color:#fff;
   paint-order:stroke fill;-webkit-text-stroke:16px #000;letter-spacing:-2px;word-break:keep-all;opacity:0}
 #hook b,#cap b{color:#ffd23f;font-weight:inherit}
-#bar{position:absolute;left:0;top:0;height:12px;background:#ffd23f;width:0}
 #stamp{position:absolute;left:50%;top:190px;transform:translateX(-50%);font-family:Gothic;font-size:96px;color:#1a1208;background:#ffd23f;
   padding:14px 44px;border-radius:24px;box-shadow:0 12px 0 #b8901a,0 20px 40px rgba(0,0,0,.4);opacity:0;white-space:nowrap}
 #badge{position:absolute;left:36px;top:44px;font-family:Gothic;font-size:46px;color:#fff;background:#ff4a5a;padding:8px 24px;border-radius:16px;box-shadow:0 6px 0 #a8202e;opacity:0;white-space:nowrap}
@@ -44,7 +43,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 <div id="bokeh"></div><div id="vig"></div><canvas id="grain" width="360" height="640"></canvas><div id="topfade"></div>
 <div id="cctv"><div class="cam"></div><div class="rec">● REC</div><div class="ts"></div></div>
 <div id="flash"></div>
-<div id="bar"></div><div id="badge"></div><div id="tag"></div><div id="brand"></div>
+<div id="badge"></div><div id="tag"></div><div id="brand"></div>
 <div id="stamp"></div>
 <div id="hook"></div>
 <div id="who"></div><div id="cap"></div>
@@ -149,8 +148,6 @@ window.render = function (t) {
     stamp.style.transform = `translateX(-50%) scale(${.3 + .7 * back(a)}) rotate(${-4 + 4 * a}deg)`;
     tag.style.opacity = out;
   } else { stamp.style.opacity = 0; tag.style.opacity = 0; }
-  // 진행 막대
-  $('bar').style.width = clamp(t / (TL.card ? TL.card.start : TL.total)) * 1080 + 'px';
   // 첫 화면 질문
   const hk = $('hook'), ht = TL.hookEnd || 2.6;
   hk.style.opacity = t < ht ? clamp(t / .15) * clamp((ht - t) / .25) : 0;
