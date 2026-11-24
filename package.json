@@ -1,0 +1,6 @@
+{
+  "name": "kongsawon-studio",
+  "private": true,
+  "description": "프레임 촬영(studio/web/capture.js)과 README 그림(assets/readme/render.js)에 쓰는 Playwright",
+  "devDependencies": {"playwright": "1.49.1"}
+}

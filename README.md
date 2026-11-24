@@ -95,40 +95,50 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-  S["대본 JSON<br/>series/kongsawon/epNNN.json"] --> V["감정 목소리<br/>Gemini 무료 TTS<br/>장면째 연기 → 줄마다 자르기"]
-  S --> T["타임라인·자막·음악·효과음<br/>pipeline/whatif/make.py"]
-  V --> T
-  T --> R["그림·움직임<br/>SVG 장면을 Playwright로 30fps 촬영"]
-  R --> M["완성 영상 1080×1920<br/>+ 휴대폰용 720p 미리보기"]
+  C["채널 설정<br/>series/kongsawon/channel.json<br/>캐릭터·목소리·D+ 도장·코너"] --> E
+  S["대본<br/>series/kongsawon/epNNN.json"] --> E["대본 검사<br/>studio/episode.py"]
+  E --> V["감정 목소리<br/>Gemini 무료 TTS, 장면째 연기 → 줄마다 자르기<br/>studio/voice.py"]
+  V --> T["타임라인·자막<br/>studio/timeline.py"]
+  T --> A["음악·효과음 섞기<br/>studio/music.py · render.py"]
+  T --> R["그림 촬영 30fps<br/>studio/web (SVG 장면 + Playwright)"]
+  A --> M["완성 1080×1920 + 720p 미리보기"]
+  R --> M
   M --> H["밤에 사람이 검수"] --> U["사람이 직접 업로드"]
 ```
 
-| 단계 | 도구 | 비용 |
-|---|---|---|
-| 그림 | Claude가 SVG로 직접 그린 캐릭터·장면 (`pipeline/whatif/art.js`, `apt.js`, `office.js`, `jobs.js`) | 0원 |
-| 촬영 | Playwright(Chromium)로 `window.render(t)` 프레임 캡처, 4개 동시 | 0원 |
-| 목소리 | Gemini 무료 TTS: 화자 2명 이하·5줄 이하로 묶어 한 번에 연기, Gemini Flash로 줄마다 위치를 받아 자름 (`gvoice.py`) | 0원 |
-| 음악·효과음 | numpy로 직접 합성 (띵, 키보드, 심장 소리, 라이저 등 10종) | 0원 |
-| 합성 | ffmpeg, 음량 -14 LUFS | 0원 |
-
 ```bash
-# 길이·자막만 빠르게 확인
-python pipeline/whatif/make.py <대본.json> <작업폴더> --fake-tts --no-render
-# 실제 제작 (키는 환경 변수로만)
-GEMINI_API_KEY=... python pipeline/whatif/make.py <대본.json> <작업폴더> --jobs 4
-# README 그림 다시 굽기
-node assets/readme/render.js
+pip install numpy        # 제작기에 필요한 파이썬 패키지는 numpy 하나 (그 밖에 ffmpeg, node)
+npm install              # 프레임 촬영용 playwright
+
+python -m studio check examples/smoke.json                           # 대본 검사: 장면·인물·효과음·별표·길이
+python -m studio stills examples/smoke.json work/smoke               # 컷마다 그림 한 장 (목소리 없이)
+python -m studio build examples/smoke.json work/smoke --fake-voice   # 삐 소리로 길이·자막 확인용 영상
+GEMINI_API_KEY=... python -m studio build series/kongsawon/ep001.json work/ep001   # 진짜 목소리로 완성
 ```
+
+| 단계 | 하는 일 | 비용 |
+|---|---|---|
+| 대본 검사 | 채널 설정에서 이름·목소리·속마음 지시·`생존 D+N` 도장·끝 카드(살아남는 방법 #N)를 채우고, 없는 장면·인물·효과음, 짝 안 맞는 별표, 길이 초과를 잡음 | 0원 |
+| 목소리 | 화자 2명 이하·5줄 이하로 묶어 한 번에 연기 (편당 요청 5~6번), Gemini Flash로 줄마다 위치를 받아 자르고 이상한 줄만 다시 녹음. 묶음 원본은 캐시 | 0원 (무료 한도) |
+| 그림 | Claude가 SVG로 직접 그린 캐릭터·장면을 Playwright로 30fps 촬영, 4개 동시 | 0원 |
+| 소리 | 코드로 합성한 음악 2종(밝음·섬뜩)과 효과음 11종, 말할 때 음악 자동으로 낮춤, -14 LUFS | 0원 |
+
+## 🧪 품질 관리
+
+- `python -m pytest`: 테스트 35개 (자막 나누기, 타임라인, 목소리 묶기·자르기·정렬, 대본 검사, 효과음·음악, 장면 렌더)
+- `ruff check` · `ruff format`: 경고 0
+- GitHub Actions `check`: push·PR마다 린트 + 테스트 (1분 안쪽)
 
 ## 📁 폴더
 
 ```
 docs/CHANNEL_PLAN.md     채널 기획서 (캐릭터·구조·코너·로드맵·1~10화·수익·운영)
-series/kongsawon/        채널 설정 (channel.json: 캐릭터·목소리·코너·D+ 표시, episodes.json: 1~10화)
-pipeline/whatif/         쇼츠 제작기 (그림 라이브러리, 화면, 목소리, 조립)
-assets/readme/           README 그림과 그 원본 (art.html)
-assets/fonts/            나눔 폰트 (OFL)
-docs/archive/            초기 설계 문서
+series/kongsawon/        채널 설정 channel.json, 1~10화 소재표 episodes.json, 대본 epNNN.json
+studio/                  제작기 (episode·voice·timeline·music·render, python -m studio)
+studio/web/              화면 엔진 engine.html, 캐릭터·장면 그림 art.js·apt.js·office.js·jobs.js, 촬영기 capture.js
+examples/smoke.json      제작기 점검용 짧은 대본
+tests/                   테스트
+assets/                  나눔스퀘어 폰트, README 그림 (art.html → node assets/readme/render.js)
 ```
 
 ## 📏 지키는 규칙
@@ -139,19 +149,5 @@ docs/archive/            초기 설계 문서
 - **무료 도구만** 씁니다. API 키는 GitHub Actions 시크릿과 실행 환경 변수에만 둡니다.
 - **업로드는 사람이** 완성본을 보고 직접 합니다.
 
-<details>
-<summary><b>🧪 이전 실험 (열어 보기)</b></summary>
+> 이 채널에 오기 전의 실험(실사 AI 영상, 사연 낭독, 아파트 미스터리 등)은 `legacy/before-kongsawon` 브랜치에 그대로 남아 있습니다.
 
-<br>
-
-이 저장소는 여러 포맷을 시험하며 지금의 채널에 도착했습니다. 코드는 지우지 않고 남겨 둡니다.
-
-| 실험 | 내용 | 위치 |
-|---|---|---|
-| 새벽 3시 아파트의 비밀 | 반려동물 미스터리 연재 1화 (감정 목소리, CCTV 화면, 합성 효과음) | `pipeline/whatif/a01-ep1.json`, `apt.js` |
-| AI 직업 생존 판정 | 큰 모니터 스튜디오 정보형 시범 | `pipeline/whatif/j01-dev.json`, `jobs.js` |
-| 만약 강아지가 말을 한다면? | 손그림 vs 3D AI 그림 비교 → 손그림으로 결정 | `pipeline/whatif/w01-*.json`, `.github/workflows/whatif-images.yml` |
-| 느린 우체통 | 50~70대 사연 낭독 | `pipeline/saeyeon/` |
-| 우리가 열여덟이던 겨울 | 실사형 AI 영상(Wan 2.2), 얼굴 고정, 입 모양 맞추기 | `pipeline/experiments/`, `pipeline/kaggle/`, `episodes/` |
-
-</details>

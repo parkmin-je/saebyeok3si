@@ -1,0 +1,21 @@
+name: check
+# 린트 + 테스트 (1분 안쪽). 비공개 저장소라 Actions 무료 시간을 아끼려고 렌더 테스트는 건너뛴다.
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q numpy pytest ruff pillow
+      - run: ruff check studio tests && ruff format --check studio tests
+      - run: python -m studio check examples/smoke.json
+      - run: python -m pytest -q
+      - run: node --check studio/web/capture.js && node --check assets/readme/render.js

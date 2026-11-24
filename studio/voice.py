@@ -1,0 +1,310 @@
+"""감정 연기 목소리: Gemini 무료 TTS.
+
+- 이어지는 대사를 화자 2명 이하·5줄 이하로 묶어 한 번에 연기시킨다 (편당 요청 5~6번, 무료 한도 안).
+- 줄마다 "how" (감정 지시)를 괄호로 넣는다. 속마음(inner) 줄은 채널 설정의 지시가 앞에 붙는다.
+- 묶음 녹음은 Gemini Flash(텍스트 모델, 다른 무료 한도)에게 들려서 줄마다 시작·끝을 받아 자른다.
+  길이가 이상한 줄만 따로 다시 녹음한다.
+- 키는 환경 변수 GEMINI_API_KEY 로만 받는다 (저장소·로그에 남기지 않는다).
+- --fake-voice 면 네트워크 없이 길이만 맞춘 삐 소리를 만든다 (길이·자막 확인용).
+"""
+
+import base64
+import hashlib
+import io
+import json
+import os
+import re
+import subprocess
+import time
+import urllib.error
+import urllib.request
+import wave
+from pathlib import Path
+
+import numpy as np
+
+from .timeline import plain
+
+SR = 24000  # Gemini TTS 출력
+TTS_MODEL = os.environ.get("GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts")
+ALIGN_MODEL = os.environ.get("GEMINI_ALIGN_MODEL", "gemini-2.5-flash")
+API = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
+WAIT = 21  # 무료 등급 분당 3회
+FAKE_CPS = 6.5
+
+
+class VoiceError(RuntimeError):
+    pass
+
+
+# ---------- 파일 ----------
+def key_of(ep, ln) -> str:
+    v = ep["gvoices"][ln["who"]]
+    return hashlib.sha1(f"{v}|{ln['who']}|{plain(ln['text'])}|{ln.get('how', '')}".encode()).hexdigest()[:12]
+
+
+def path_of(ep, work, ln, fake=False) -> Path:
+    return Path(work) / "voice" / f"{'fake' if fake else 'g'}-{ln['who']}-{key_of(ep, ln)}.wav"
+
+
+def read_wav(path) -> tuple[np.ndarray, int]:
+    with wave.open(str(path)) as f:
+        x = np.frombuffer(f.readframes(f.getnframes()), np.int16).astype(np.float32) / 32768
+        return x, f.getframerate()
+
+
+def wav_bytes(y, sr=SR) -> bytes:
+    b = io.BytesIO()
+    with wave.open(b, "wb") as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(sr)
+        f.writeframes((np.clip(y, -1, 1) * 32767).astype(np.int16).tobytes())
+    return b.getvalue()
+
+
+def write_wav(path, y, sr=SR) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(wav_bytes(y, sr))
+
+
+def length(path) -> float:
+    with wave.open(str(path)) as f:
+        return f.getnframes() / f.getframerate()
+
+
+def with_fx(ep, path: Path, who: str) -> Path:
+    """ep["fx"][who] = 음높이 배수 (예: 1.15) 면 높고 귀여운 목소리로 바꾼 사본을 쓴다."""
+    k = ep.get("fx", {}).get(who)
+    if not k:
+        return path
+    out = path.with_name(path.stem + f"-fx{k}.wav")
+    if not out.exists():
+        _, sr = read_wav(path)
+        tempo = 1 / k * ep.get("fxtempo", {}).get(who, 1.08)
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-v",
+                "error",
+                "-y",
+                "-i",
+                str(path),
+                "-af",
+                f"asetrate={int(sr * k)},aresample={sr},atempo={tempo:.4f},equalizer=f=3000:t=q:w=1:g=3,volume=1.1",
+                str(out),
+            ],
+            check=True,
+        )
+    return out
+
+
+def final_path(ep, work, ln, fake=False) -> Path:
+    return with_fx(ep, path_of(ep, work, ln, fake), ln["who"])
+
+
+# ---------- 묶기 ----------
+def groups(lines, max_lines=5) -> list[list[dict]]:
+    """이어지는 줄을 화자 2명 이하·max_lines 줄 이하 묶음으로 나눈다."""
+    out, cur = [], []
+    for ln in lines:
+        names = {x["who"] for x in cur} | {ln["who"]}
+        if cur and (len(names) > 2 or len(cur) >= max_lines):
+            out.append(cur)
+            cur = []
+        cur.append(ln)
+    if cur:
+        out.append(cur)
+    return out
+
+
+def label(ep, who) -> str:
+    return re.sub(r"[\s()]", "", ep.get("names", {}).get(who, who)) or who
+
+
+def tts_body(ep, grp) -> dict:
+    spk = list(dict.fromkeys(ln["who"] for ln in grp))
+    cast = ep.get("gcast", {})
+    head = ep.get("gdirect", "") + "\n" + "\n".join(f"- {label(ep, w)}: {cast.get(w, '')}" for w in spk)
+    body = "\n".join(f"{label(ep, ln['who'])}: ({ln.get('how', '자연스럽게')}) {plain(ln['text'])}" for ln in grp)
+    prompt = (
+        f"{head}\n대사마다 감정을 크게 살려 연기하고, 대사와 대사 사이는 반드시 2초 동안 완전히 조용히 쉬세요. "
+        f"괄호 안 지시는 읽지 마세요.\n\n{body}"
+    )
+    if len(spk) == 1:
+        sc = {"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": ep["gvoices"][spk[0]]}}}
+    else:
+        sc = {
+            "multiSpeakerVoiceConfig": {
+                "speakerVoiceConfigs": [
+                    {"speaker": label(ep, w), "voiceConfig": {"prebuiltVoiceConfig": {"voiceName": ep["gvoices"][w]}}} for w in spk
+                ]
+            }
+        }
+    return {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": sc}}
+
+
+def _post(model, body) -> dict:
+    req = urllib.request.Request(
+        API.format(model),
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json", "x-goog-api-key": os.environ["GEMINI_API_KEY"]},
+    )
+    with urllib.request.urlopen(req, timeout=300) as r:
+        return json.load(r)
+
+
+def _redact(msg: str) -> str:
+    return re.sub(r"AIza[0-9A-Za-z_-]+", "***", msg)
+
+
+def request(ep, grp) -> np.ndarray:
+    """묶음 하나를 녹음한다 (24kHz float)."""
+    body = tts_body(ep, grp)
+    for k in range(4):
+        try:
+            d = _post(TTS_MODEL, body)
+            a = base64.b64decode(d["candidates"][0]["content"]["parts"][0]["inlineData"]["data"])
+            return np.frombuffer(a, dtype=np.int16).astype(np.float32) / 32768
+        except urllib.error.HTTPError as e:
+            msg = e.read().decode()[:300]
+            if e.code == 429 and "PerDay" in msg:
+                raise VoiceError("Gemini 무료 하루 한도 소진 (내일 다시)") from None
+            if e.code in (429, 500, 503) and k < 3:
+                time.sleep(30 * (k + 1))
+                continue
+            raise VoiceError(f"Gemini TTS 실패 {e.code}: {_redact(msg)}") from None
+        except (KeyError, IndexError):
+            if k < 3:
+                time.sleep(10)
+                continue
+            raise
+    raise VoiceError("Gemini TTS 실패")
+
+
+# ---------- 자르기 ----------
+def envelope(x, hop) -> np.ndarray:
+    n = max(1, (len(x) - hop) // hop + 1)
+    return np.array([np.abs(x[i * hop : i * hop + hop]).max() for i in range(n)])
+
+
+def trim(x) -> np.ndarray:
+    """앞뒤 무음을 자르고 조금 여유를 둔다 (한 줄 녹음용)."""
+    hop = int(SR * 0.02)
+    env = envelope(x, hop)
+    loud = np.nonzero(env >= max(0.015, env.max() * 0.03))[0]
+    if not len(loud):
+        return x
+    a, b = loud[0] * hop, loud[-1] * hop + hop
+    return x[max(0, a - 2400) : b + 4800]
+
+
+def segments(x, min_gap=0.26) -> list[tuple[float, float]]:
+    """소리 덩어리 (min_gap초 이상 쉼으로 나눈 구간) 목록, 초 단위."""
+    hop = int(SR * 0.02)
+    env = envelope(x, hop)
+    loud = env >= max(0.015, env.max() * 0.03)
+    segs, s, e, gap = [], None, 0, 0
+    for i, v in enumerate(loud):
+        if v:
+            if s is None:
+                s = i
+            gap, e = 0, i
+        elif s is not None:
+            gap += 1
+            if gap * 0.02 >= min_gap:
+                segs.append((s * hop / SR, (e + 1) * hop / SR))
+                s = None
+    if s is not None:
+        segs.append((s * hop / SR, (e + 1) * hop / SR))
+    return segs
+
+
+def assign(x, marks: dict[int, tuple[float, float]], n: int) -> list[np.ndarray | None]:
+    """소리 덩어리를 가장 많이 겹치는 줄(marks: 줄번호 → (시작, 끝))에 붙여 줄마다 잘라 낸다. 빠진 줄은 None."""
+    own: dict[int, list[tuple[float, float]]] = {}
+    for a, b in segments(x):
+        best, bi = 0.0, None
+        for i, (ms, me) in marks.items():
+            ov = min(b, me + 0.2) - max(a, ms - 0.2)
+            if ov > best:
+                best, bi = ov, i
+        if bi is not None:
+            own.setdefault(bi, []).append((a, b))
+    out = []
+    for i in range(n):
+        if i not in own:
+            out.append(None)
+            continue
+        a, b = own[i][0][0], own[i][-1][1]
+        out.append(x[max(0, int((a - 0.05) * SR)) : int((b + 0.15) * SR)])
+    return out
+
+
+def align(x, texts) -> list[np.ndarray | None]:
+    """Gemini Flash 에게 녹음을 들려 줄마다 대략의 시작·끝을 받고 assign 으로 자른다."""
+    prompt = (
+        "이 오디오는 아래 대사들을 순서대로 연기한 녹음입니다. 각 대사가 오디오에서 시작·끝나는 시각(초)을 찾아 "
+        'JSON 배열 [{"i":번호,"start":초,"end":초}] 로만 답하세요. 들리지 않는 대사는 빼세요.\n'
+        + "\n".join(f"{i}. {plain(t)}" for i, t in enumerate(texts))
+    )
+    body = {
+        "contents": [
+            {"parts": [{"inlineData": {"mimeType": "audio/wav", "data": base64.b64encode(wav_bytes(x)).decode()}}, {"text": prompt}]}
+        ],
+        "generationConfig": {"responseMimeType": "application/json", "temperature": 0},
+    }
+    try:
+        d = _post(ALIGN_MODEL, body)
+    except urllib.error.HTTPError as e:
+        raise VoiceError(f"정렬 실패 {e.code}: {_redact(e.read().decode()[:300])}") from None
+    marks = {int(m["i"]): (float(m["start"]), float(m["end"])) for m in json.loads(d["candidates"][0]["content"]["parts"][0]["text"])}
+    return assign(x, marks, len(texts))
+
+
+def ok_len(y, text) -> bool:
+    """초당 3~12글자면 정상 (너무 길면 다른 줄이 섞였거나 헛소리)."""
+    sec = len(y) / SR
+    return sec > 0 and 3.0 <= len(plain(text).replace(" ", "")) / sec <= 12
+
+
+# ---------- 만들기 ----------
+def fake(ep, work, lines) -> None:
+    """네트워크 없이 길이만 맞춘 조용한 삐 소리."""
+    for ln in lines:
+        p = path_of(ep, work, ln, fake=True)
+        if p.exists():
+            continue
+        sec = max(0.8, len(plain(ln["text"]).replace(" ", "")) / FAKE_CPS)
+        t = np.arange(int(SR * sec)) / SR
+        write_wav(p, np.sin(2 * np.pi * 220 * t) * 0.2)
+
+
+def make(ep, work, lines, log=print) -> None:
+    """없는 줄만 녹음한다. 묶음 원본은 work/voice/raw/ 에 남겨서 다시 돌려도 요청을 아낀다."""
+    if not os.environ.get("GEMINI_API_KEY"):
+        raise VoiceError("GEMINI_API_KEY 가 없음 (길이만 보려면 --fake-voice)")
+    raw = Path(work) / "voice" / "raw"
+    raw.mkdir(parents=True, exist_ok=True)
+    for g in groups(lines):
+        if all(path_of(ep, work, ln).exists() for ln in g):
+            continue
+        rawf = raw / f"{hashlib.sha1('|'.join(key_of(ep, ln) for ln in g).encode()).hexdigest()[:12]}.wav"
+        if rawf.exists():
+            x, _ = read_wav(rawf)
+        else:
+            x = request(ep, g)
+            write_wav(rawf, x)
+            time.sleep(WAIT)
+        parts = align(x, [ln["text"] for ln in g]) if len(g) > 1 else [trim(x)]
+        for ln, part in zip(g, parts, strict=True):
+            y = part
+            for _ in range(3):
+                if y is not None and ok_len(y, ln["text"]):
+                    break
+                log(f"따로 다시 녹음: {plain(ln['text'])}")
+                y = trim(request(ep, [ln]))
+                time.sleep(WAIT)
+            write_wav(path_of(ep, work, ln), y)
+            log(f"목소리 {ln['who']}: {plain(ln['text'])} ({len(y) / SR:.1f}초)")
