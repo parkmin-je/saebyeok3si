@@ -4,7 +4,7 @@ name: saeyeon-voices
 on:
   push:
     branches: [feat/sample-video-veo]
-    paths: [pipeline/saeyeon/ep*/episode.json, pipeline/saeyeon/shorts/*.json]
+    paths: [pipeline/saeyeon/ep*/episode.json, pipeline/saeyeon/shorts/*.json, pipeline/saeyeon/whatif/*.json]
   workflow_dispatch:
 permissions:
   contents: write
@@ -25,7 +25,7 @@ jobs:
       - name: Voices
         run: |
           git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
-          FILES=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'pipeline/saeyeon/ep*/episode.json' 'pipeline/saeyeon/shorts/*.json')
+          FILES=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'pipeline/saeyeon/ep*/episode.json' 'pipeline/saeyeon/shorts/*.json' 'pipeline/saeyeon/whatif/*.json')
           [ -z "$FILES" ] && FILES=$(ls pipeline/saeyeon/ep*/episode.json | tail -1)
           git fetch -q origin experiment-output && git worktree add -q -B eo-work /tmp/eo origin/experiment-output
           OUT=/tmp/eo/runs/voices-${{ github.run_id }}

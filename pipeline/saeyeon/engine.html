@@ -39,6 +39,17 @@ body.v #sub{top:1318px;bottom:auto;max-width:1000px;width:max-content;box-sizing
 body.v #sub .who{font-size:32px}
 body.v .card .main{font-size:92px;max-width:960px}
 body.v .card .kicker{font-size:40px}
+#stages{display:none}
+body.v.st #title{top:96px;font-size:58px}
+body.v.st #stages{display:flex;position:absolute;top:262px;left:60px;right:60px;height:44px;align-items:center;justify-content:space-between}
+#stages .ln{position:absolute;left:14px;right:14px;top:50%;height:6px;margin-top:-3px;background:rgba(255,243,221,.18);border-radius:3px}
+#stages .fill{position:absolute;left:0;top:0;bottom:0;background:#f2c27b;border-radius:3px}
+#stages .dot{position:relative;width:28px;height:28px;border-radius:50%;background:#3a2c20;border:4px solid rgba(255,243,221,.35);box-sizing:border-box}
+#stages .dot.on{background:#f2c27b;border-color:#fff3dd}
+#stages .dot span{position:absolute;top:34px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:Gothic;font-size:28px;color:rgba(255,243,221,.6)}
+#stages .dot.on span{color:#fff3dd}
+body.v.st #scenes{top:350px}
+body.v.st #chapter{top:372px;left:28px;font-size:64px;padding:10px 30px;border-left-width:10px;background:rgba(20,14,10,.72);color:#fff3dd;letter-spacing:2px}
 body.v .card .s{font-size:34px;max-width:960px;text-align:center;line-height:1.5}
 </style></head>
 <body><div id="stage">
@@ -48,10 +59,12 @@ body.v .card .s{font-size:34px;max-width:960px;text-align:center;line-height:1.5
 <div id="chapter"></div>
 <div id="brand"></div>
 <div id="title"></div>
+<div id="stages"></div>
 <div id="sub"></div>
 <div class="card" id="card"><div class="kicker"></div><div class="main"></div><div class="rule"></div><div class="s"></div></div>
 </div>
 <script src="library.js"></script>
+<script src="whatif.js"></script>
 <script>
 // TIMELINE = {brand, segments:[{scene,o,start,end,label,memory,snow}], lines:[{who,name,text,start,end}], cards:[{start,end,kicker,main,s}]}
 const TL = window.TIMELINE, L = window.SCENE_LIBRARY;
@@ -61,6 +74,11 @@ const ease = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
 const FADE = 1.0;
 $('brand').textContent = TL.brand || '';
 if (TL.vertical) { document.body.classList.add('v'); document.documentElement.style.cssText = 'width:1080px;height:1920px'; $('title').innerHTML = TL.title || ''; $('grain').width = 270; $('grain').height = 480; }
+const STG = TL.segments.map((s, i) => [s.stage, s.start]).filter(x => x[0]).filter((x, i, a) => a.findIndex(y => y[0] === x[0]) === i);
+if (TL.vertical && STG.length) {
+  document.body.classList.add('st');
+  $('stages').innerHTML = '<div class="ln"><div class="fill"></div></div>' + STG.map(x => `<div class="dot"><span>${x[0]}</span></div>`).join('');
+}
 const GW = TL.vertical ? 270 : 480, GH = TL.vertical ? 480 : 270;
 
 // 장면은 보일 때만 DOM에 만든다 (id 앞에 구간 번호를 붙여 겹치지 않게)
@@ -86,6 +104,8 @@ function grain() { const im = gc.createImageData(GW, GH); for (let i = 0; i < im
 
 window.render = function (t) {
   grain();
+  const sp = TL.lines.find(l => t >= l.start && t <= l.end + .05);
+  window.SPEAK = sp ? sp.who : null;
   // 장면: 앞뒤로 1초씩 겹쳐 전환, 천천히 밀고 들어가는 카메라
   let cur = null;
   TL.segments.forEach((seg, i) => {
@@ -106,7 +126,19 @@ window.render = function (t) {
   });
   // 장 제목: 장면이 바뀔 때 5초간
   const ch = $('chapter');
-  if (cur && cur.label) { ch.textContent = cur.label; ch.style.opacity = clamp((t - cur.start - .3) / .6) * clamp((cur.start + 5.5 - t) / .8) * .95; }
+  if (STG.length && TL.vertical) {
+    let k = -1; STG.forEach((x, i) => { if (t >= x[1]) k = i; });
+    document.querySelectorAll('#stages .dot').forEach((d, i) => d.classList.toggle('on', i <= k));
+    const nx = STG[k + 1] ? STG[k + 1][1] : TL.total - 3.5, pv = k >= 0 ? STG[k][1] : 0;
+    $('stages').querySelector('.fill').style.width = (Math.max(0, k) + clamp((t - pv) / Math.max(.1, nx - pv))) / Math.max(1, STG.length - 1) * 100 + '%';
+    if (k >= 0) {
+      const a = t - STG[k][1];
+      ch.textContent = STG[k][0];
+      ch.style.opacity = clamp(a / .2) * (TL.cards.some(c => t >= c.start) ? 0 : 1);
+      ch.style.transform = `scale(${1 + .6 * (1 - ease(clamp(a / .35)))})`;
+      ch.style.transformOrigin = 'left top';
+    } else ch.style.opacity = 0;
+  } else if (cur && cur.label) { ch.textContent = cur.label; ch.style.opacity = clamp((t - cur.start - .3) / .6) * clamp((cur.start + 5.5 - t) / .8) * .95; }
   else ch.style.opacity = 0;
   // 자막
   const sub = $('sub'), l = TL.lines.find(l => t >= l.start - .25 && t <= l.end + .35);

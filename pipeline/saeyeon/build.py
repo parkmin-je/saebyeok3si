@@ -124,7 +124,7 @@ def timeline(ep, work):
                 u = e
             t += d
         t += sc.get("hold", 0.8 if sc.get("lines") else REST)
-        segs.append({"scene": sc["scene"], "o": sc.get("o", {}), "start": round(max(0, start), 3), "end": round(t, 3), "fx": sc.get("fx", .5),
+        segs.append({"scene": sc["scene"], "o": sc.get("o", {}), "start": round(max(0, start), 3), "end": round(t, 3), "fx": sc.get("fx", .5), "stage": sc.get("stage"),
                      "label": sc.get("label"), "memory": sc.get("memory", False), "snow": sc.get("snow", False),
                      "zoom": sc.get("zoom", .07), "pan": sc.get("pan", 0)})
         cues.append({"t": start, "mood": "memory" if sc.get("memory") else kind, "scene": sc["scene"]})
