@@ -114,6 +114,7 @@ function human(id, o = {}) {
    ${eyes}
    <ellipse cx="-80" cy="40" rx="24" ry="13" fill="#ff8a8a" opacity=".4"/><ellipse cx="80" cy="40" rx="24" ry="13" fill="#ff8a8a" opacity=".4"/>
    ${mouth}
+   ${o.tear ? '<path d="M-56 20 q-12 34 0 52 q14 -16 0 -52z M56 20 q-12 34 0 52 q14 -16 0 -52z" fill="#9fd8ff" opacity=".9"/>' : ''}
   </g>
  </g>`;
 }
@@ -131,14 +132,15 @@ A.bedroom = {
   <rect x="-600" y="1150" width="3240" height="900" fill="#c58a5a"/><path d="M-600 1150 h3240" stroke="#a86e40" stroke-width="12"/>
   <rect x="-200" y="330" width="260" height="840" rx="30" fill="#8a5a3a"/>
   <path d="M0 760 q900 -60 1700 0 v400 h-1700z" fill="#fffaf2"/>
-  <g transform="translate(520 1010) scale(.95)">${human('br-p', {pose: 'shock', mouth: 'o', eyes: 'wide', shirt: '#f29ab8', shirtL: '#ffc8da', pajama: true, sitting: true, noShadow: true})}</g>
+  <g transform="translate(520 1010) scale(.95)">${human('br-p', o.calm ? {pose: 'stand', shirt: '#f29ab8', shirtL: '#ffc8da', pajama: true, sitting: true, noShadow: true} : {pose: 'shock', mouth: 'o', eyes: 'wide', shirt: '#f29ab8', shirtL: '#ffc8da', pajama: true, sitting: true, noShadow: true})}</g>
   <path d="M-40 840 q900 -90 1780 -10 l40 380 h-1860z" fill="url(#br-bl)"/>
   <path d="M100 900 q300 -40 600 10 M800 880 q400 -40 800 10" stroke="#fff" stroke-width="10" fill="none" opacity=".4"/>
   <ellipse cx="300" cy="700" rx="230" ry="90" fill="#fff" />
-  <g transform="translate(1320 1040) scale(.9)">${dog2('br-d')}</g>`,
-  tick: (root, t) => {
+  <g transform="translate(1320 1040) scale(.9)">${dog2('br-d')}</g>
+  ${o.gift ? `<g transform="translate(1700 1050)"><rect x="-150" y="-180" width="300" height="180" rx="12" fill="#5ab0e8"/><rect x="-160" y="-210" width="320" height="50" rx="10" fill="#4a98d0"/><rect x="-20" y="-210" width="40" height="210" fill="#ff5a6a"/><path d="M0 -210 q-80 -90 -100 -20 q40 20 100 20 q60 0 100 -20 q-20 -70 -100 20z" fill="#ff5a6a"/></g>` : ''}`,
+  tick: (root, t, p, o) => {
     tickDog2(root, 'br-d', t, 0);
-    at(q(root, 'br-p-head'), 'transform', `translate(${Math.sin(t * 40) * 4} -820)`);
+    if (!o.calm) at(q(root, 'br-p-head'), 'transform', `translate(${Math.sin(t * 40) * 4} -820)`);
   },
 };
 
@@ -204,12 +206,14 @@ A.sofa = {
   <path d="M-300 700 q100 -80 300 -60 h1000 q200 -20 300 60 v560 h-1600z" fill="url(#sf-c)"/>
   <rect x="-200" y="900" width="1400" height="240" rx="60" fill="#e0705a"/>
   <rect x="-380" y="700" width="200" height="560" rx="80" fill="#c4503a"/><rect x="1200" y="700" width="200" height="560" rx="80" fill="#c4503a"/>
-  <g>${Array.from({length: 14}, (_, i) => `<g transform="translate(${150 + (i * 97) % 900} ${900 - (i % 4) * 40}) rotate(${(i * 37) % 60 - 30})">
+  <g opacity="${o.owner ? 0 : 1}">${Array.from({length: 14}, (_, i) => `<g transform="translate(${150 + (i * 97) % 900} ${900 - (i % 4) * 40}) rotate(${(i * 37) % 60 - 30})">
     ${i % 3 ? `<rect x="-60" y="-80" width="120" height="160" rx="14" fill="${['#ffcf3a', '#3ab0ff', '#ff6a8a'][i % 3]}"/><rect x="-60" y="-80" width="120" height="30" fill="#fff" opacity=".6"/>`
       : `<path d="M-60 -20 a26 26 0 1 1 30 -20 h60 a26 26 0 1 1 30 20 a26 26 0 1 1 -30 20 h-60 a26 26 0 1 1 -30 -20z" fill="#fff4dc" stroke="#e8c89a" stroke-width="6"/>`}</g>`).join('')}</g>
-  <g transform="translate(640 1060) rotate(-8) scale(.95)">${dog2('sf-d', {mouth: .5})}</g>`,
-  tick: (root, t) => {
-    tickDog2(root, 'sf-d', t, 3, {mouth: .5});
+  ${o.night ? `<rect x="-600" y="-900" width="3240" height="3000" fill="#0a1030" opacity=".5"/><circle cx="600" cy="700" r="800" fill="url(#sf-l)" opacity=".35"/>` : ''}
+  ${o.owner ? `<g transform="translate(220 1180) scale(.95)">${human('sf-p', {sitting: true, eyes: o.owner === 'laugh' ? 'closed' : 'closed', mouth: o.owner === 'laugh' ? 'smile' : 'sad', tear: true, shirt: '#9a8ac8', shirtL: '#c8bce8', noShadow: true})}</g>` : ''}
+  <g transform="translate(${o.owner ? 820 : 640} 1060) rotate(${o.owner ? 0 : -8}) scale(.95)">${dog2('sf-d', {mouth: o.owner ? 0 : .5})}</g>`,
+  tick: (root, t, p, o) => {
+    tickDog2(root, 'sf-d', t, 3, {mouth: o.owner ? 0 : .5});
     at(q(root, 'sf-tail'), 'transform', `rotate(${Math.sin(t * 1.5) * 8} 110 -10)`);
   },
 };

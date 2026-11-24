@@ -68,6 +68,22 @@ def chunks(text, n=11):
     return fixed
 
 
+def vpath(ep, work, ln):
+    """목소리 파일. ep["fx"][who] = 음높이 배수 (예: 1.25) 면 높고 작은 목소리(강아지)로 바꾼 사본을 쓴다."""
+    _, f = voice_file(work, {"text": plain(ln["text"])}, ep["voices"][ln["who"]] + str(ep.get("speed", {}).get(ln["who"], 1.0)))
+    k = ep.get("fx", {}).get(ln["who"])
+    if not k:
+        return f
+    g = f.with_name(f.stem + f"-fx{k}.wav")
+    if not g.exists():
+        sr = int(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=sample_rate", "-of", "csv=p=0", str(f)],
+                                capture_output=True, text=True).stdout.strip())
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(f), "-af",
+                        f"asetrate={int(sr * k)},aresample={sr},atempo={1 / k * ep.get('fxtempo', {}).get(ln['who'], 1.08):.4f},"
+                        "equalizer=f=3000:t=q:w=1:g=3,volume=1.1", str(g)], check=True)
+    return g
+
+
 def timeline(ep, work):
     shots, caps, cuts, stages = [], [], [], []
     t = 0.0
@@ -75,7 +91,7 @@ def timeline(ep, work):
         start = t
         if s.get("say"):
             ln = s["say"]
-            _, f = voice_file(work, {"text": plain(ln["text"])}, ep["voices"][ln["who"]] + str(ep.get("speed", {}).get(ln["who"], 1.0)))
+            f = vpath(ep, work, ln)
             d = dur(f)
             cs = chunks(ln["text"])
             w = [len(plain(c).replace(" ", "")) + 1.5 for c in cs]
