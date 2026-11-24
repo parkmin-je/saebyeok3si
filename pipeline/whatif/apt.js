@@ -3,6 +3,7 @@
 
 const KONG = {bag: '#3a7ad8'};
 const MONG = {fur: '#f4efe6', furL: '#ffffff', fur2: '#cfc6bc', cream: '#ffffff', bow: '#ff6a9a'};
+const E = x => x < 0 ? 0 : x > 1 ? 1 : 1 - Math.pow(1 - x, 3);   // 0→1 부드럽게 멈춤
 const PETS = [
   {fur: '#4a3a30', furL: '#7a6050', fur2: '#2a1e18'}, {fur: '#c9a26a', furL: '#e8c890', fur2: '#9a7a4a'},
   {fur: '#f4efe6', furL: '#ffffff', fur2: '#c8c0b8'}, {fur: '#8a8a92', furL: '#b8b8c2', fur2: '#55555e'},
@@ -64,12 +65,15 @@ A.elev = {
    <rect x="-110" y="-30" width="220" height="110" rx="10" fill="#120a06"/><text id="ev-fl" x="0" y="50" font-family="Gothic" font-size="78" fill="#ff7a2a" text-anchor="middle">${o.floor || '12'}</text>
    ${['R', '15', '14', '13', '12', '11', '10', '9', '8'].map((f, i) => `<g transform="translate(${(i % 2) * 120 - 60} ${150 + Math.floor(i / 2) * 120})"><circle r="44" fill="#e8eef0" stroke="#5a666e" stroke-width="5"/>
     <circle r="44" fill="#ffb02a" opacity="${f === 'R' ? 1 : f === (o.lit || '') ? .9 : 0}" id="${f === 'R' ? 'ev-r' : ''}"/><text y="16" font-family="Gothic" font-size="42" fill="#2a2a2a" text-anchor="middle">${f}</text></g>`).join('')}</g>
-  ${o.mong ? `<g transform="translate(560 1330) scale(.78)">${dog2('ev-m', MONG)}</g>` : ''}
-  <g transform="translate(${o.mong ? 1180 : 1080} 1360) scale(.85)">${dog2('ev-d', {...KONG, tilt: o.look ? -10 : 0})}</g>
+  ${o.mong ? `<g id="ev-me"><g transform="translate(560 1330) scale(.78)">${dog2('ev-m', {...MONG, face: o.mface})}</g></g>` : ''}
+  <g transform="translate(${o.mong ? 1180 : 1080} 1360) scale(.85)">${dog2('ev-d', {...KONG, face: o.face, sweat: o.sweat})}</g>
+  <rect id="ev-ding" x="-600" y="-900" width="3240" height="3000" fill="#fff6d0" opacity="0"/>
   ${o.paw ? `<g id="ev-paw"><path d="M1230 790 q160 -60 300 -80" stroke="#e8914a" stroke-width="54" stroke-linecap="round" fill="none"/><circle cx="1540" cy="710" r="34" fill="#fff3e2"/></g>` : ''}`,
   tick: (root, t, p, o) => {
-    tickDog2(root, 'ev-d', t, 0, {tilt: o.look ? -10 : 0});
+    tickDog2(root, 'ev-d', t, 0, {tilt: o.look ? -12 : 0});
     if (o.mong) tickDog2(root, 'ev-m', t, 2, {who: 'mong', tilt: 6});
+    if (o.enter) { const k = E((p - .15) / .5); at(q(root, 'ev-me'), 'transform', `translate(${-900 * (1 - k)} ${-Math.abs(Math.sin(k * Math.PI * 3)) * 40 * (1 - k)})`); }
+    if (o.ding) at(q(root, 'ev-ding'), 'opacity', p < .5 ? .35 * (1 - p / .5) : 0);
     const fl = q(root, 'ev-fl');
     if (fl && o.rise) fl.textContent = ['12', '13', '14', '15', 'R'][Math.min(4, Math.floor((t % 30) * 1.4) % 5)];
     const paw = q(root, 'ev-paw');
@@ -96,11 +100,11 @@ A.nbed = {
   <path d="M-40 820 q900 -110 1780 -20 l40 400 h-1860z" fill="url(#nb-bl)"/>
   <path d="M100 900 q300 -40 600 10 M800 880 q400 -40 800 10" stroke="#8a9ad8" stroke-width="10" fill="none" opacity=".4"/>
   <g id="nb-z" font-family="Gothic" fill="#cfe0ff">${[0, 1, 2].map(i => `<text x="${560 + i * 70}" y="${520 - i * 90}" font-size="${60 + i * 20}" opacity=".8">Z</text>`).join('')}</g>
-  <g transform="translate(1320 1060) scale(.9)">${dog2('nb-d', {...KONG})}</g>
+  <g transform="translate(1320 1060) scale(.9)">${dog2('nb-d', {...KONG, face: o.face})}</g>
   <circle cx="1350" cy="560" r="300" fill="url(#nb-c)" opacity=".18"/>
   ${motes('nb-mo', 30, '#cfe0ff')}`,
-  tick: (root, t) => {
-    tickDog2(root, 'nb-d', t, 1, {tilt: 8});
+  tick: (root, t, p, o) => {
+    tickDog2(root, 'nb-d', t, 1, {tilt: 8, closed: o.wake && p < 1.1});
     at(q(root, 'nb-z'), 'transform', `translate(${Math.sin(t) * 10} ${-((t * 30) % 60)})`);
     at(q(root, 'nb-mo'), 'transform', `translate(${Math.sin(t * .3) * 30} ${-t * 8})`);
   },
@@ -117,15 +121,20 @@ A.door = {
    <circle r="220" fill="url(#dr-k)" opacity=".35"/>
    <g id="dr-keys" font-family="Gothic" font-size="34" fill="#9ae8ff" text-anchor="middle">${[1, 2, 3, 4, 5, 6, 7, 8, 9, '*', 0, '#'].map((k, i) => `<g transform="translate(${(i % 3) * 46 - 46} ${-130 + Math.floor(i / 3) * 62})"><rect x="-18" y="-24" width="36" height="40" rx="6" fill="#2a3a4a" id="dr-k${i}"/><text y="8">${k}</text></g>`).join('')}</g></g>
   <rect x="1360" y="560" width="40" height="200" rx="16" fill="#b8b8c0"/>
+  <g id="dr-ok" opacity="0"><circle cx="1300" cy="250" r="160" fill="#6aff9a" opacity=".35"/><circle cx="1300" cy="250" r="22" fill="#9affb8"/></g>
+  <path id="dr-lt" d="M1500 -500 L1500 1200 L2400 1700 L2400 -900z" fill="#fff0c0" opacity="0"/>
   <rect x="-600" y="1200" width="3240" height="900" fill="#3a3040"/><rect x="-600" y="1200" width="3240" height="30" fill="#5a4a5a"/>
   <g transform="translate(250 1200)"><rect x="-300" y="-220" width="600" height="220" rx="10" fill="#e8c890"/><path d="M-300 -150 h600" stroke="#c8a870" stroke-width="8"/>
    <text y="-70" font-family="Gothic" font-size="56" fill="#8a6a3a" text-anchor="middle">누나 운동화</text></g>
   <g transform="translate(1000 1220)"><rect x="-200" y="-260" width="400" height="260" rx="14" fill="#c8a06a"/><text y="-110" font-family="Gothic" font-size="54" fill="#6a4a2a" text-anchor="middle">택배 상자</text></g>
-  <g transform="translate(1060 960) scale(.85)">${dog2('dr-d', {...KONG})}</g>`,
-  tick: (root, t, p) => {
+  <g transform="translate(1060 960) scale(.85)">${dog2('dr-d', {...KONG, face: o.face})}</g>`,
+  tick: (root, t, p, o) => {
     tickDog2(root, 'dr-d', t, 2, {tilt: -14});
-    const k = Math.floor(t * 4) % 12;
-    for (let i = 0; i < 12; i++) at(q(root, 'dr-k' + i), 'fill', i === k ? '#7ad8ff' : '#2a3a4a');
+    const un = o.unlock !== undefined && p > o.unlock;
+    const k = un ? -1 : [3, 0, 8, 1][Math.floor(p * 5) % 4];
+    for (let i = 0; i < 12; i++) at(q(root, 'dr-k' + i), 'fill', i === k ? '#7ad8ff' : un ? '#2a5a3a' : '#2a3a4a');
+    at(q(root, 'dr-ok'), 'opacity', un ? 1 : 0);
+    at(q(root, 'dr-lt'), 'opacity', un ? .18 * E((p - o.unlock) / .6) : 0);
   },
 };
 
@@ -151,7 +160,10 @@ A.guard = {
   tick: (root, t, p, o) => {
     at(q(root, 'gd-st'), 'transform', `translate(0 ${-((t * 20) % 20)})`);
     tickDog2(root, 'gd-mini', t, 3, {who: 'none'});
-    if (!o.smile) at(q(root, 'gd-p-head'), 'transform', `translate(0 ${-820 + Math.sin(t * 1.2) * 3})`);
+    if (!o.smile) {
+      at(q(root, 'gd-p-head'), 'transform', `translate(0 ${-820 + Math.sin(t * 1.2) * 3})`);
+      at(q(root, 'gd-p-eyes'), 'transform', `translate(${Math.round(Math.sin(t * .9) * 1.5) * 9} ${Math.cos(t * .7) > .6 ? -6 : 0})`);
+    }
   },
 };
 
@@ -167,7 +179,7 @@ A.roof = {
   <rect x="-600" y="620" width="3240" height="1500" fill="url(#rf-f)"/>
   <g stroke="#6a6a80" stroke-width="12">${Array.from({length: 18}, (_, i) => `<path d="M${-600 + i * 190} 470 v150"/>`).join('')}<path d="M-600 470 h3240"/></g>
   <path d="M-100 -120 q1120 220 2240 0" stroke="#3a3a3a" stroke-width="5" fill="none"/>
-  <g id="rf-bulbs">${Array.from({length: 12}, (_, i) => { const x = -100 + i * 204, y = -120 + 220 * 4 * (i / 11) * (1 - i / 11) * .5; return `<g transform="translate(${x} ${y + 30})"><circle r="60" fill="url(#rf-b)" opacity=".6"/><circle r="16" fill="#fff0b0"/></g>`; }).join('')}</g>
+  <g id="rf-bulbs">${Array.from({length: 12}, (_, i) => { const x = -100 + i * 204, y = -120 + 220 * 4 * (i / 11) * (1 - i / 11) * .5; return `<g transform="translate(${x} ${y + 30})" id="rf-bl${i}"><circle r="60" fill="url(#rf-b)" opacity=".6"/><circle r="16" fill="#fff0b0"/></g>`; }).join('')}</g>
   <g transform="translate(1020 20)"><rect x="-460" y="-70" width="920" height="150" rx="16" fill="#fff6e0"/><rect x="-460" y="-70" width="920" height="150" rx="16" fill="none" stroke="#c8302a" stroke-width="10"/>
    <text y="40" font-family="Gothic" font-size="86" fill="#c8302a" text-anchor="middle">제1회 새벽 반상회</text></g>
   <g transform="translate(1020 760)"><rect x="-190" y="-170" width="380" height="170" rx="10" fill="#b8844a"/><path d="M-190 -110 h380 M-190 -55 h380" stroke="#8a5a2a" stroke-width="8"/>
@@ -176,7 +188,8 @@ A.roof = {
   ${[0, 1, 2].map(r => Array.from({length: 7}, (_, i) => { const x = -280 + i * 400 + (r % 2) * 200, y = 1080 + r * 300, s = .42 + r * .08, k = (i + r * 3) % 6;
     return (i + r) % 4 === 3 ? `<g transform="translate(${x} ${y}) scale(${s * 1.1})">${cat2(`rf-k${r}${i}`, {c1: ['#f0c890', '#3a3a40', '#f4f0e8'][r], c2: ['#c08a4a', '#141418', '#bcb4a8'][r]})}</g>`
       : `<g transform="translate(${x} ${y}) scale(${s})">${dog2(`rf-p${r}${i}`, PETS[k])}</g>`; }).join('')).join('')}
-  ${o.kong ? `<g transform="translate(1700 1820) scale(.78)">${dog2('rf-d', {...KONG})}</g><g transform="translate(1260 1840) scale(.66)">${dog2('rf-m', MONG)}</g>` : ''}
+  ${o.kong ? `<g transform="translate(1700 1820) scale(.78)">${dog2('rf-d', {...KONG, face: o.face, sweat: o.sweat})}</g><g transform="translate(1260 1840) scale(.66)">${dog2('rf-m', {...MONG, face: o.mface})}</g>` : ''}
+  ${o.reveal ? '<rect id="rf-dk" x="-600" y="-900" width="3240" height="3000" fill="#02030a" opacity=".93"/>' : ''}
   ${o.dark ? `<rect x="-600" y="-900" width="3240" height="3000" fill="#02030a" opacity=".93"/>
    <g id="rf-eyes">${Array.from({length: 26}, (_, i) => { const x = (i * 263) % 2400 - 250, y = 900 + (i * 151) % 900; return `<g transform="translate(${x} ${y})" opacity="${.6 + (i % 3) / 6}"><circle cx="-26" r="38" fill="url(#rf-e)"/><circle cx="26" r="38" fill="url(#rf-e)"/><circle cx="-26" r="10" fill="#f6ffd0"/><circle cx="26" r="10" fill="#f6ffd0"/></g>`; }).join('')}</g>
    <path d="M1020 -900 L700 2100 L1340 2100z" fill="#fff6d0" opacity=".06"/>` : ''}`,
@@ -187,8 +200,10 @@ A.roof = {
     }
     if (o.kong) { tickDog2(root, 'rf-d', t, 4, {tilt: -8}); tickDog2(root, 'rf-m', t, 5, {who: 'mong', tilt: 8}); }
     const e = q(root, 'rf-eyes');
-    if (e) at(e, 'opacity', ((t * 1.3) % 3) < .12 ? .1 : 1);
-    at(q(root, 'rf-bulbs'), 'opacity', .85 + Math.sin(t * 3) * .15);
+    if (e) [...e.children].forEach((g, i) => at(g, 'opacity', E((p - .25 - ((i * 7) % 26) * .045) / .15) * (((t * 1.3 + i * .37) % 3) < .12 ? .1 : .9)));
+    const on = o.reveal ? (p - .1) * 16 : (o.dark ? -1 : 99);
+    for (let i = 0; i < 12; i++) at(q(root, 'rf-bl' + i), 'opacity', i < on ? .85 + Math.sin(t * 3 + i) * .15 : .08);
+    if (o.reveal) at(q(root, 'rf-dk'), 'opacity', .93 * (1 - E((p - .15) / .8)));
   },
 };
 

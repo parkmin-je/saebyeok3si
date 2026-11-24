@@ -230,6 +230,77 @@ def boom(n_s=1.6):
     return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-tt * 2.2)
 
 
+# ---------- 효과음 (shot["sfx"] = [[이름, 컷 시작부터 초, (길이)]]) ----------
+def band(x, lo, hi):
+    X = np.fft.rfft(x)
+    f = np.fft.rfftfreq(len(x), 1 / SR)
+    X[(f < lo) | (f > hi)] = 0
+    return np.fft.irfft(X, len(x))
+
+
+def tone(f, n_s, decay=8, harm=(1, .3)):
+    tt = _t(n_s)
+    return sum(a * np.sin(2 * np.pi * f * (k + 1) * tt) for k, a in enumerate(harm)) * np.exp(-tt * decay)
+
+
+def sfx_make(name, d, rng):
+    if name == "ding":
+        a, b = tone(hz("E6"), 1.2, 3, (1, .2, .1)), tone(hz("C6"), 1.4, 2.5, (1, .2, .1))
+        y = np.zeros(int(SR * 1.8)); y[:len(a)] += a; y[int(SR * .32):int(SR * .32) + len(b)] += b
+        return y * .5
+    if name == "code":
+        y = np.zeros(int(SR * 1.0))
+        for k in range(4):
+            b = tone(1480, .07, 30, (1,)); i = int(SR * k * .2); y[i:i + len(b)] += b
+        return y * .35
+    if name == "unlock":
+        y = np.zeros(int(SR * .9))
+        for k, n in enumerate(["C6", "E6", "G6", "C7"]):
+            b = tone(hz(n), .35, 9, (1, .15)); i = int(SR * k * .08); y[i:i + len(b)] += b
+        return y * .35
+    if name == "steps":
+        y = np.zeros(int(SR * (d or 1.0)))
+        for k in range(int((d or 1.0) / .16)):
+            c = band(rng.standard_normal(int(SR * .05)), 200, 2500) * np.exp(-_t(.05) * 80)
+            i = int(SR * (k * .16 + rng.uniform(0, .02))); y[i:i + len(c)] += c * (.8 if k % 2 else 1)
+        return y * .5
+    if name == "sip":
+        n = rng.standard_normal(int(SR * .5))
+        f = np.linspace(500, 1400, len(n))
+        y = band(n, 300, 3000) * np.sin(np.pi * _t(.5) / .5) ** 2
+        return y * (0.5 + .5 * np.sin(2 * np.pi * np.cumsum(f / 200) / SR)) * .25
+    if name == "murmur":
+        n_s = d or 3
+        y = np.zeros(int(SR * n_s))
+        for v in range(8):   # 여러 마리가 작게 웅성웅성
+            am = np.clip(np.sin(2 * np.pi * rng.uniform(3, 6) * _t(n_s) + rng.uniform(0, 6)), 0, 1) ** 2
+            y += band(rng.standard_normal(len(y)), rng.uniform(300, 600), rng.uniform(1200, 2400)) * am
+        env = np.minimum(1, np.minimum(_t(n_s) / .5, (n_s - _t(n_s)) / .5))
+        return y / (np.abs(y).max() + 1e-9) * env * .18
+    if name == "riser":
+        n_s = d or 1.5
+        tt = _t(n_s)
+        y = band(rng.standard_normal(len(tt)), 800, 8000) * (tt / n_s) ** 2 * .5
+        y += np.sin(2 * np.pi * np.cumsum(200 + 900 * (tt / n_s) ** 2) / SR) * (tt / n_s) ** 2 * .3
+        return y * .5
+    if name == "hit":
+        w = boom(1.8)
+        n = band(rng.standard_normal(len(w)), 60, 3000) * np.exp(-_t(1.8) * 9)
+        return (w * .9 + n * .4)
+    if name == "heart":
+        y = np.zeros(int(SR * .8))
+        for o_, a in ((0, 1), (.22, .7)):
+            k = kick(.25); i = int(SR * o_); y[i:i + len(k)] += k * a
+        return y * .7
+    if name == "gasp":
+        y = np.zeros(int(SR * .7))
+        for v in range(10):
+            g = band(rng.standard_normal(int(SR * .45)), rng.uniform(700, 1000), rng.uniform(2200, 3200)) * np.sin(np.pi * _t(.45) / .45) ** 3
+            i = int(SR * rng.uniform(0, .2)); y[i:i + len(g)] += g
+        return y / (np.abs(y).max() + 1e-9) * .35
+    raise ValueError(name)
+
+
 def mix(tl, work):
     total = tl["total"]
     N = int(total * SR)
@@ -258,6 +329,12 @@ def mix(tl, work):
         if tl.get("mood") == "mystery":
             w = boom()
             sfx[i:i + len(w)] += w[:N - i] * .7
+    for sh in tl["shots"]:
+        for ev in sh.get("sfx", []):
+            y = sfx_make(ev[0], ev[2] if len(ev) > 2 else None, rng)
+            i = max(0, int((sh["start"] + ev[1]) * SR))
+            if i < N:
+                sfx[i:i + len(y)] += y[:N - i]
     i = int(tl["card"]["start"] * SR)
     b = bell(hz("E5"), .5, .3)
     sfx[i:i + len(b)] += b[:N - i] * .4

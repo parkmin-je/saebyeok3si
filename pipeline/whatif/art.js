@@ -15,7 +15,7 @@ const shadow = (id, rx, ry, o = .35) => `<ellipse cx="0" cy="0" rx="${rx}" ry="$
 function dog2(id, o = {}) {
   const fur = o.fur || '#e8914a', fur2 = o.fur2 || '#b8612a', cream = o.cream || '#fff3e2';
   const old = !!o.old;
-  return `<g id="${id}">
+  return `<g id="${id}" data-mouth="${o.face === 'shock' ? .9 : o.face === 'worried' ? .15 : o.mouth || 0}">
   <defs>${rad(id + 'b', o.furL || '#f6b070', fur2, .35, .25, .9)}${rad(id + 'h', o.furL || '#f8b878', fur2, .38, .3, .85)}
    ${rad(id + 'c', '#ffffff', cream, .4, .3, .9)}${rad(id + 'e', '#5a3418', '#120a06', .4, .35, .7)}${blur(id + 'f', 14)}</defs>
   <g transform="translate(0 4)">${shadow(id + 'f', 230, 40, .32)}</g>
@@ -47,13 +47,16 @@ function dog2(id, o = {}) {
    <ellipse cx="-110" cy="30" rx="46" ry="34" fill="url(#${id}c)"/><ellipse cx="128" cy="26" rx="40" ry="30" fill="url(#${id}c)"/>
    <ellipse cx="-118" cy="44" rx="30" ry="16" fill="#ff8a8a" opacity=".35"/><ellipse cx="134" cy="40" rx="26" ry="14" fill="#ff8a8a" opacity=".35"/>
    <g id="${id}-eyes">
-    <ellipse cx="-62" cy="-28" rx="${old ? 24 : 30}" ry="${old ? 26 : 36}" fill="url(#${id}e)"/><ellipse cx="72" cy="-32" rx="${old ? 22 : 28}" ry="${old ? 24 : 34}" fill="url(#${id}e)"/>
+    ${o.face === 'shock' ? `<ellipse cx="-62" cy="-34" rx="36" ry="42" fill="#fff" stroke="#3a2016" stroke-width="6"/><ellipse cx="72" cy="-38" rx="34" ry="40" fill="#fff" stroke="#3a2016" stroke-width="6"/><circle cx="-60" cy="-30" r="11" fill="#120a06"/><circle cx="70" cy="-34" r="10" fill="#120a06"/>`
+    : `<ellipse cx="-62" cy="-28" rx="${old ? 24 : 30}" ry="${old ? 26 : 36}" fill="url(#${id}e)"/><ellipse cx="72" cy="-32" rx="${old ? 22 : 28}" ry="${old ? 24 : 34}" fill="url(#${id}e)"/>
     <circle cx="-52" cy="-42" r="11" fill="#fff"/><circle cx="-72" cy="-16" r="5" fill="#fff" opacity=".8"/>
-    <circle cx="81" cy="-46" r="10" fill="#fff"/><circle cx="62" cy="-20" r="5" fill="#fff" opacity=".8"/>
+    <circle cx="81" cy="-46" r="10" fill="#fff"/><circle cx="62" cy="-20" r="5" fill="#fff" opacity=".8"/>`}
+    ${o.face === 'sly' ? `<path d="M-96 -70 h70 v34 q-36 -8 -70 6z M38 -74 h68 v36 q-34 -10 -68 4z" fill="${fur}"/>` : ''}
     ${o.tear ? `<path d="M-74 4 q-8 22 0 34 q10 -10 0 -34z" fill="#bfe6ff" opacity=".9"/>` : ''}
     ${o.glasses ? `<g fill="none" stroke="#2a2a2a" stroke-width="8"><circle cx="-62" cy="-28" r="50"/><circle cx="72" cy="-32" r="48"/><path d="M-12 -30 h36"/></g>` : ''}
    </g>
-   <path d="M-100 -96 q36 -26 72 -8 M40 -104 q36 -16 68 6" stroke="${fur2}" stroke-width="10" fill="none" stroke-linecap="round" id="${id}-brow"/>
+   <path d="${o.face === 'worried' ? 'M-100 -86 q36 -6 72 -34 M40 -120 q36 4 68 30' : o.face === 'shock' ? 'M-104 -118 q36 -30 76 -12 M40 -126 q36 -20 72 6' : o.face === 'sly' ? 'M-100 -84 q36 4 72 -2 M40 -90 q36 -8 68 -10' : 'M-100 -96 q36 -26 72 -8 M40 -104 q36 -16 68 6'}" stroke="${fur2}" stroke-width="10" fill="none" stroke-linecap="round" id="${id}-brow"/>
+   ${o.sweat ? `<path id="${id}-sweat" d="M150 -120 q-22 40 0 56 q22 -16 0 -56z" fill="#bfe6ff" stroke="#7ab8e8" stroke-width="4"/>` : ''}
    <ellipse cx="10" cy="44" rx="36" ry="26" fill="#1d120c"/><ellipse cx="0" cy="36" rx="12" ry="7" fill="#fff" opacity=".6"/>
    <g id="${id}-jaw" transform="translate(10 84)"><path d="M-46 0 q46 8 92 0 q-6 60 -46 64 q-40 -4 -46 -64z" fill="#7a2228"/>
     <ellipse cx="0" cy="40" rx="26" ry="16" fill="#ff7a86"/></g>
@@ -67,14 +70,22 @@ function dog2(id, o = {}) {
 
 function tickDog2(root, id, t, seed = 0, o = {}) {
   const talking = window.SPEAK === (o.who || 'dog');
+  const me = q(root, id);
+  if (!me) return;
   const tail = q(root, id + '-tail');
   at(tail, 'transform', `translate(-150 -120) rotate(${Math.sin(t * (o.old ? 4 : 10) + seed) * (o.old ? 8 : 18)})`);
+  // 숨쉬기 + 말할 때 몸이 살짝 들썩
+  const br = 1 + Math.sin(t * 2.4 + seed) * .012 + (talking ? Math.abs(Math.sin(t * 7.5)) * .025 : 0);
+  at(me, 'transform', `scale(${2 - br} ${br})`);
   const bob = talking ? Math.sin(t * 7.5) * 6 : Math.sin(t * 1.4 + seed) * 4;
   at(q(root, id + '-head'), 'transform', `translate(30 ${-440 + bob}) rotate(${Math.sin(t * .8 + seed) * 3 + (o.tilt || 0)})`);
-  const open = talking ? Math.max(0, Math.sin(t * 16) * .55 + Math.sin(t * 6.1) * .5) : (o.mouth || 0);
+  const base = o.mouth !== undefined ? o.mouth : +(me.dataset.mouth || 0);
+  const open = talking ? Math.max(base * .6, Math.sin(t * 16) * .55 + Math.sin(t * 6.1) * .5) : base;
   at(q(root, id + '-jaw'), 'transform', `translate(10 ${84 + open * 20}) scale(1 ${.35 + open * .9})`);
-  const blink = ((t + seed * 1.37) % 3.8) < .11;
+  const blink = o.closed || ((t + seed * 1.37) % 3.8) < .11;
   at(q(root, id + '-eyes'), 'transform', blink ? 'translate(0 -30) scale(1 .12) translate(0 30)' : '');
+  const sw = q(root, id + '-sweat');
+  if (sw) at(sw, 'transform', `translate(0 ${(t * 40) % 30})`);
 }
 
 // ───────── 사람 (단발머리 주인 등) 원점 = 발 밑, 키 약 900 ─────────
@@ -116,7 +127,7 @@ function human(id, o = {}) {
    ${o.cap ? `<path d="M-140 -60 q0 -130 140 -130 q140 0 140 130z" fill="${o.cap}"/><path d="M-150 -60 h300 q20 0 10 20 h-320 q-10 -20 10 -20z" fill="#1a2238"/><path d="M-40 -60 q40 34 160 14 q-40 -10 -60 -14z" fill="#141a2c"/><g transform="translate(0 -120)"><path d="M0 -26 l22 10 v20 q0 20 -22 28 q-22 -8 -22 -28 v-20z" fill="#f2c24a"/></g>` : ''}
    ${o.stache ? `<path d="M-60 36 q30 -24 60 -4 q30 -20 60 4 q-30 20 -60 6 q-30 14 -60 -6z" fill="${o.hair || '#2a2228'}"/>` : ''}
    ${o.gray ? `<path d="M-60 -150 q60 -20 120 0" stroke="#bdb6b0" stroke-width="12" fill="none" opacity=".8"/>` : ''}
-   ${eyes}
+   <g id="${id}-eyes">${eyes}</g>
    <ellipse cx="-80" cy="40" rx="24" ry="13" fill="#ff8a8a" opacity=".4"/><ellipse cx="80" cy="40" rx="24" ry="13" fill="#ff8a8a" opacity=".4"/>
    ${mouth}
    ${o.tear ? '<path d="M-56 20 q-12 34 0 52 q14 -16 0 -52z M56 20 q-12 34 0 52 q14 -16 0 -52z" fill="#9fd8ff" opacity=".9"/>' : ''}

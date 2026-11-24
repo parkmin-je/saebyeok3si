@@ -29,6 +29,9 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 #cctv .ts{position:absolute;left:48px;bottom:120px;font-size:52px;letter-spacing:2px;text-shadow:0 0 8px #000}
 #cctv .rec{position:absolute;right:48px;top:150px;font-size:56px;color:#ff4a3a;text-shadow:0 0 8px #000}
 #cctv .cam{position:absolute;left:48px;top:150px;font-size:48px;text-shadow:0 0 8px #000}
+#grain{position:absolute;inset:0;width:1080px;height:1920px;opacity:.10;mix-blend-mode:overlay;pointer-events:none;image-rendering:pixelated}
+#bokeh{position:absolute;inset:0;pointer-events:none;opacity:0}
+#bokeh i{position:absolute;border-radius:50%;filter:blur(22px);mix-blend-mode:screen}
 #card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,8,6,.72);opacity:0}
 #card .q{font-family:Gothic;font-size:96px;line-height:1.25;color:#fff;text-align:center;word-break:keep-all;paint-order:stroke fill;-webkit-text-stroke:14px #000;padding:0 50px}
 #card b{color:#ffd23f;font-weight:inherit}
@@ -36,7 +39,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 </style></head>
 <body><div id="stage">
 <div id="shots"></div>
-<div id="vig"></div><div id="topfade"></div>
+<div id="bokeh"></div><div id="vig"></div><canvas id="grain" width="360" height="640"></canvas><div id="topfade"></div>
 <div id="cctv"><div class="cam"></div><div class="rec">● REC</div><div class="ts"></div></div>
 <div id="flash"></div>
 <div id="bar"></div><div id="tag"></div><div id="brand"></div>
@@ -60,6 +63,14 @@ $('hook').innerHTML = mark(TL.hook || '').replace(/\|/g, '<br>');
 const STG = TL.shots.filter(s => s.stage).filter((s, i, a) => a.findIndex(x => x.stage === s.stage) === i).map(s => [s.stage, s.start]);
 
 const built = new Map();
+const BK = Array.from({length: 9}, (_, i) => { const e = document.createElement('i'); $('bokeh').appendChild(e); return e; });
+const gctx = $('grain').getContext('2d'), gimg = gctx.createImageData(360, 640);
+function grain(t) {   // 프레임마다 다른 필름 입자 (같은 t면 같은 무늬)
+  let x = (Math.floor(t * 30) * 2654435761) >>> 0;
+  const d = gimg.data;
+  for (let i = 0; i < d.length; i += 4) { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; const v = 128 + ((x >>> 0) % 120) - 60; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+  gctx.putImageData(gimg, 0, 0);
+}
 function mount(i) {
   if (built.has(i)) return built.get(i);
   const s = TL.shots[i], px = `s${i}-`, d = document.createElement('div');
@@ -98,12 +109,20 @@ window.render = function (t) {
   });
   const sp = TL.caps.find(c => t >= c.start && t <= c.end + .05);
   window.SPEAK = sp ? sp.who : null;
-  TL.shots.forEach((s, i) => { const d = built.get(i); if (d && !s.img && L[s.scene].tick) L[s.scene].tick(d, t, 0, s.o || {}); });
+  TL.shots.forEach((s, i) => { const d = built.get(i); if (d && !s.img && L[s.scene].tick) L[s.scene].tick(d, t, t - s.start, s.o || {}); });
 
+  grain(t);
+  // 앞쪽 흐린 빛망울 (shot.bokeh = 색) : 깊이감
+  const bk = $('bokeh'), bc = cur && cur.bokeh;
+  bk.style.opacity = bc ? .55 : 0;
+  if (bc) BK.forEach((e, i) => {
+    const r = 120 + (i * 53) % 160, x = ((i * 397) % 1180) - 50 + Math.sin(t * .3 + i) * 40, y = (i % 2 ? 80 + (i * 131) % 360 : 1500 + (i * 89) % 380) + Math.cos(t * .25 + i) * 30;
+    e.style.cssText = `left:${x}px;top:${y}px;width:${r}px;height:${r}px;background:radial-gradient(circle,${bc} 0,${bc}88 45%,transparent 70%);opacity:${.5 + (i % 3) * .2}`;
+  });
   // CCTV 화면 (shot.cctv = {cam, ts:[시,분,초]})
   const cc = $('cctv'), cs = cur && cur.cctv;
   cc.style.opacity = cs ? 1 : 0;
-  $('shots').style.filter = cs ? 'grayscale(.75) sepia(.35) hue-rotate(60deg) contrast(1.15) brightness(1.05)' : '';
+  $('shots').style.filter = cs ? 'grayscale(.75) sepia(.35) hue-rotate(60deg) contrast(1.15) brightness(1.05)' : 'contrast(1.06) saturate(1.12)';
   if (cs) {
     const sec = cs.ts[2] + Math.floor(t - cur.start), pad = n => String(n).padStart(2, '0');
     cc.querySelector('.cam').textContent = cs.cam || 'CAM 05';
