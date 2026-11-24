@@ -4,7 +4,7 @@ name: saeyeon-voices
 on:
   push:
     branches: [feat/sample-video-veo]
-    paths: [pipeline/saeyeon/ep*/episode.json, pipeline/saeyeon/shorts/*.json, pipeline/saeyeon/whatif/*.json]
+    paths: [pipeline/saeyeon/ep*/episode.json, pipeline/saeyeon/shorts/*.json, pipeline/saeyeon/whatif/*.json, pipeline/whatif/w*.json]
   workflow_dispatch:
 permissions:
   contents: write
@@ -26,10 +26,11 @@ jobs:
         run: |
           git config --global user.name "rrs-bot"; git config --global user.email "rrs-bot@users.noreply.github.com"
           FILES=$(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'pipeline/saeyeon/ep*/episode.json' 'pipeline/saeyeon/shorts/*.json' 'pipeline/saeyeon/whatif/*.json')
-          [ -z "$FILES" ] && FILES=$(ls pipeline/saeyeon/ep*/episode.json | tail -1)
+          [ -z "$FILES" ] && [ -z "$(git diff --name-only HEAD~1 HEAD -- 'pipeline/whatif/w*.json')" ] && FILES=$(ls pipeline/saeyeon/ep*/episode.json | tail -1)
           git fetch -q origin experiment-output && git worktree add -q -B eo-work /tmp/eo origin/experiment-output
           OUT=/tmp/eo/runs/voices-${{ github.run_id }}
           mkdir -p $OUT/voice
           for E in $FILES; do python pipeline/saeyeon/build.py "$E" /tmp/work --voices-only; done
+          for E in $(git diff --name-only --diff-filter=AM HEAD~1 HEAD -- 'pipeline/whatif/w*.json' | grep -v -- '-shots.json'); do python pipeline/whatif/make.py "$E" /tmp/work --voices-only; done
           cp /tmp/work/voice/*.wav $OUT/voice/
           cd /tmp/eo && git add runs && git commit -qm "voices ${{ github.run_id }}" && for i in 1 2 3; do git pull -q --rebase origin experiment-output && git push -q origin HEAD:experiment-output && break; sleep 5; done
