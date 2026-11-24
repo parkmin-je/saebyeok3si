@@ -201,7 +201,7 @@ def align(x, texts):
 
 def ok_len(y, text):
     cps = len(plain(text).replace(" ", "")) / (len(y) / SR)
-    return 2.0 <= cps <= 13
+    return 3.0 <= cps <= 12
 
 
 def write_wav(path, y):
@@ -237,8 +237,11 @@ def make(ep, work, lines):
         parts = align(x, [ln["text"] for ln in g])
         for ln, p in zip(g, parts):
             if p is None or not ok_len(p, ln["text"]):
-                print(f"따로 다시 녹음: {plain(ln['text'])}", flush=True)
-                p = split(request(ep, [ln]), [ln["text"]])[0]
-                time.sleep(21)
+                for k in range(3):
+                    print(f"따로 다시 녹음: {plain(ln['text'])}", flush=True)
+                    p = split(request(ep, [ln]), [ln["text"]])[0]
+                    time.sleep(21)
+                    if ok_len(p, ln["text"]):
+                        break
             write_wav(path_of(ep, work, ln), p)
             print(f"목소리 {ln['who']}: {plain(ln['text'])} ({len(p) / SR:.1f}초)", flush=True)

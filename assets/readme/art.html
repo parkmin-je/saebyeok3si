@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- README 그림 (배너·캐릭터 카드). 다시 만들기: node assets/readme/render.js -->
+<html><head><meta charset="utf-8"><style>
+@font-face{font-family:Gothic;src:url(../fonts/NanumSquareEB.ttf)}
+html,body{margin:0;background:transparent}
+svg{display:block}
+</style></head><body>
+<script>window.SCENE_LIBRARY = {};</script>
+<script src="../../pipeline/whatif/art.js"></script>
+<script src="../../pipeline/whatif/apt.js"></script>
+<script src="../../pipeline/whatif/office.js"></script>
+<script>
+const T = (x, y, s, c, t, a = 'middle', ex = '') => `<text x="${x}" y="${y}" font-family="Gothic" font-size="${s}" fill="${c}" text-anchor="${a}" ${ex}>${t}</text>`;
+const office = (w, h) => `<defs>${lin('bg', '#1c2644', '#0b1020')}${halo('gl', '#5ab0ff', .55)}${halo('gy', '#ffd23f', .5)}</defs>
+  <rect width="${w}" height="${h}" fill="url(#bg)"/>
+  <g stroke="#26324f" stroke-width="3">${Array.from({length: 30}, (_, i) => `<path d="M${i * 80} 0 v${h}"/>`).join('')}</g>`;
+const mode = location.hash.slice(1) || 'banner';
+let svg = '';
+if (mode === 'banner') {
+  const W = 1600, H = 720;
+  svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${office(W, H)}
+  <circle cx="800" cy="760" r="620" fill="url(#gl)" opacity=".5"/>
+  <rect y="640" width="${W}" height="80" fill="#141a2c"/><path d="M0 640 h${W}" stroke="#2a3654" stroke-width="6"/>
+  <g transform="translate(330 680) scale(.62)">${cat2('cat', {glasses: true, scarf: '#c8302a', lids: true})}</g>
+  <g transform="translate(800 690) scale(.62)">${dog2('dog', {face: 'worried', sweat: true, bag: '#3a7ad8'})}</g>
+  <g transform="translate(1270 680) scale(.62)">${robot('bot', {smug: true})}</g>
+  <circle cx="800" cy="70" r="260" fill="url(#gy)" opacity=".35"/>
+  ${T(800, 118, 96, '#ffd23f', '콩사원 AI 생존기', 'middle', 'stroke="#0b1020" stroke-width="10" paint-order="stroke"')}
+  ${T(800, 172, 36, '#cfd8ea', 'AI가 들어온 회사에서, 신입 개발자 콩이는 살아남을 수 있을까?')}
+  <g transform="translate(1440 225) rotate(-8)"><rect x="-150" y="-50" width="300" height="100" rx="22" fill="none" stroke="#ff4a5a" stroke-width="10"/>${T(0, 18, 52, '#ff4a5a', '생존 D+1')}</g>
+  <g transform="translate(190 330)"><rect x="-150" y="-46" width="300" height="70" rx="35" fill="#fff"/>${T(0, 2, 30, '#1a1208', 'AI한테 물어봤어?')}<path d="M10 24 l20 30 l10 -30z" fill="#fff"/></g>
+  </svg>`;
+} else {
+  const who = {kong: [dog2('c', {bag: '#3a7ad8'}), '#e8914a', .5], cat: [cat2('c', {glasses: true, scarf: '#c8302a', lids: true}), '#9aa2b4', .62], bot: [robot('c', {smug: false}), '#5ab0ff', .6], bot2: [robot('c', {smug: true}), '#5ab0ff', .6], sis: [dog2('c', {bow: '#ff6a9a', fur: '#f0a868', face: 'worried'}), '#ff8aa8', .5]}[mode];
+  svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480">${office(480, 480)}
+   <circle cx="240" cy="300" r="260" fill="url(#gl)" opacity=".5"/><rect y="430" width="480" height="50" fill="#141a2c"/>
+   <g transform="translate(240 440) scale(${who[2]})">${who[0]}</g><rect x="4" y="4" width="472" height="472" rx="36" fill="none" stroke="${who[1]}" stroke-width="8"/></svg>`;
+}
+document.body.innerHTML = svg;
+</script></body></html>

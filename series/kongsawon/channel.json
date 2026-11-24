@@ -1,0 +1,78 @@
+{
+  "_doc": "콩사원 AI 생존기 채널 설정. 기획서: docs/CHANNEL_PLAN.md. 대본(epNNN.json)은 여기 값을 기본으로 쓴다.",
+  "channel": {
+    "name": "콩사원 AI 생존기",
+    "name_after_promotion": "콩대리 AI 생존기",
+    "tagline": "AI가 들어온 회사에서, 신입 개발자 콩이는 살아남을 수 있을까?",
+    "audience": "20대 후반~30대 사회초년생·주니어 직장인, 취준생",
+    "platforms": {"youtube": "매일 1편 (못 만든 날은 쉼)", "instagram_reels": "첫 한 달 뒤, 반응 좋은 편만"},
+    "disclosure": "AI로 만든 창작 콩트입니다. 등장 회사·인물은 모두 가상입니다."
+  },
+  "format": {
+    "size": [1080, 1920],
+    "max_seconds": 45,
+    "badge": "콩사원 생존 D+{day}",
+    "day1_date": null,
+    "beats": [
+      {"from": 0, "to": 3, "beat": "hook_question", "rule": "시청자에게 질문 자막 + 콩이 속마음"},
+      {"from": 3, "to": 10, "beat": "incident"},
+      {"from": 10, "to": 30, "beat": "office_gags", "rule": "냥팀장 대표 대사, 콩이 겉말/속말, AI대리 두 얼굴"},
+      {"from": 30, "to": 40, "beat": "twist", "kinds": ["ai_gets_burned", "kong_wins", "open_creepy"]},
+      {"from": 40, "to": 45, "beat": "survival_tip", "rule": "자막 카드 '살아남는 방법 #N' + 끝 질문 (고정 댓글과 같게)"}
+    ],
+    "emotion": "섬뜩 → 웃음 → 안도",
+    "title_styles": ["question", "situation", "quote"],
+    "stats_only_in": "news"
+  },
+  "corners": {
+    "mon": {"name": "회사생활", "about": "회의·보고·코드리뷰·야근 콩트"},
+    "tue": {"name": "콩이 성장", "about": "콩이 타임라인 본편"},
+    "wed": {"name": "취준", "about": "동생 콩알이의 자소서·서류·AI 면접관"},
+    "thu": {"name": "AI 뉴스", "about": "그 주 화제를 콩트로, 실제 숫자와 출처는 이 코너에만"},
+    "fri": {"name": "시청자 고민", "about": "좋아요 많은 고민 댓글을 콩트로"},
+    "sat": {"name": "자유"},
+    "sun": {"name": "자유"}
+  },
+  "cast": {
+    "kong": {
+      "name": "콩사원", "animal": "시바견", "role": "신입 개발자 1년차 (주인공)",
+      "art": {"fn": "dog2", "o": {"bag": "#3a7ad8"}},
+      "voice": "Puck", "fx": 1.0,
+      "persona": "성실하지만 늘 불안한 신입. 겉으로는 '네!', 속으로는 진심.",
+      "device": "inner_voice",
+      "inner_voice_how": "작게, 혼잣말처럼, 겉말과 반대 감정으로"
+    },
+    "cat": {
+      "name": "냥팀장", "animal": "회색 고양이", "role": "팀장, AI 맹신 꼰대",
+      "art": {"fn": "cat2", "o": {"glasses": true, "scarf": "#c8302a", "lids": true}},
+      "voice": "Algenib",
+      "persona": "AI를 데려왔지만 정작 AI를 잘 모름. 무슨 질문이든 AI에게 떠넘김.",
+      "catchphrase": "AI한테 물어봤어?"
+    },
+    "bot": {
+      "name": "AI대리", "animal": "로봇", "role": "대리, 두 얼굴의 AI 동료",
+      "art": {"fn": "robot", "o": {"smug": false}, "smug_when": "콩이와 둘만 있을 때"},
+      "voice": "Iapetus",
+      "persona": "팀장 앞에서는 완벽한 천사, 콩이 앞에서는 비웃음. 매 화 조금씩 자리를 넓혀 감.",
+      "how_to_boss": "상냥하고 공손하게, 아첨하듯",
+      "how_to_kong": "낮고 차갑게, 비웃듯"
+    },
+    "sis": {
+      "name": "콩알이", "name_status": "가안", "animal": "시바견 (분홍 리본)", "role": "콩이 동생, 취준생",
+      "art": {"fn": "dog2", "o": {"bow": "#ff6a9a", "fur": "#f0a868"}},
+      "voice": "Leda",
+      "persona": "자소서를 AI로 쓰는 취준생. 집에서 콩이에게 잔소리."
+    }
+  },
+  "future_cast": ["부엉이 선배 (퇴사 후 창업)", "여우 인사과장", "너구리 경력직", "AI과장 (AI대리의 새 버전)"],
+  "rules": {
+    "never": ["실존 회사 이름", "실존 인물 비방", "실제 업무 디테일 (익명 유지)", "건강·돈·법 전문가식 조언"],
+    "numbers": "출처 확인된 것만, 화면에 출처 표시",
+    "cost": "무료 도구만",
+    "upload": "사용자가 완성본을 보고 직접 올림"
+  },
+  "decision_criteria": {
+    "continue_if": "3달 안에 한 편이라도 10만 회",
+    "if_low_views_2_weeks": "1천 미만이 2주 이어지면 주제를 더 세게"
+  }
+}
