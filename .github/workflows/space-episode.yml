@@ -34,6 +34,7 @@ jobs:
               if s.get("still") == "auto": s.pop("still")
               for k in ("ref", "still"):
                   if s.get(k) and not s[k].startswith("/"): s[k] = "/tmp/eo/" + s[k]
+              if s.get("refs"): s["refs"] = [x if x.startswith("/") else "/tmp/eo/" + x for x in s["refs"]]
           json.dump(spec, open("/tmp/job.json", "w"))
           PY
           python pipeline/experiments/space_runner.py /tmp/job.json out/space-${{ github.run_id }} /tmp/eo "$(python -c "import json,sys;print(json.load(open(sys.argv[1])).get('only',''))" "$J")"

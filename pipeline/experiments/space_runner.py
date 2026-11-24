@@ -1,7 +1,7 @@
 """무료 Hugging Face Space(ZeroGPU)로 1화 컷 만들기: 배우 얼굴 사진 → 장면 스틸(Qwen-Image-Edit) → 움직이는 컷(Wan 2.2).
 
 사용: python space_runner.py <job.json> <out_dir> [<eo_repo_dir>]
-job.json: {"shots":[{"name", "ref"?: 배우사진, "edit"?: 장면 지시, "t2i"?: 프롬프트, "still"?: 이미 있는 스틸, "motion": 움직임 프롬프트, "dur"?: 초}]}
+job.json: {"shots":[{"name", "ref"?: 배우사진, "refs"?: [배우사진들] (투샷), "edit"?: 장면 지시, "t2i"?: 프롬프트, "still"?: 이미 있는 스틸, "motion": 움직임 프롬프트, "dur"?: 초}]}
 각 결과는 나오자마자 experiment-output 브랜치에 올린다 (eo_repo_dir 이 있으면).
 모든 모델은 상업 이용 가능 라이선스(Qwen-Image/Edit Apache-2.0, FLUX.1-schnell Apache-2.0, Wan 2.2 Apache-2.0).
 """
@@ -78,10 +78,11 @@ def call(kind, prompt, image=None, seed=0, dur=None):
                 lab = ((p.get("label") or "") + " " + (pn or "")).lower()
                 comp = p.get("component", "")
                 v = None
-                if comp == "Image":
-                    v = handle_file(image)
-                elif comp == "Gallery":
-                    v = [{"image": handle_file(image), "caption": None}]
+                imgs = image if isinstance(image, list) else [image]
+                if comp == "Image":   # 이미지 칸이 하나뿐이면 여러 배우를 한 장에 나란히 붙여 넣는다
+                    v = handle_file(imgs[0] if len(imgs) == 1 else side_by_side(imgs, "/tmp/pair.jpg"))
+                elif comp == "Gallery":   # Qwen-Image-Edit-2509는 여러 장(최대 3) 참조 가능 → 두 주인공 투샷
+                    v = [{"image": handle_file(x), "caption": None} for x in imgs]
                 elif comp == "Textbox" and "neg" in lab:
                     v = NEG_V if kind == "i2v" else " "
                 elif comp == "Textbox" and ("prompt" in lab or "instruction" in lab or "text" in lab):
@@ -129,6 +130,20 @@ def call(kind, prompt, image=None, seed=0, dur=None):
     raise RuntimeError(" | ".join(errs))
 
 
+def side_by_side(srcs, dst):
+    from PIL import Image
+    ims = [Image.open(x).convert("RGB") for x in srcs]
+    h = min(i.height for i in ims)
+    ims = [i.resize((int(i.width * h / i.height), h)) for i in ims]
+    out = Image.new("RGB", (sum(i.width for i in ims), h))
+    x = 0
+    for i in ims:
+        out.paste(i, (x, 0))
+        x += i.width
+    out.save(dst, quality=95)
+    return dst
+
+
 def to_vertical(src, dst):
     """배우 사진(2:3)을 9:16 캔버스로: 흐린 배경 위에 가운데 배치. 편집 모델이 세로 장면으로 채우게."""
     from PIL import Image, ImageFilter
@@ -173,7 +188,9 @@ def main(job, out, eo=None, only=None):
         try:
             still = s.get("still")
             if not still:
-                if s.get("ref"):
+                if s.get("refs"):   # 여러 배우 한 장면 (투샷)
+                    f, sp = call("edit", s["edit"], image=[str(x) for x in s["refs"]], seed=s.get("seed", 100 + i))
+                elif s.get("ref"):
                     v = to_vertical(s["ref"], f"/tmp/{n}-ref.jpg")
                     f, sp = call("edit", s["edit"], image=str(v), seed=s.get("seed", 100 + i))
                 else:
