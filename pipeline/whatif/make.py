@@ -58,7 +58,14 @@ def chunks(text, n=11):
             cur = ""
     if cur:
         out.append(cur)
-    return out
+    fixed, open_ = [], False   # *강조* 가 두 덩어리에 걸치면 양쪽을 각각 닫고 연다
+    for c in out:
+        c2 = ("*" if open_ else "") + c
+        if c2.count("*") % 2:
+            c2 += "*"
+            open_ = not open_ if c.count("*") % 2 else open_
+        fixed.append(c2.replace("**", ""))
+    return fixed
 
 
 def timeline(ep, work):
