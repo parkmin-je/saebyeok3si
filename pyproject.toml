@@ -7,6 +7,7 @@ dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6", "pillow>=10"]
+live = ["websockets>=13"]
 
 [tool.ruff]
 line-length = 140

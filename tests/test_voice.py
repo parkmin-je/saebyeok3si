@@ -148,3 +148,10 @@ def test_tts_body_38_multi_speaker_uses_speaker_parts():
     parts = voice.tts_body(ep, grp, "gemini-3.8-flash-tts")["contents"][0]["parts"]
     assert [p["speechMetadata"]["speaker"] for p in parts] == ["콩", "냥"]
     assert len(voice.tts_body(ep, grp, "gemini-2.5-flash-preview-tts")["contents"][0]["parts"]) == 1
+
+
+def test_similar_ignores_spacing_and_punctuation():
+    from studio.voice import similar
+
+    assert similar("콩 사원, 이거 자네가 좀 봐 줘!", "콩사원, 이거 자네가 좀 봐줘.") > 0.95
+    assert similar("한국 회사 시트콤의 한 장면입니다", "AI는 빨랐다. 하지만 이상한 걸 알아챈 건, 사람이었다.") < 0.4

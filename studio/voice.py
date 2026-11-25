@@ -9,6 +9,7 @@
 """
 
 import base64
+import difflib
 import hashlib
 import io
 import itertools
@@ -32,7 +33,10 @@ TTS_MODELS = os.environ.get(
     "GEMINI_TTS_MODELS", "gemini-3.8-flash-tts,gemini-3.1-flash-tts-preview,gemini-2.5-flash-preview-tts,gemini-3.8-flash-lite-tts"
 ).split(",")
 _spent: set[str] = set()  # 이번 실행에서 하루 한도가 끝난 모델
-ALIGN_MODELS = os.environ.get("GEMINI_ALIGN_MODELS", "gemini-3.8-flash,gemini-2.5-flash,gemini-3.5-flash,gemini-3.1-flash-lite").split(",")
+ALIGN_MODELS = os.environ.get(
+    "GEMINI_ALIGN_MODELS",
+    "gemini-3.5-flash,gemini-2.5-flash,gemini-3.8-flash,gemini-3-flash-preview,gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash-lite,gemini-3.1-flash-lite",
+).split(",")
 API = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
 WAIT = 21  # 무료 등급 분당 3회
 FAKE_CPS = 6.5
@@ -186,7 +190,10 @@ def tts_body(ep, grp, model="") -> dict:
             }
         }
     parts = [{"text": prompt}]
-    if len(spk) > 1 and model.startswith("gemini-3.8"):
+    if model.startswith("gemini-3.8") and len(spk) == 1:
+        # 3.8 계열은 긴 지시문을 그대로 읽어 버린다 → [감정] 태그만
+        parts = [{"text": " ".join(f"[{ln.get('how', '자연스럽게')}] {speak(ln['text'])}" for ln in grp)}]
+    elif model.startswith("gemini-3.8"):
         # 3.8 계열은 여러 명일 때 줄마다 화자를 붙여야 하고, 지시문은 [감정] 태그로만 받는다
         parts = [
             {"text": f"[{ln.get('how', '자연스럽게')}] {speak(ln['text'])}", "speechMetadata": {"speaker": label(ep, ln["who"])}}
@@ -201,7 +208,7 @@ def _post(model, body) -> dict:
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json", "x-goog-api-key": os.environ["GEMINI_API_KEY"]},
     )
-    with urllib.request.urlopen(req, timeout=150) as r:
+    with urllib.request.urlopen(req, timeout=90) as r:
         return json.load(r)
 
 
@@ -231,8 +238,9 @@ def request(ep, grp, log=print) -> np.ndarray:
                 d = _post(model, body)
                 return decode(d["candidates"][0]["content"]["parts"][0]["inlineData"])
             except urllib.error.HTTPError as e:
-                msg = e.read().decode()[:400]
-                if (e.code == 429 and "PerDay" in msg) or e.code in (400, 404):
+                full = e.read().decode()
+                msg = full[:400]
+                if (e.code == 429 and ("PerDay" in full or "free_tier" in full)) or e.code in (400, 404):
                     _spent.add(model)
                     log(f"{model}: 쓸 수 없음 ({e.code}), 다음 모델로")
                     break
@@ -346,6 +354,51 @@ def ok_len(y, text) -> bool:
     return len(y) > 0 and 3.0 <= cps(y, text) <= 12
 
 
+def transcribe(y) -> str | None:
+    """녹음을 받아적는다 (무료 텍스트 모델을 차례로). 다 막히면 None."""
+    body = {
+        "contents": [
+            {
+                "parts": [
+                    {"inlineData": {"mimeType": "audio/wav", "data": base64.b64encode(wav_bytes(y)).decode()}},
+                    {"text": "이 한국어 오디오를 들리는 그대로 받아적어. 받아적은 글자만 답해."},
+                ]
+            }
+        ],
+        "generationConfig": {"temperature": 0},
+    }
+    for model in ALIGN_MODELS:
+        try:
+            return _post(model, body)["candidates"][0]["content"]["parts"][0]["text"].strip()
+        except (urllib.error.HTTPError, TimeoutError, urllib.error.URLError, KeyError, IndexError):
+            continue
+    return None
+
+
+def heard(y, text) -> bool | None:
+    """녹음이 대사와 맞는지. 받아적기를 못 하면 None (모름)."""
+    got = transcribe(y)
+    return None if got is None else similar(got, speak(text)) >= 0.6
+
+
+def similar(a: str, b: str) -> float:
+    """띄어쓰기·문장부호를 빼고 비교한 글자 일치율."""
+
+    def norm(t):
+        return re.sub(r"[^0-9A-Za-z가-힣]", "", t.upper().replace("AI", "에이아이"))
+
+    return difflib.SequenceMatcher(None, norm(a), norm(b)).ratio()
+
+
+def good(y, ln, log=print) -> bool:
+    if y is None or not ok_len(y, ln["text"]):
+        return False
+    ok = heard(y, ln["text"])
+    if ok is False:
+        log(f"다른 말이 녹음됨: {plain(ln['text'])}")
+    return ok is not False
+
+
 # ---------- 만들기 ----------
 def fake(ep, work, lines) -> None:
     """네트워크 없이 길이만 맞춘 조용한 삐 소리."""
@@ -373,22 +426,73 @@ def make(ep, work, lines, log=print) -> None:
         if rawf.exists():
             x, _ = read_wav(rawf)
         else:
-            x = request(ep, g, log)
+            try:
+                x = request(ep, g, log)
+            except VoiceError as e:
+                if "모두 끝남" not in str(e):
+                    raise
+                for ln in g:  # TTS 한도가 다 끝나면 Live 로 한 줄씩
+                    if not path_of(ep, work, ln).exists():
+                        by_live(ep, work, ln, log)
+                continue
             write_wav(rawf, x)
             time.sleep(WAIT)
         parts = align(x, [ln["text"] for ln in g]) if len(g) > 1 else [trim(x)]
         for ln, part in zip(g, parts, strict=True):
-            y, tries = part, [part] if part is not None else []
-            for _ in range(3):
-                if y is not None and ok_len(y, ln["text"]):
-                    break
-                log(f"따로 다시 녹음: {plain(ln['text'])}")
-                y = trim(request(ep, [ln], log))
-                tries.append(y)
-                time.sleep(WAIT)
-            else:
-                y = min(tries, key=lambda t: abs(cps(t, ln["text"]) - 7))  # 그나마 정상 속도에 가까운 것
-                if not 1.5 <= cps(y, ln["text"]) <= 16:
-                    raise VoiceError(f"녹음이 계속 깨짐: {plain(ln['text'])} ({len(y) / SR:.1f}초)")
+            if not path_of(ep, work, ln).exists():
+                fix_line(ep, work, ln, part, log)
+
+
+def retake(ep, ln, log) -> np.ndarray | None:
+    """한 줄만 다시 녹음. TTS 한도가 다 끝났으면 None."""
+    try:
+        y = trim(request(ep, [ln], log))
+    except VoiceError as e:
+        if "모두 끝남" in str(e):
+            return None
+        raise
+    time.sleep(WAIT)
+    if not ok_len(y, ln["text"]):  # 지시문을 읽거나 길게 쉰 녹음이면 대사 부분만 찾아 자른다
+        cut = align(y, [ln["text"]])[0]
+        y = y if cut is None else cut
+    return y
+
+
+def fix_line(ep, work, ln, y, log) -> None:
+    """묶음에서 잘라낸 줄을 확인하고, 틀리면 다시 녹음(TTS → Live 순)해서 저장한다."""
+    tries = []
+    for _ in range(3):
+        if good(y, ln, log):
+            break
+        log(f"따로 다시 녹음: {plain(ln['text'])}")
+        y = retake(ep, ln, log)
+        if y is None:
+            break
+        if heard(y, ln["text"]) is not False:
+            tries.append(y)
+    else:
+        y = min(tries, key=lambda t: abs(cps(t, ln["text"]) - 7)) if tries else None  # 그나마 정상 속도에 가까운 것
+        if y is not None and not 1.5 <= cps(y, ln["text"]) <= 16:
+            y = None
+    if y is None:
+        by_live(ep, work, ln, log)
+        return
+    write_wav(path_of(ep, work, ln), y)
+    log(f"목소리 {ln['who']}: {plain(ln['text'])} ({len(y) / SR:.1f}초)")
+
+
+def by_live(ep, work, ln, log) -> None:
+    """Gemini Live 로 한 줄 녹음 (최대 3번, 받아적어 맞는 것만)."""
+    from . import live
+
+    for _ in range(3):
+        x = live.say(ep["gvoices"][ln["who"]], speak(ln["text"]), ln.get("how", "자연스럽게"))
+        if x is None:
+            break
+        y = trim(x)
+        if heard(y, ln["text"]) is not False:
             write_wav(path_of(ep, work, ln), y)
-            log(f"목소리 {ln['who']}: {plain(ln['text'])} ({len(y) / SR:.1f}초)")
+            log(f"목소리 {ln['who']} (Live): {plain(ln['text'])} ({len(y) / SR:.1f}초)")
+            return
+        log(f"Live 가 다른 말을 함: {plain(ln['text'])}")
+    raise VoiceError(f"무료 목소리를 모두 써 봤지만 녹음 실패: {plain(ln['text'])} (내일 다시)")
