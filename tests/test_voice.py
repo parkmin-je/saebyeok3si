@@ -85,3 +85,66 @@ def test_tighten_shortens_long_pauses_only():
     y = voice.tighten(x)
     assert abs(len(x) / SR - len(y) / SR - (0.8 - 0.22)) < 0.06  # 긴 쉼 하나만 줄어듦
     assert len(voice.segments(y)) == 2 or len(voice.segments(y, 0.15)) == 3
+
+
+def test_request_falls_back_when_daily_quota_ends(monkeypatch):
+    import base64
+    import io
+    import urllib.error
+
+    from studio import voice
+
+    pcm = (np.ones(2400) * 1000).astype(np.int16).tobytes()
+    calls = []
+
+    def fake_post(model, body):
+        calls.append(model)
+        if model == "a":
+            raise urllib.error.HTTPError("u", 429, "x", {}, io.BytesIO(b"GenerateRequestsPerDayPerProjectPerModel-FreeTier"))
+        return {"candidates": [{"content": {"parts": [{"inlineData": {"data": base64.b64encode(pcm).decode()}}]}}]}
+
+    monkeypatch.setattr(voice, "TTS_MODELS", ["a", "b"])
+    monkeypatch.setattr(voice, "_spent", set())
+    monkeypatch.setattr(voice, "_post", fake_post)
+    ep = {"gvoices": {"kong": "Puck"}}
+    x = voice.request(ep, [{"who": "kong", "text": "안녕"}], log=lambda *_: None)
+    assert len(x) == 2400
+    voice.request(ep, [{"who": "kong", "text": "안녕"}], log=lambda *_: None)
+    assert calls == ["a", "b", "b"]
+
+
+def test_decode_reads_wav_and_pcm():
+    import base64
+    import io
+    import wave
+
+    from studio import voice
+
+    pcm = (np.arange(100) * 10).astype(np.int16).tobytes()
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(voice.SR)
+        w.writeframes(pcm)
+    a = voice.decode({"data": base64.b64encode(buf.getvalue()).decode()})
+    b = voice.decode({"data": base64.b64encode(pcm).decode()})
+    assert np.allclose(a, b) and len(a) == 100
+
+
+def test_speak_drops_edge_ellipsis():
+    from studio.voice import speak
+
+    assert speak("…AI대리, *이게 뭐야*?") == "AI대리, 이게 뭐야?"
+    assert speak("시키는… 대로… 했는데요?") == "시키는, 대로, 했는데요?"
+    assert speak("짠 건데…") == "짠 건데"
+
+
+def test_tts_body_38_multi_speaker_uses_speaker_parts():
+    from studio import voice
+
+    ep = {"gvoices": {"kong": "Puck", "cat": "Algenib"}, "names": {"kong": "콩", "cat": "냥"}}
+    grp = [{"who": "kong", "text": "a", "how": "x"}, {"who": "cat", "text": "b"}]
+    parts = voice.tts_body(ep, grp, "gemini-3.8-flash-tts")["contents"][0]["parts"]
+    assert [p["speechMetadata"]["speaker"] for p in parts] == ["콩", "냥"]
+    assert len(voice.tts_body(ep, grp, "gemini-2.5-flash-preview-tts")["contents"][0]["parts"]) == 1

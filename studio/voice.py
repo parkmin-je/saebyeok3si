@@ -27,8 +27,12 @@ import numpy as np
 from .timeline import plain
 
 SR = 24000  # Gemini TTS 출력
-TTS_MODEL = os.environ.get("GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts")
-ALIGN_MODEL = os.environ.get("GEMINI_ALIGN_MODEL", "gemini-2.5-flash")
+# 무료 한도는 모델마다 따로 (하루 약 10회씩). 앞 모델이 바닥나면 다음 모델로 넘어간다.
+TTS_MODELS = os.environ.get(
+    "GEMINI_TTS_MODELS", "gemini-3.8-flash-tts,gemini-3.1-flash-tts-preview,gemini-2.5-flash-preview-tts,gemini-3.8-flash-lite-tts"
+).split(",")
+_spent: set[str] = set()  # 이번 실행에서 하루 한도가 끝난 모델
+ALIGN_MODELS = os.environ.get("GEMINI_ALIGN_MODELS", "gemini-3.8-flash,gemini-2.5-flash,gemini-3.5-flash,gemini-3.1-flash-lite").split(",")
 API = "https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent"
 WAIT = 21  # 무료 등급 분당 3회
 FAKE_CPS = 6.5
@@ -156,11 +160,17 @@ def label(ep, who) -> str:
     return re.sub(r"[\s()]", "", ep.get("names", {}).get(who, who)) or who
 
 
-def tts_body(ep, grp) -> dict:
+def speak(text: str) -> str:
+    """TTS 에 보낼 글자. 앞뒤 말줄임표는 빼고(앞에 오면 수십 초 침묵·헛소리가 남) 가운데 것은 쉼표로."""
+    t = re.sub(r"^[….\s]+|[…\s]+$", "", plain(text))
+    return re.sub(r"\s*…+\s*", ", ", t)
+
+
+def tts_body(ep, grp, model="") -> dict:
     spk = list(dict.fromkeys(ln["who"] for ln in grp))
     cast = ep.get("gcast", {})
     head = ep.get("gdirect", "") + "\n" + "\n".join(f"- {label(ep, w)}: {cast.get(w, '')}" for w in spk)
-    body = "\n".join(f"{label(ep, ln['who'])}: ({ln.get('how', '자연스럽게')}) {plain(ln['text'])}" for ln in grp)
+    body = "\n".join(f"{label(ep, ln['who'])}: ({ln.get('how', '자연스럽게')}) {speak(ln['text'])}" for ln in grp)
     prompt = (
         f"{head}\n대사마다 감정을 크게 살려 연기하고, 대사와 대사 사이는 반드시 2초 동안 완전히 조용히 쉬세요. "
         f"괄호 안 지시는 읽지 마세요.\n\n{body}"
@@ -175,7 +185,14 @@ def tts_body(ep, grp) -> dict:
                 ]
             }
         }
-    return {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": sc}}
+    parts = [{"text": prompt}]
+    if len(spk) > 1 and model.startswith("gemini-3.8"):
+        # 3.8 계열은 여러 명일 때 줄마다 화자를 붙여야 하고, 지시문은 [감정] 태그로만 받는다
+        parts = [
+            {"text": f"[{ln.get('how', '자연스럽게')}] {speak(ln['text'])}", "speechMetadata": {"speaker": label(ep, ln["who"])}}
+            for ln in grp
+        ]
+    return {"contents": [{"parts": parts}], "generationConfig": {"responseModalities": ["AUDIO"], "speechConfig": sc}}
 
 
 def _post(model, body) -> dict:
@@ -184,7 +201,7 @@ def _post(model, body) -> dict:
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json", "x-goog-api-key": os.environ["GEMINI_API_KEY"]},
     )
-    with urllib.request.urlopen(req, timeout=300) as r:
+    with urllib.request.urlopen(req, timeout=150) as r:
         return json.load(r)
 
 
@@ -192,28 +209,44 @@ def _redact(msg: str) -> str:
     return re.sub(r"AIza[0-9A-Za-z_-]+", "***", msg)
 
 
-def request(ep, grp) -> np.ndarray:
-    """묶음 하나를 녹음한다 (24kHz float)."""
-    body = tts_body(ep, grp)
-    for k in range(4):
-        try:
-            d = _post(TTS_MODEL, body)
-            a = base64.b64decode(d["candidates"][0]["content"]["parts"][0]["inlineData"]["data"])
-            return np.frombuffer(a, dtype=np.int16).astype(np.float32) / 32768
-        except urllib.error.HTTPError as e:
-            msg = e.read().decode()[:300]
-            if e.code == 429 and "PerDay" in msg:
-                raise VoiceError("Gemini 무료 하루 한도 소진 (내일 다시)") from None
-            if e.code in (429, 500, 503) and k < 3:
-                time.sleep(30 * (k + 1))
-                continue
-            raise VoiceError(f"Gemini TTS 실패 {e.code}: {_redact(msg)}") from None
-        except (KeyError, IndexError):
-            if k < 3:
-                time.sleep(10)
-                continue
-            raise
-    raise VoiceError("Gemini TTS 실패")
+def decode(part) -> np.ndarray:
+    """inlineData 를 24kHz float 로. 모델에 따라 raw PCM 또는 WAV 로 온다."""
+    a = base64.b64decode(part["data"])
+    if a[:4] == b"RIFF":
+        with wave.open(io.BytesIO(a)) as w:
+            if w.getframerate() != SR or w.getsampwidth() != 2:
+                raise VoiceError(f"예상 밖 오디오 형식 {w.getframerate()}Hz/{w.getsampwidth()}B")
+            a = w.readframes(w.getnframes())
+    return np.frombuffer(a, dtype=np.int16).astype(np.float32) / 32768
+
+
+def request(ep, grp, log=print) -> np.ndarray:
+    """묶음 하나를 녹음한다 (24kHz float). 모델 한도가 끝나면 다음 모델로."""
+    for model in TTS_MODELS:
+        if model in _spent:
+            continue
+        body = tts_body(ep, grp, model)
+        for k in range(4):
+            try:
+                d = _post(model, body)
+                return decode(d["candidates"][0]["content"]["parts"][0]["inlineData"])
+            except urllib.error.HTTPError as e:
+                msg = e.read().decode()[:400]
+                if (e.code == 429 and "PerDay" in msg) or e.code in (400, 404):
+                    _spent.add(model)
+                    log(f"{model}: 쓸 수 없음 ({e.code}), 다음 모델로")
+                    break
+                if e.code in (429, 500, 503) and k < 3:
+                    time.sleep(30 * (k + 1))
+                    continue
+                raise VoiceError(f"Gemini TTS 실패 {e.code}: {_redact(msg)}") from None
+            except (KeyError, IndexError, TimeoutError, urllib.error.URLError) as e:
+                if k < 2:
+                    time.sleep(10)
+                    continue
+                log(f"{model}: 응답 없음 ({type(e).__name__}), 다음 모델로")
+                break
+    raise VoiceError("무료 TTS 모델 한도가 모두 끝남 (내일 다시)")
 
 
 # ---------- 자르기 ----------
@@ -288,18 +321,29 @@ def align(x, texts) -> list[np.ndarray | None]:
         ],
         "generationConfig": {"responseMimeType": "application/json", "temperature": 0},
     }
-    try:
-        d = _post(ALIGN_MODEL, body)
-    except urllib.error.HTTPError as e:
-        raise VoiceError(f"정렬 실패 {e.code}: {_redact(e.read().decode()[:300])}") from None
+    err = ""
+    for model in ALIGN_MODELS:  # 붐비거나(503) 한도가 끝나면 다음 모델로
+        try:
+            d = _post(model, body)
+            break
+        except urllib.error.HTTPError as e:
+            err = f"{model} {e.code}: {_redact(e.read().decode()[:200])}"
+        except (TimeoutError, urllib.error.URLError) as e:
+            err = f"{model} {type(e).__name__}"
+    else:
+        raise VoiceError(f"정렬 실패 {err}")
     marks = {int(m["i"]): (float(m["start"]), float(m["end"])) for m in json.loads(d["candidates"][0]["content"]["parts"][0]["text"])}
     return assign(x, marks, len(texts))
 
 
+def cps(y, text) -> float:
+    """초당 글자 수."""
+    return len(speak(text).replace(" ", "")) / max(len(y) / SR, 1e-6)
+
+
 def ok_len(y, text) -> bool:
     """초당 3~12글자면 정상 (너무 길면 다른 줄이 섞였거나 헛소리)."""
-    sec = len(y) / SR
-    return sec > 0 and 3.0 <= len(plain(text).replace(" ", "")) / sec <= 12
+    return len(y) > 0 and 3.0 <= cps(y, text) <= 12
 
 
 # ---------- 만들기 ----------
@@ -329,17 +373,22 @@ def make(ep, work, lines, log=print) -> None:
         if rawf.exists():
             x, _ = read_wav(rawf)
         else:
-            x = request(ep, g)
+            x = request(ep, g, log)
             write_wav(rawf, x)
             time.sleep(WAIT)
         parts = align(x, [ln["text"] for ln in g]) if len(g) > 1 else [trim(x)]
         for ln, part in zip(g, parts, strict=True):
-            y = part
+            y, tries = part, [part] if part is not None else []
             for _ in range(3):
                 if y is not None and ok_len(y, ln["text"]):
                     break
                 log(f"따로 다시 녹음: {plain(ln['text'])}")
-                y = trim(request(ep, [ln]))
+                y = trim(request(ep, [ln], log))
+                tries.append(y)
                 time.sleep(WAIT)
+            else:
+                y = min(tries, key=lambda t: abs(cps(t, ln["text"]) - 7))  # 그나마 정상 속도에 가까운 것
+                if not 1.5 <= cps(y, ln["text"]) <= 16:
+                    raise VoiceError(f"녹음이 계속 깨짐: {plain(ln['text'])} ({len(y) / SR:.1f}초)")
             write_wav(path_of(ep, work, ln), y)
             log(f"목소리 {ln['who']}: {plain(ln['text'])} ({len(y) / SR:.1f}초)")
