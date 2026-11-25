@@ -155,3 +155,17 @@ def test_similar_ignores_spacing_and_punctuation():
 
     assert similar("콩 사원, 이거 자네가 좀 봐 줘!", "콩사원, 이거 자네가 좀 봐줘.") > 0.95
     assert similar("한국 회사 시트콤의 한 장면입니다", "AI는 빨랐다. 하지만 이상한 걸 알아챈 건, 사람이었다.") < 0.4
+
+
+def test_speed_copy_is_rebuilt_when_source_is_rerecorded(tmp_path):
+    import os
+
+    from studio import voice
+
+    src = tmp_path / "g-kong-x.wav"
+    voice.write_wav(src, np.zeros(voice.SR, dtype=np.float32))
+    ep = {"speed": 1.08}
+    out = voice.with_speed(ep, src)
+    os.utime(out, (1, 1))  # 사본이 원본보다 오래됨 = 다시 녹음된 상황
+    assert not voice.fresh(out, src)
+    assert voice.fresh(voice.with_speed(ep, src), src)

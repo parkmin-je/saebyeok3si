@@ -83,13 +83,18 @@ def length(path) -> float:
         return f.getnframes() / f.getframerate()
 
 
+def fresh(out: Path, src: Path) -> bool:
+    """만들어 둔 사본이 원본보다 새것인가 (원본을 다시 녹음하면 사본도 다시 만든다)."""
+    return out.exists() and out.stat().st_mtime >= src.stat().st_mtime
+
+
 def with_fx(ep, path: Path, who: str) -> Path:
     """ep["fx"][who] = 음높이 배수 (예: 1.15) 면 높고 귀여운 목소리로 바꾼 사본을 쓴다."""
     k = ep.get("fx", {}).get(who)
     if not k:
         return path
     out = path.with_name(path.stem + f"-fx{k}.wav")
-    if not out.exists():
+    if not fresh(out, path):
         _, sr = read_wav(path)
         tempo = 1 / k * ep.get("fxtempo", {}).get(who, 1.08)
         subprocess.run(
@@ -127,7 +132,7 @@ def with_speed(ep, path: Path) -> Path:
     """줄 안 쉼을 줄이고, ep["speed"] (예: 1.08) 만큼 빠르게 (음높이는 그대로)."""
     sp = ep.get("speed", 1.0)
     out = path.with_name(path.stem + f"-t{sp}.wav")
-    if out.exists():
+    if fresh(out, path):
         return out
     x, sr = read_wav(path)
     tmp = path.with_name(path.stem + "-tight.wav")
