@@ -72,6 +72,7 @@ def build(ep: dict, voice_len, voice_path) -> dict:
     card = {"start": round(t, 3), "end": round(t + CARD, 3), "q": ep["card"]["q"], "s": ep["card"].get("s", "")}
     t += CARD
     return {
+        "theme": ep.get("theme", ""),
         "brand": ep.get("brand", ""),
         "badge": ep.get("badge", ""),
         "hook": ep.get("hook", ""),

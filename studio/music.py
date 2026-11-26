@@ -93,7 +93,35 @@ def mystery(total, soft_from, seed=1):
     return x / (np.abs(x).max() + 1e-9)
 
 
-MOODS = {"bright": bright, "mystery": mystery}
+def dread(total, soft_from, seed=1):
+    """공포. 낮은 드론(반음 부딪힘) + 형광등 웅웅 + 가끔 높은 불협 종소리. soft_from 이후 = 심장박동이 빨라지고 점점 커짐."""
+    rng = np.random.default_rng(seed)
+    n = int(SR * (total + 2))
+    tt = np.arange(n) / SR
+    lfo = 0.6 + 0.4 * np.sin(2 * np.pi * 0.07 * tt)
+    drone = sum(np.sin(2 * np.pi * f * tt + rng.uniform(0, 6)) * a for f, a in ((55, 0.5), (58.27, 0.35), (110.3, 0.18), (164.8, 0.08)))
+    drone *= lfo
+    hum = np.sin(2 * np.pi * 120 * tt) * 0.04 + band(rng.standard_normal(n), 2000, 7000) * 0.012  # 형광등
+    buf = drone * 0.55 + hum
+    k = 2.5
+    while k < total:  # 불협 종소리 (트라이톤)
+        for f in (hz("A5"), hz("D#6")):
+            put(buf, bell(f, 3.0, 0.05), k + rng.uniform(0, 0.05))
+        k += rng.uniform(5, 8)
+    if soft_from < total:
+        t0, beat = soft_from, 0.9
+        while t0 < total:
+            g = min(1.0, 0.4 + (t0 - soft_from) / 6)
+            put(buf, kick(0.3), t0, 0.9 * g)
+            put(buf, kick(0.25), t0 + 0.2, 0.6 * g)
+            t0 += beat
+            beat = max(0.5, beat * 0.94)
+    x = reverb(buf, 2.4, 0.35)[: int(total * SR)]
+    fade = np.minimum(1, tt[: len(x)] / 1.5)
+    return x * fade / (np.abs(x).max() + 1e-9)
+
+
+MOODS = {"bright": bright, "mystery": mystery, "dread": dread}
 
 
 def _silence(sec):
@@ -162,7 +190,36 @@ def sfx(name: str, d: float | None, rng) -> np.ndarray:
         y = band(rng.standard_normal(int(SR * sec)), 1500, 9000)
         gate = (np.sin(2 * np.pi * 23 * t_(sec)) > 0.2).astype(float)
         return y * gate * 0.3
+    if name == "knock":  # 유리문 똑똑똑
+        y = _silence(1.6)
+        for k in range(3):
+            c = band(rng.standard_normal(int(SR * 0.09)), 150, 1800) * np.exp(-t_(0.09) * 60)
+            c += np.sin(2 * np.pi * 180 * t_(0.09)) * np.exp(-t_(0.09) * 40) * 0.6
+            put(y, c, k * 0.32 + (0.1 if k == 2 else 0))
+        return y * 0.9
+    if name == "buzz":  # 휴대폰 진동
+        sec = d or 1.0
+        y = _silence(sec)
+        for k in range(2):
+            b = np.sin(2 * np.pi * 150 * t_(0.35)) * (np.sin(2 * np.pi * 30 * t_(0.35)) > 0) * 0.5
+            put(y, band(b + rng.standard_normal(len(b)) * 0.05, 80, 600), k * 0.5)
+        return y * 0.8
+    if name == "sting":  # 깜짝 놀람: 불협 덩어리 + 찢어지는 소리
+        sec = 2.4
+        y = sum(np.sin(2 * np.pi * f * t_(sec)) for f in (hz("C5"), hz("C#5"), hz("F#5"), hz("G5"))) * np.exp(-t_(sec) * 1.6) * 0.25
+        y += band(rng.standard_normal(int(SR * sec)), 1500, 9000) * np.exp(-t_(sec) * 4) * 0.5
+        y += boom(sec)[: int(SR * sec)] * 0.8
+        return y * 0.9
+    if name == "silence":  # 배경음을 잠깐 죽이는 표시 (render 에서 덕킹), 소리는 없음
+        return _silence(d or 1.0)
+    if name == "breath":  # 귓가 숨소리
+        sec = d or 1.6
+        y = band(rng.standard_normal(int(SR * sec)), 300, 2200) * np.sin(np.pi * t_(sec) / sec) ** 2
+        return y * 0.25
     raise ValueError(f"모르는 효과음: {name}")
 
 
-SFX = ("ding", "code", "unlock", "steps", "sip", "murmur", "riser", "hit", "heart", "gasp", "glitch")
+SFX = (
+    *("ding", "code", "unlock", "steps", "sip", "murmur", "riser", "hit", "heart", "gasp", "glitch"),
+    *("knock", "buzz", "sting", "silence", "breath"),
+)

@@ -1,0 +1,24 @@
+{
+  "_doc": "1화 후보(갑론을박): 정년연장. 팀장도 신입도 둘 다 맞는 말 → 댓글 싸움. 마지막에 AI대리가 끼어드는 반전.",
+  "id": "ep001-jeongnyeon", "series": "kongsawon", "day": 1, "mood": "bright",
+  "hook": "팀장님 정년 *5년* 연장,|내 자리는?", "hookEnd": 2.4,
+  "shots": [
+    {"scene": "office", "o": {"cat": {"x": 760}, "bot": {"show": false}, "kong": {"face": "worried"}}, "cam": [880, 900, 1150], "cam2": [820, 900, 980], "sfx": [["ding", 0]],
+     "say": {"who": "cat", "text": "콩사원! 경사 났다! 나 정년 *5년* 늘었어!", "how": "신나서 들뜬 목소리로 자랑하듯"}},
+    {"scene": "office", "o": {"cat": {"show": false}, "bot": {"show": false}, "kong": {"face": "worried", "sweat": true}}, "cam": [1020, 870, 720], "cam2": [1020, 860, 600], "sfx": [["heart", 0.1]],
+     "say": {"who": "kong", "text": "그럼 내 승진도 *5년* 밀리는 거네?", "inner": true, "how": "멍하니 계산하다 깨달은 듯"}},
+    {"scene": "office", "o": {"cat": {"x": 760}, "bot": {"show": false}, "kong": {"face": "worried"}}, "cam": [900, 900, 1300], "cam2": [920, 900, 1150],
+     "say": {"who": "kong", "text": "팀장님, 그럼 올해 신입 채용은요?", "how": "조심스럽게 눈치 보며"}},
+    {"scene": "office", "o": {"cat": {"x": 760}, "bot": {"show": false}}, "cam": [700, 920, 1000], "cam2": [700, 900, 820], "sfx": [["hit", 0.5]],
+     "say": {"who": "cat", "text": "응, *없어*. 내가 5년 더 하잖아~", "how": "아무렇지 않게 해맑게"}},
+    {"scene": "office", "o": {"cat": {"show": false}, "bot": {"show": false}, "kong": {"face": "shock", "sweat": true}}, "cam": [1020, 870, 700], "cam2": [1020, 860, 560], "shake": 6,
+     "say": {"who": "kong", "text": "우리 동생, 취준 *3년째*인데…", "inner": true, "how": "속상하고 기가 막혀서"}},
+    {"scene": "office", "o": {"cat": {"x": 760, "lids": true}, "bot": {"show": false}, "kong": {"face": "worried"}}, "cam": [760, 900, 900], "cam2": [760, 880, 700],
+     "say": {"who": "cat", "text": "근데 콩사원, 나 대출 *20년* 남았다. 60에 나가면 뭐 먹고 사니?", "how": "갑자기 진지하고 쓸쓸하게, 낮게"}},
+    {"scene": "office", "o": {"cat": {"x": 760, "lids": true}, "bot": {"show": false}, "kong": {"face": "worried"}}, "cam": [900, 900, 1300], "cam2": [900, 900, 1200], "soft": true,
+     "say": {"who": "kong", "text": "…둘 다 *틀린 말*이 아니었다.", "inner": true, "how": "조용히 한숨 쉬듯"}},
+    {"scene": "office", "o": {"cat": {"x": 760, "shock": true}, "kong": {"face": "shock"}, "bot": {"enter": true, "x": 1400}}, "cam": [1100, 900, 1400], "cam2": [1300, 900, 900], "sfx": [["ding", 0], ["code", 0.5]],
+     "say": {"who": "bot", "text": "그럼 두 분 자리, *제가* 다 할게요~", "how": "해맑고 상냥하게, 은근히 섬뜩하게"}}
+  ],
+  "tip": "정년은 회사가 정해도, 쓸모는 내가 정한다", "tip_no": 1, "end_q": "팀장 vs 신입, 당신은 누구 편?"
+}

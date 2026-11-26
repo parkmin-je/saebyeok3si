@@ -2,6 +2,8 @@
 <html lang="ko"><head><meta charset="utf-8">
 <style>
 @font-face{font-family:Gothic;src:url(../../assets/fonts/NanumSquareEB.ttf)}
+@font-face{font-family:Pen;src:url(../../assets/fonts/NanumPen.ttf)}
+@font-face{font-family:Myeongjo;src:url(../../assets/fonts/NanumMyeongjoExtraBold.ttf)}
 html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 #stage{position:relative;width:1080px;height:1920px;overflow:hidden}
 #shots{position:absolute;inset:0;z-index:0}
@@ -9,6 +11,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 .shot svg{position:absolute;inset:0;width:1080px;height:1920px}
 .shot img{position:absolute;left:0;top:0;width:1080px;height:1920px;object-fit:cover;transform-origin:50% 50%}
 #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#black{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
 #vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 60%,rgba(0,0,0,.45) 100%)}
 #topfade{position:absolute;left:0;right:0;top:0;height:420px;background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,0));pointer-events:none}
 #hook{position:absolute;left:40px;right:40px;top:250px;text-align:center;font-family:Gothic;font-size:104px;line-height:1.18;color:#fff;
@@ -36,13 +39,25 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 #card{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,8,6,.72);opacity:0}
 #card .q{font-family:Gothic;font-size:96px;line-height:1.25;color:#fff;text-align:center;word-break:keep-all;paint-order:stroke fill;-webkit-text-stroke:14px #000;padding:0 50px}
 #card b{color:#ffd23f;font-weight:inherit}
+/* 공포 테마: 명조 흰 글씨 + 붉은 강조, 상표·이름표 없음 */
+body.horror #cap,body.horror #hook,body.horror #card .q{font-family:Myeongjo;-webkit-text-stroke:0;text-shadow:0 0 18px #000,0 0 6px #000,0 4px 10px #000;letter-spacing:-1px}
+body.horror #cap{font-size:78px;top:1450px}
+body.horror #cap.inner{color:#fff;font-size:78px}body.horror #cap.inner::before,body.horror #cap.inner::after{content:""}
+body.horror #cap.dog{color:#ffd9d9}
+body.horror #hook{font-size:92px;top:300px}
+body.horror #hook b,body.horror #cap b,body.horror #card b{color:#ff2a2a}
+body.horror #who,body.horror #badge,body.horror #brand{display:none}
+body.horror #card{background:rgba(0,0,0,.88)}
+body.horror #card .s{background:#7a0c10;color:#fff}
+body.horror #vig{background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.8) 100%)}
+body.horror #grain{opacity:.16}
 #card .s{margin-top:60px;font-family:Gothic;font-size:44px;color:#1a1208;background:#ffd23f;padding:14px 36px;border-radius:20px}
 </style></head>
 <body><div id="stage">
 <div id="shots"></div>
 <div id="bokeh"></div><div id="vig"></div><canvas id="grain" width="360" height="640"></canvas><div id="topfade"></div>
 <div id="cctv"><div class="cam"></div><div class="rec">● REC</div><div class="ts"></div></div>
-<div id="flash"></div>
+<div id="flash"></div><div id="black"></div>
 <div id="badge"></div><div id="tag"></div><div id="brand"></div>
 <div id="stamp"></div>
 <div id="hook"></div>
@@ -53,6 +68,7 @@ html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
 <script src="apt.js"></script>
 <script src="jobs.js"></script>
 <script src="office.js"></script>
+<script src="horror.js"></script>
 <script>
 // TIMELINE = {brand, badge, hook, shots:[{scene|img, o, start, end, cam:[cx,cy,w], cam2, kb:[z0,z1,dx,dy], stage}], caps:[{who,name,text,start,end,inner}], card:{start,end,q,s}, total}
 const TL = window.TIMELINE, L = window.SCENE_LIBRARY;
@@ -61,6 +77,7 @@ const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
 const ease = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 const back = x => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
 const mark = s => s.replace(/\*([^*]+)\*/g, '<b>$1</b>');
+if (TL.theme) document.body.classList.add(TL.theme);
 $('brand').textContent = TL.brand || '';
 $('badge').textContent = TL.badge || '';
 if (TL.badge) $('tag').style.top = '130px';
@@ -138,6 +155,12 @@ window.render = function (t) {
   const st = STG.findLast ? STG.findLast(x => t >= x[1]) : [...STG].reverse().find(x => t >= x[1]);
   const sinceSt = st ? t - st[1] : 99;
   $('flash').style.opacity = st && sinceSt < .25 ? .55 * (1 - sinceSt / .25) : 0;
+  // shot.jump = 컷 시작에 번쩍 (깜짝), shot.fadeout = 끝에서 암전, shot.blink = 중간중간 정전
+  if (cur && cur.jump && t - cur.start < .2) $('flash').style.opacity = .85 * (1 - (t - cur.start) / .2);
+  let blk = 0;
+  if (cur && cur.fadeout) blk = clamp((t - (cur.end - cur.fadeout)) / cur.fadeout);
+  if (cur && cur.blink && Math.sin(t * 17) > .9) blk = Math.max(blk, .92);
+  $('black').style.opacity = TL.card && t >= TL.card.start ? 0 : blk;
   // 단계 도장: 크게 튀어나왔다가 1.2초 뒤 왼쪽 위 작은 태그로
   const stamp = $('stamp'), tag = $('tag');
   const inCard = TL.card && t >= TL.card.start;
