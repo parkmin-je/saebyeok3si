@@ -1,0 +1,29 @@
+name: images
+# 무료 그림 생성. series/*/images/*.json 이 바뀌어 올라오면 뽑아서 같은 브랜치에 커밋한다.
+on:
+  push:
+    paths: ["series/*/images/*.json", "tools/gen_images.py"]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: "images-${{ github.ref }}", cancel-in-progress: false }
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: generate
+        run: |
+          for f in series/*/images/*.json; do
+            s=$(basename "$(dirname "$(dirname "$f")")"); e=$(basename "$f" .json)
+            python tools/gen_images.py "$f" "assets/gen/$s/$e"
+          done
+      - name: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/gen
+          git diff --cached --quiet || (git commit -m "그림 생성 결과" && git push)
