@@ -1,0 +1,10 @@
+FAIL cctv-door-11.jpg <HTTPError 402: 'Payment Required'>
+FAIL cctv-door-12.jpg <HTTPError 402: 'Payment Required'>
+ok door-pov-21.jpg 65028
+FAIL door-pov-22.jpg <HTTPError 402: 'Payment Required'>
+ok door-close-31.jpg 40811
+FAIL door-close-32.jpg <HTTPError 402: 'Payment Required'>
+ok door-empty-41.jpg 70263
+FAIL door-empty-42.jpg <HTTPError 402: 'Payment Required'>
+FAIL cctv-behind-51.jpg <HTTPError 402: 'Payment Required'>
+ok cctv-behind-52.jpg 60438
