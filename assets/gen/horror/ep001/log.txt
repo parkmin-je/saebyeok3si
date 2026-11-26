@@ -1,10 +1,11 @@
-FAIL cctv-door-11.jpg <HTTPError 402: 'Payment Required'>
-FAIL cctv-door-12.jpg <HTTPError 402: 'Payment Required'>
-ok door-pov-21.jpg 65028
-FAIL door-pov-22.jpg <HTTPError 402: 'Payment Required'>
-ok door-close-31.jpg 40811
-FAIL door-close-32.jpg <HTTPError 402: 'Payment Required'>
-ok door-empty-41.jpg 70263
-FAIL door-empty-42.jpg <HTTPError 402: 'Payment Required'>
-FAIL cctv-behind-51.jpg <HTTPError 402: 'Payment Required'>
-ok cctv-behind-52.jpg 60438
+ok cctv-door-13.jpg pollinations 48468
+ok cctv-door-14.jpg pollinations 52357
+ok cctv-door-15.jpg pollinations 49207
+ok door-pov-23.jpg pollinations 57279
+ok door-pov-24.jpg pollinations 56291
+ok door-close-33.jpg pollinations 48560
+ok door-close-34.jpg pollinations 44269
+ok door-empty-43.jpg pollinations 70589
+ok cctv-behind-53.jpg pollinations 58952
+ok cctv-behind-54.jpg pollinations 55431
+ok cctv-behind-55.jpg pollinations 51614
