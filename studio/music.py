@@ -203,13 +203,13 @@ def sfx(name: str, d: float | None, rng) -> np.ndarray:
         for k in range(2):
             b = np.sin(2 * np.pi * 150 * t_(0.35)) * (np.sin(2 * np.pi * 30 * t_(0.35)) > 0) * 0.5
             put(y, band(b + rng.standard_normal(len(b)) * 0.05, 80, 600), k * 0.5)
-        return y * 0.8
+        return y * 0.3  # 깜짝 효과음보다 커지면 한 방이 죽는다
     if name == "sting":  # 깜짝 놀람: 불협 덩어리 + 찢어지는 소리
         sec = 2.4
         y = sum(np.sin(2 * np.pi * f * t_(sec)) for f in (hz("C5"), hz("C#5"), hz("F#5"), hz("G5"))) * np.exp(-t_(sec) * 1.6) * 0.25
-        y += band(rng.standard_normal(int(SR * sec)), 1500, 9000) * np.exp(-t_(sec) * 4) * 0.5
-        y += boom(sec)[: int(SR * sec)] * 0.8
-        return y * 0.9
+        y += band(rng.standard_normal(int(SR * sec)), 1500, 9000) * np.exp(-t_(sec) * 2.2) * 0.7
+        y += boom(sec)[: int(SR * sec)] * 1.0
+        return np.tanh(y * 1.8) * 0.95  # 살짝 찌그러뜨려 꽉 찬 소리로
     if name == "silence":  # 배경음을 잠깐 죽이는 표시 (render 에서 덕킹), 소리는 없음
         return _silence(d or 1.0)
     if name == "breath":  # 귓가 숨소리

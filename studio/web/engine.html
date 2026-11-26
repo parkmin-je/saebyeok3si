@@ -117,11 +117,14 @@ window.render = function (t) {
     d.style.zIndex = i;
     d.style.opacity = s.xf && t > s.end ? clamp(1 - (t - s.end) / s.xf) : 1;
     const p = clamp((t - s.start) / Math.max(.1, s.end - s.start)), e = ease(p);
-    const punch = 1 + .06 * (1 - clamp((t - s.start) / .22));   // 컷이 바뀔 때 살짝 튀어 들어옴
+    const punch = TL.theme === 'horror' ? 1 : 1 + .06 * (1 - clamp((t - s.start) / .22));   // 컷이 바뀔 때 살짝 튀어 들어옴 (공포는 끔)
     const shake = s.shake ? Math.sin(t * 50) * s.shake * (1 - p) : 0;
     if (s.img) {
       const [z0, z1, dx, dy] = s.kb || [1.05, 1.18, 0, 0];
       d.firstChild.style.transform = `translate(${dx * e + shake}px,${dy * e}px) scale(${(z0 + (z1 - z0) * e) * punch})`;
+      // 사진 컷: 형광등 깜빡임(s.flick)·CCTV 흑백 잡음(s.cctv)
+      const fl = s.flick && (Math.sin(t * 23) > .6 || Math.sin(t * 7.3 + 1) > .97) ? .45 : 1;
+      d.firstChild.style.filter = `brightness(${fl})` + (s.cctv ? ` grayscale(1) contrast(1.25) blur(${.6 + (Math.sin(t * 31) > .9 ? 1.6 : 0)}px)` : '');
     } else {
       const c0 = s.cam || [1020, 700, 1100], c1 = s.cam2 || [c0[0], c0[1], c0[2] * .9];
       const w = (c0[2] + (c1[2] - c0[2]) * e) / punch, cx = c0[0] + (c1[0] - c0[0]) * e + shake, cy = c0[1] + (c1[1] - c0[1]) * e;
