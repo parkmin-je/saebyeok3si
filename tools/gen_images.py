@@ -20,8 +20,22 @@ def pollinations(prompt, w, h, seed):
     return f"https://image.pollinations.ai/prompt/{urllib.parse.quote(prompt)}?{q}"
 
 
-def fetch(url, tries=3):
-    for k in range(tries):
+def hf_flux(prompt, w, h, seed):
+    """Hugging Face 공개 Space (FLUX.1-schnell). 로그인 없이 하루 몇 장 무료. 품질·해상도가 가장 좋다."""
+    try:
+        from gradio_client import Client
+
+        c = hf_flux.client = getattr(hf_flux, "client", None) or Client("black-forest-labs/FLUX.1-schnell")
+        r = c.predict(prompt=prompt, seed=seed, randomize_seed=False, width=w, height=h, num_inference_steps=4, api_name="/infer")
+        path = r[0] if isinstance(r, (list, tuple)) else r
+        return Path(path).read_bytes(), ""
+    except Exception as e:  # noqa: BLE001
+        return None, "hf " + repr(e)[:300]
+
+
+def fetch(url, tries=4):
+    err = ""
+    for _ in range(tries):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=180) as r:
                 data = r.read()
@@ -30,7 +44,7 @@ def fetch(url, tries=3):
                 err = f"not image: {r.headers.get('Content-Type')} {data[:200]!r}"
         except Exception as e:  # noqa: BLE001 - 무엇이든 기록하고 다시 시도
             err = repr(e)[:300]
-        time.sleep(8 * (k + 1))
+        time.sleep(70)  # 로그인 없는 사용자는 분당 한 장 정도만 허용 (402)
     return None, err
 
 
@@ -44,10 +58,16 @@ def main(spec, out):
             f = out / f"{it['name']}-{seed}.jpg"
             if f.exists():
                 continue
-            data, err = fetch(pollinations(f"{it['prompt']}, {s['style']}", s["w"], s["h"], seed))
+            prompt = f"{it['prompt']}, {s['style']}"
+            data, err = hf_flux(prompt, s["w"], s["h"], seed)
+            how = "hf"
+            if not data:
+                time.sleep(65)
+                data, err2 = fetch(pollinations(prompt, s["w"], s["h"], seed))
+                how, err = "pollinations", f"{err} / {err2}"
             if data:
                 f.write_bytes(data)
-                log.append(f"ok {f.name} {len(data)}")
+                log.append(f"ok {f.name} {how} {len(data)}")
             else:
                 log.append(f"FAIL {f.name} {err}")
             print(log[-1], flush=True)

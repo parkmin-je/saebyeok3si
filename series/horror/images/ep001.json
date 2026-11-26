@@ -4,10 +4,46 @@
  "w": 768,
  "h": 1344,
  "items": [
-  {"name": "cctv-door", "seeds": [11, 12], "prompt": "grainy black and white security camera footage from a high ceiling corner, looking down at the glass entrance door of a small empty convenience store at night, a tall thin pale woman with very long black hair covering her face standing perfectly still just outside the glass door, low resolution CCTV, fisheye distortion"},
-  {"name": "door-pov", "seeds": [21, 22], "prompt": "view from behind the cashier counter looking toward the glass front door of a small empty convenience store at night, outside is pitch black, a blurry dark silhouette of a thin woman with long hair standing right outside the glass, her face hidden, one fluorescent tube flickering"},
-  {"name": "door-close", "seeds": [31, 32], "prompt": "close view of a convenience store glass door at night from inside, a pale thin hand with long fingers pressed flat against the glass from outside, behind it the dark blurred shape of a woman with long black hair leaning close, face hidden in shadow, condensation on glass"},
-  {"name": "door-empty", "seeds": [41, 42], "prompt": "view from behind the cashier counter toward the glass front door of an empty convenience store at night, nobody outside, only darkness, a faint handprint smudge left on the glass, fluorescent light buzzing, eerie silence"},
-  {"name": "cctv-behind", "seeds": [51, 52], "prompt": "grainy black and white security camera footage from a high ceiling corner looking down at the cashier counter of a convenience store at night, a young male cashier seen from behind looking at his phone, and directly behind him, inches away, a tall pale woman with very long black wet hair hanging over her face, head tilted, low resolution CCTV, fisheye distortion"}
+  {
+   "name": "cctv-door",
+   "seeds": [
+    13,
+    14,
+    15
+   ],
+   "prompt": "grainy black and white security camera footage from a high ceiling corner, looking down at the glass entrance door of a small empty convenience store at night, a tall thin pale woman with very long black hair covering her face standing perfectly still just outside the glass door, low resolution CCTV, fisheye distortion"
+  },
+  {
+   "name": "door-pov",
+   "seeds": [
+    23,
+    24
+   ],
+   "prompt": "view from behind the cashier counter looking toward the glass front door of a small empty convenience store at night, outside the glass door stands a tall thin woman in a white dress with long black hair completely covering her face, she is standing perfectly still, pitch black street behind her"
+  },
+  {
+   "name": "door-close",
+   "seeds": [
+    33,
+    34
+   ],
+   "prompt": "close view of a convenience store glass door at night from inside, a pale thin hand with long fingers pressed flat against the glass from outside, behind it the dark blurred shape of a woman with long black hair leaning close, face hidden in shadow, condensation on glass"
+  },
+  {
+   "name": "door-empty",
+   "seeds": [
+    43
+   ],
+   "prompt": "view from behind the cashier counter toward the glass front door of a completely empty convenience store at night, no people at all, nobody, pitch black outside, a faint wet handprint smeared on the glass door"
+  },
+  {
+   "name": "cctv-behind",
+   "seeds": [
+    53,
+    54,
+    55
+   ],
+   "prompt": "grainy black and white security camera footage from a high ceiling corner looking down at the cashier counter of a convenience store at night, a young male cashier seen from behind looking at his phone, and directly behind him, inches away, a tall pale woman with very long black wet hair hanging over her face, head tilted, low resolution CCTV, fisheye distortion"
+  }
  ]
 }

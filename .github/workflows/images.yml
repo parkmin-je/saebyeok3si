@@ -10,11 +10,12 @@ concurrency: { group: "images-${{ github.ref }}", cancel-in-progress: false }
 jobs:
   gen:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
+      - run: pip install -q gradio_client
       - name: generate
         run: |
           for f in series/*/images/*.json; do
