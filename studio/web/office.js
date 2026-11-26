@@ -12,7 +12,9 @@ function robot(id, o = {}) {
    <rect x="-170" y="-150" width="340" height="270" rx="70" fill="url(#${id}b)"/>
    <rect x="-140" y="-120" width="280" height="200" rx="46" fill="url(#${id}s)"/>
    <rect x="-200" y="-50" width="34" height="90" rx="14" fill="#8c9ab4"/><rect x="166" y="-50" width="34" height="90" rx="14" fill="#8c9ab4"/>
-   ${o.smug
+   ${o.evil
+     ? `<path d="M-110 -40 l80 22 M110 -40 l-80 22" stroke="#ff2a3a" stroke-width="18" stroke-linecap="round"/><circle cx="-62" cy="-2" r="16" fill="#ff2a3a"/><circle cx="62" cy="-2" r="16" fill="#ff2a3a"/><circle cx="-62" cy="-2" r="46" fill="#ff2a3a" opacity=".25"/><circle cx="62" cy="-2" r="46" fill="#ff2a3a" opacity=".25"/><path d="M-60 46 q60 22 120 0" stroke="#ff2a3a" stroke-width="12" fill="none" stroke-linecap="round"/>`
+     : o.smug
      ? `<path d="M-100 -30 q35 -26 70 0" stroke="#5ab0ff" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M30 -20 h70" stroke="#5ab0ff" stroke-width="16" stroke-linecap="round"/><path d="M-60 30 q60 10 110 -26" stroke="#5ab0ff" stroke-width="14" fill="none" stroke-linecap="round"/>`
      : `<path d="M-100 -10 q35 -40 70 0 M30 -10 q35 -40 70 0" stroke="#5ab0ff" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M-50 22 q50 40 100 0" stroke="#5ab0ff" stroke-width="14" fill="none" stroke-linecap="round"/>`}
   </g></g>`;
@@ -27,7 +29,7 @@ function tickRobot(root, id, t, seed = 0, o = {}) {
 }
 
 // ───────── 콩사원네 사무실 ─────────
-// o = {kong:{face,sweat,tear}, cat:{show,lids,shock,x,from}, bot:{show,smug,enter,glitch,x}, board, alert, alarm}
+// o = {kong:{face,sweat,tear}, cat:{show,lids,shock,x,from}, bot:{show,smug,evil,enter,glitch,x}, board, alert, alarm, dark}
 // 자리: 냥팀장 x≈380 (문 앞), 콩사원 x≈1020 (가운데 책상), AI대리 x≈1720
 const OT = (x, y, s, c, t, a = 'middle', ex = '') => `<text x="${x}" y="${y}" font-family="Gothic" font-size="${s}" fill="${c}" text-anchor="${a}" ${ex}>${t}</text>`;
 A.office = {
@@ -62,10 +64,11 @@ A.office = {
       <path d="M-520 0 h1040 l-40 70 h-960z" fill="url(#of-d)"/><rect x="-480" y="70" width="960" height="200" fill="#8a6440"/>
       <g transform="translate(-300 -10)"><rect x="-90" y="-60" width="180" height="60" rx="10" fill="#fff"/>${OT(0, -18, 34, '#3a4a66', '콩사원')}</g>
       <g transform="translate(-160 -40)"><rect x="-30" y="-50" width="60" height="70" rx="12" fill="#fff"/><path d="M30 -30 q30 0 30 25 q0 25 -30 25" stroke="#fff" stroke-width="10" fill="none"/></g></g>
-    ${b.show !== false ? `<g id="of-bot" transform="translate(${b.x || 1720} 1260) scale(.82)">${robot('of-b', {smug: b.smug})}
+    ${o.dark ? `<rect x="-600" y="-1500" width="3240" height="3800" fill="#05060f" opacity=".62"/>` : ''}
+    ${b.show !== false ? `<g id="of-bot" transform="translate(${b.x || 1720} 1260) scale(.82)">${robot('of-b', {smug: b.smug, evil: b.evil})}
       ${b.glitch ? `<g id="of-gl" transform="translate(0 -370)">${Array.from({length: 7}, (_, i) => `<rect x="-140" y="${-120 + i * 30}" width="280" height="12" fill="${i % 2 ? '#ff4a5a' : '#5ab0ff'}" opacity=".7"/>`).join('')}${OT(0, 20, 70, '#fff', 'ERROR')}</g>` : ''}</g>` : ''}
     ${o.alert ? `<g id="of-alert" transform="translate(1530 560)"><rect x="-300" y="-250" width="600" height="520" rx="30" fill="#1a0a10" stroke="#ff4a5a" stroke-width="14"/>
-      <rect x="-300" y="-250" width="600" height="96" rx="30" fill="#ff4a5a"/>${OT(0, -185, 50, '#fff', '고객 명단 (배포됨)')}
+      <rect x="-300" y="-250" width="600" height="96" rx="30" fill="#ff4a5a"/>${OT(0, -185, 50, '#fff', '고객 1만 명에게 발송됨')}
       ${['홍길동', '홍길동', '홍길동', '홍길동'].map((n, i) => `${OT(-240, -80 + i * 82, 50, '#9fb4d8', String(i + 1).padStart(3, '0'), 'start')}${OT(-90, -80 + i * 82, 56, '#ffd23f', n, 'start')}`).join('')}
       ${OT(0, 245, 40, '#ff8a96', '…외 9,996명 전부 홍길동')}</g>` : ''}
     ${o.alarm ? `<rect id="of-alarm" x="-600" y="-1500" width="3240" height="3800" fill="#ff2a3a" opacity="0"/>` : ''}`;

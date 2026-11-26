@@ -60,7 +60,7 @@ function dog2(id, o = {}) {
    <ellipse cx="10" cy="44" rx="36" ry="26" fill="#1d120c"/><ellipse cx="0" cy="36" rx="12" ry="7" fill="#fff" opacity=".6"/>
    <g id="${id}-jaw" transform="translate(10 84)"><path d="M-46 0 q46 8 92 0 q-6 60 -46 64 q-40 -4 -46 -64z" fill="#7a2228"/>
     <ellipse cx="0" cy="40" rx="26" ry="16" fill="#ff7a86"/></g>
-   <path d="M10 70 v14 M10 84 q-30 18 -54 -4 M10 84 q30 18 54 -4" stroke="#3a2016" stroke-width="7" fill="none" stroke-linecap="round"/>
+   <path d="${o.face === 'shock' || o.face === 'worried' ? 'M10 70 v14 M10 84 q-28 -12 -50 12 M10 84 q28 -12 50 12' : 'M10 70 v14 M10 84 q-30 18 -54 -4 M10 84 q30 18 54 -4'}" stroke="#3a2016" stroke-width="7" fill="none" stroke-linecap="round"/>
    ${o.headset ? `<path d="M-200 -20 q0 -230 200 -230 q200 0 200 230" stroke="#2a2a3a" stroke-width="26" fill="none"/><rect x="-232" y="-40" width="60" height="110" rx="24" fill="#3a3a5a"/><rect x="172" y="-40" width="60" height="110" rx="24" fill="#3a3a5a"/>` : ''}
    ${o.bow ? `<g transform="translate(-110 -150) rotate(-20)"><path d="M0 0 l-70 -40 q-20 40 0 80z M0 0 l70 -40 q20 40 0 80z" fill="${o.bow}"/><circle r="20" fill="${o.bow}"/><circle cx="-6" cy="-6" r="7" fill="#fff" opacity=".6"/></g>` : ''}
    ${o.lamp ? `<rect x="-90" y="-176" width="180" height="40" rx="14" fill="#2a2a2a"/><circle cx="0" cy="-160" r="26" fill="#fff8c0"/>` : ''}

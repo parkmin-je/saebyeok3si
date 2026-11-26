@@ -169,3 +169,19 @@ def test_speed_copy_is_rebuilt_when_source_is_rerecorded(tmp_path):
     os.utime(out, (1, 1))  # 사본이 원본보다 오래됨 = 다시 녹음된 상황
     assert not voice.fresh(out, src)
     assert voice.fresh(voice.with_speed(ep, src), src)
+
+
+def test_heard_rejects_take_that_also_reads_the_direction(monkeypatch):
+    from studio import voice
+
+    monkeypatch.setattr(voice, "transcribe", lambda y: "다급하게 소리치며, 고객 안내문 지금 당장 보내!")
+    assert voice.heard(np.zeros(10), "고객 안내문, *지금 당장* 보내!") is False
+    monkeypatch.setattr(voice, "transcribe", lambda y: "고객 안내문 지금 당장 보내")
+    assert voice.heard(np.zeros(10), "고객 안내문, *지금 당장* 보내!") is True
+
+
+def test_heard_rejects_cut_off_ending(monkeypatch):
+    from studio import voice
+
+    monkeypatch.setattr(voice, "transcribe", lambda y: "AI는 빨랐다. 하지만 틀린 걸 알아챈 건")
+    assert voice.heard(np.zeros(10), "AI는 빨랐다. 하지만 *틀린 걸* 알아챈 건, 사람이었다.") is False

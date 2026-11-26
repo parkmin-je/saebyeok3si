@@ -383,16 +383,21 @@ def transcribe(y) -> str | None:
 def heard(y, text) -> bool | None:
     """녹음이 대사와 맞는지. 받아적기를 못 하면 None (모름)."""
     got = transcribe(y)
-    return None if got is None else similar(got, speak(text)) >= 0.6
+    if got is None:
+        return None
+    n_got, n_want = len(norm_text(got)), len(norm_text(speak(text)))
+    # 지시문을 같이 읽으면 글자가 확 늘어난다 → 길이도 본다
+    # 잘려서 끝이 빠져도 글자가 확 준다 → 양쪽 다 본다
+    return similar(got, speak(text)) >= 0.7 and n_want * 0.88 <= n_got <= n_want * 1.25 + 2
+
+
+def norm_text(t: str) -> str:
+    return re.sub(r"[^0-9A-Za-z가-힣]", "", t.upper().replace("AI", "에이아이"))
 
 
 def similar(a: str, b: str) -> float:
     """띄어쓰기·문장부호를 빼고 비교한 글자 일치율."""
-
-    def norm(t):
-        return re.sub(r"[^0-9A-Za-z가-힣]", "", t.upper().replace("AI", "에이아이"))
-
-    return difflib.SequenceMatcher(None, norm(a), norm(b)).ratio()
+    return difflib.SequenceMatcher(None, norm_text(a), norm_text(b)).ratio()
 
 
 def good(y, ln, log=print) -> bool:

@@ -19,3 +19,6 @@ ignore = ["RUF001", "RUF002", "RUF003", "PLR0911", "PLR0912", "PLR0913", "PLR091
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"studio/audience.py" = ["E501"]  # 프롬프트 문장
