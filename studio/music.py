@@ -218,7 +218,7 @@ def sfx(name: str, d: float | None, rng) -> np.ndarray:
         return y * 0.25
     if name == "beep":  # 도어락 번호 한 자리 '삐'
         y = np.sign(np.sin(2 * np.pi * 2050 * t_(0.09))) * 0.5 + np.sin(2 * np.pi * 2050 * t_(0.09))
-        return band(y, 400, 7000) * np.minimum(1, (0.09 - t_(0.09)) / 0.01) * 0.22
+        return np.concatenate([band(y, 400, 7000) * np.minimum(1, (0.09 - t_(0.09)) / 0.01) * 0.22, _silence(0.16)])
     if name == "fail":  # 도어락 틀림 '삐리리릭' (내려가는 거친 소리)
         y = _silence(0.9)
         for k, f in enumerate((1800, 1500, 1250, 1000, 800)):
