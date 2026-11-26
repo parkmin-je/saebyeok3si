@@ -23,6 +23,18 @@ def load_voice(path) -> np.ndarray:
     return np.interp(np.arange(n) * sr / SR, np.arange(len(x)), x)
 
 
+def mute_mask(tl: dict, n: int) -> np.ndarray:
+    """효과음 'silence' 구간은 배경음을 완전히 죽인다 (0.15초에 걸쳐 부드럽게). 정적 뒤 한 방을 위해."""
+    m = np.ones(n)
+    for sh in tl["shots"]:
+        for ev in sh.get("sfx", []):
+            if ev[0] == "silence":
+                a = int((sh["start"] + ev[1]) * SR)
+                m[max(0, a): max(0, a + int((ev[2] if len(ev) > 2 else 1.0) * SR))] = 0
+    k = int(SR * 0.15)
+    return np.convolve(m, np.ones(k) / k, "same")
+
+
 def mix(tl: dict) -> np.ndarray:
     total = tl["total"]
     n = int(total * SR)
@@ -35,9 +47,11 @@ def mix(tl: dict) -> np.ndarray:
     speak = (np.abs(voice) > 0.02).astype(float)
     duck = np.convolve(speak, np.ones(int(SR * 0.3)) / (SR * 0.3), "same")  # 말할 때 음악 낮춤
     mus = mus[:n] * 0.32 * (1 - 0.55 * np.clip(duck * 3, 0, 1))
+    mus *= mute_mask(tl, n)
+    horror = tl.get("mood") == "dread"
     fx = np.zeros(n)
     rng = np.random.default_rng(3)
-    for c in tl["cuts"][1:]:
+    for c in [] if horror else tl["cuts"][1:]:  # 휙 소리는 코미디용
         put(fx, whoosh(rng), c - 0.16, 0.22)
     for s in tl["stages"]:
         put(fx, bell(hz("G5"), 0.6, 0.3) + bell(hz("C6"), 0.6, 0.25), s, 0.5)
@@ -46,7 +60,8 @@ def mix(tl: dict) -> np.ndarray:
     for sh in tl["shots"]:
         for ev in sh.get("sfx", []):
             put(fx, sfx(ev[0], ev[2] if len(ev) > 2 else None, rng), sh["start"] + ev[1])
-    put(fx, bell(hz("E5"), 0.5, 0.3), tl["card"]["start"], 0.4)
+    if not horror:
+        put(fx, bell(hz("E5"), 0.5, 0.3), tl["card"]["start"], 0.4)
     out = voice + mus + fx
     fade = int(SR * 1.2)
     out[-fade:] *= np.linspace(1, 0, fade)
