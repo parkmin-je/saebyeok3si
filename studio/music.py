@@ -216,10 +216,46 @@ def sfx(name: str, d: float | None, rng) -> np.ndarray:
         sec = d or 1.6
         y = band(rng.standard_normal(int(SR * sec)), 300, 2200) * np.sin(np.pi * t_(sec) / sec) ** 2
         return y * 0.25
+    if name == "beep":  # 도어락 번호 한 자리 '삐'
+        y = np.sign(np.sin(2 * np.pi * 2050 * t_(0.09))) * 0.5 + np.sin(2 * np.pi * 2050 * t_(0.09))
+        return band(y, 400, 7000) * np.minimum(1, (0.09 - t_(0.09)) / 0.01) * 0.22
+    if name == "fail":  # 도어락 틀림 '삐리리릭' (내려가는 거친 소리)
+        y = _silence(0.9)
+        for k, f in enumerate((1800, 1500, 1250, 1000, 800)):
+            put(y, band(np.sign(np.sin(2 * np.pi * f * t_(0.11))), 300, 6000) * 0.35, k * 0.12)
+        return y * 0.6
+    if name == "open":  # 도어락 열림 '띠리리링' + 걸쇠 철컥
+        y = _silence(1.6)
+        for k, n in enumerate(["E6", "G6", "B6", "E7"]):
+            put(y, tone(hz(n), 0.5, 6, (1, 0.2)), k * 0.09)
+        c = band(rng.standard_normal(int(SR * 0.12)), 100, 3000) * np.exp(-t_(0.12) * 40)
+        put(y, c * 1.4, 0.55)
+        put(y, boom(0.5)[: int(SR * 0.5)] * 0.4, 0.55)
+        return y * 0.55
+    if name == "handle":  # 손잡이 덜컥덜컥
+        y = _silence(d or 1.2)
+        for k in range(int((d or 1.2) / 0.3)):
+            c = band(rng.standard_normal(int(SR * 0.07)), 200, 4000) * np.exp(-t_(0.07) * 50)
+            put(y, c, k * 0.3 + rng.uniform(0, 0.05), 0.9 if k % 2 else 0.6)
+        return y * 0.7
+    if name == "click":  # 센서등 딸깍 + 웅
+        y = band(rng.standard_normal(int(SR * 0.04)), 1500, 8000) * np.exp(-t_(0.04) * 120) * 0.8
+        hum = np.sin(2 * np.pi * 120 * t_(1.2)) * 0.05 * np.minimum(1, t_(1.2) / 0.1)
+        return np.concatenate([y, hum])
+    if name == "creak":  # 문이 천천히 열리는 끼이익
+        sec = d or 2.5
+        tt = t_(sec)
+        f = 180 + 60 * np.sin(2 * np.pi * 0.7 * tt) + 40 * rng.standard_normal(len(tt)).cumsum() / np.sqrt(len(tt))
+        y = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * (np.sin(2 * np.pi * 13 * tt) > -0.2)
+        return band(y, 300, 3500) * np.sin(np.pi * tt / sec) * 0.18
+    if name == "static":  # 화면 지직
+        sec = d or 0.5
+        return band(rng.standard_normal(int(SR * sec)), 800, 9000) * 0.25
     raise ValueError(f"모르는 효과음: {name}")
 
 
 SFX = (
     *("ding", "code", "unlock", "steps", "sip", "murmur", "riser", "hit", "heart", "gasp", "glitch"),
     *("knock", "buzz", "sting", "silence", "breath"),
+    *("beep", "fail", "open", "handle", "click", "creak", "static"),
 )
