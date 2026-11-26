@@ -30,7 +30,7 @@ def mute_mask(tl: dict, n: int) -> np.ndarray:
         for ev in sh.get("sfx", []):
             if ev[0] == "silence":
                 a = int((sh["start"] + ev[1]) * SR)
-                m[max(0, a): max(0, a + int((ev[2] if len(ev) > 2 else 1.0) * SR))] = 0
+                m[max(0, a) : max(0, a + int((ev[2] if len(ev) > 2 else 1.0) * SR))] = 0
     k = int(SR * 0.15)
     return np.convolve(m, np.ones(k) / k, "same")
 
