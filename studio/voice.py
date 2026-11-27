@@ -91,6 +91,12 @@ def fresh(out: Path, src: Path) -> bool:
 def with_fx(ep, path: Path, who: str) -> Path:
     """ep["fx"][who] = 음높이 배수 (예: 1.15) 면 높고 귀여운 목소리로 바꾼 사본을 쓴다."""
     k = ep.get("fx", {}).get(who)
+    if who in ep.get("radio", []):  # 스피커·무전기 너머 목소리
+        out = path.with_name(path.stem + "-radio.wav")
+        if not fresh(out, path):
+            af = "highpass=f=450,lowpass=f=2800,acrusher=bits=9:mix=0.25,volume=1.6"
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(path), "-af", af, str(out)], check=True)
+        return out
     if not k:
         return path
     out = path.with_name(path.stem + f"-fx{k}.wav")

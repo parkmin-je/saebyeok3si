@@ -251,6 +251,21 @@ def sfx(name: str, d: float | None, rng) -> np.ndarray:
     if name == "static":  # 화면 지직
         sec = d or 0.5
         return band(rng.standard_normal(int(SR * sec)), 800, 9000) * 0.25
+    if name == "alarm":  # 엘리베이터 정원 초과 '삐이이' (끊어지는 경보)
+        sec = d or 2.0
+        tt = t_(sec)
+        y = np.sign(np.sin(2 * np.pi * 1300 * tt)) * (np.sin(2 * np.pi * 2.5 * tt) > -0.3)
+        return band(y, 300, 6000) * 0.22
+    if name == "slide":  # 엘리베이터 문 스르륵
+        sec = d or 1.0
+        tt = t_(sec)
+        y = band(rng.standard_normal(len(tt)), 80, 900) * np.sin(np.pi * tt / sec) * 0.35
+        return y + np.sin(2 * np.pi * 70 * tt) * np.sin(np.pi * tt / sec) * 0.1
+    if name == "thump":  # 누가 올라탄 듯 묵직하게 쿵
+        return boom(0.8)[: int(SR * 0.8)] * 0.7
+    if name == "speaker":  # 스피커 켜지는 지직
+        sec = d or 0.6
+        return band(rng.standard_normal(int(SR * sec)), 1000, 5000) * np.exp(-t_(sec) * 3) * 0.3
     raise ValueError(f"모르는 효과음: {name}")
 
 
@@ -258,4 +273,5 @@ SFX = (
     *("ding", "code", "unlock", "steps", "sip", "murmur", "riser", "hit", "heart", "gasp", "glitch"),
     *("knock", "buzz", "sting", "silence", "breath"),
     *("beep", "fail", "open", "handle", "click", "creak", "static"),
+    *("alarm", "slide", "thump", "speaker"),
 )
