@@ -49,6 +49,11 @@ A.hhall = {
     <!-- 현관 (한 칸 낮은 타일) -->
     <path d="M360 1100 H720 L760 1160 H320z" fill="#1a1b20"/>
     <g opacity=".9"><path d="M420 1132 q20 -16 48 -8 l6 18 h-60z" fill="#22252c"/><path d="M600 1140 q24 -14 54 -4 l2 16 h-62z" fill="#2a2024"/></g>
+    <!-- 젖은 발자국: 현관에서 이쪽으로 -->
+    <g id="hh-prints">${Array.from({length: 8}, (_, k) => { const y = 1150 + k * k * 11 + k * 40, sc = 1 + k * .32, x = 540 + (k % 2 ? 1 : -1) * (20 + k * 12);
+      return `<g id="hh-p${k}" opacity="0" transform="translate(${x} ${y}) scale(${sc} ${sc * .55})"><path d="M-12 30 q-8 -30 -4 -50 q6 -16 18 -10 q8 6 6 24 q-2 20 -4 36 q-8 10 -16 0z" fill="#0c1419" opacity=".95"/>
+        ${[[-10, -34, 5], [-2, -38, 4.5], [6, -37, 4], [12, -33, 3.5], [16, -27, 3]].map(([a, b, r]) => `<circle cx="${a}" cy="${b}" r="${r}" fill="#0c1419" opacity=".95"/>`).join('')}
+        <path d="M-8 20 q-4 -20 0 -36" stroke="#8aa6b8" stroke-width="3" fill="none" opacity=".35"/></g>`; }).join('')}</g>
     <!-- 현관문 -->
     <g id="hh-doorg">
       <rect x="398" y="580" width="284" height="530" fill="#000"/>
@@ -105,7 +110,8 @@ A.hhall = {
     at(q(root, 'hh-gap'), 'x', 682 - gap);
     at(q(root, 'hh-gap'), 'width', gap);
     // 센서등: 딸깍 켜지고 조금 떨린다
-    const sn = o.sensorAt != null && lt >= o.sensorAt;
+    const sn = o.sensorAt != null && lt >= o.sensorAt && !(o.sensorOff != null && lt >= o.sensorOff);
+    for (let k = 0; k < 8; k++) at(q(root, 'hh-p' + k), 'opacity', o.prints != null && k < (o.printN ?? 8) && lt >= o.prints + k * (o.printStep || .5) ? 1 : 0);
     at(q(root, 'hh-sensor'), 'opacity', sn ? (lt - o.sensorAt < .08 ? .5 : .95 + .05 * Math.sin(t * 40)) : 0);
   },
 };
@@ -256,6 +262,37 @@ A.hwall = {
     at(q(root, 'hw-off'), 'opacity', off ? 1 : 0);
     at(q(root, 'hw-spill'), 'opacity', off ? 0 : .35);
     at(q(root, 'hw-clock'), 'opacity', (t % 1) < .5 ? .95 : .5);
+  },
+};
+
+Object.assign(window.SCENE_LIBRARY, A);
+
+// 침대에 누워서 본 내 방 문. 문 아래 틈으로 복도 불빛. o.lightOn/lightOff, o.feetAt(발 그림자), o.fingersAt(틈 아래로 나온 손가락)
+A.hbed = {
+  build: o => `<defs>${lin('hb-w', '#0b0c10', '#060709')}${halo('hb-g', '#ffd9a0', .9)}${blur('hb-b', 6)}${lin('hb-bl', '#1c1e26', '#0c0d11')}</defs>
+    <rect x="-400" y="-500" width="1880" height="2900" fill="url(#hb-w)"/>
+    <path d="M-400 1420 H1480 V2400 H-400z" fill="#08080a"/>
+    <!-- 문 -->
+    <rect x="380" y="560" width="320" height="760" fill="#121419"/><rect x="380" y="560" width="320" height="760" fill="none" stroke="#1b1e25" stroke-width="14"/>
+    <circle cx="660" cy="960" r="14" fill="#262a32"/>
+    <!-- 문 아래 틈 -->
+    <rect id="hb-gap" x="386" y="1316" width="308" height="12" fill="#ffd9a0" opacity="0"/>
+    <ellipse id="hb-glow" cx="540" cy="1340" rx="380" ry="70" fill="url(#hb-g)" opacity="0"/>
+    <g id="hb-feet" opacity="0"><rect x="440" y="1314" width="80" height="16" fill="#050505" filter="url(#hb-b)"/><rect x="560" y="1314" width="80" height="16" fill="#050505" filter="url(#hb-b)"/></g>
+    <g id="hb-fing" opacity="0">${[0, 1, 2, 3].map(k => `<path d="M${470 + k * 34} 1326 q${-6 + k * 3} 50 ${-4 + k * 2} 110 q7 12 14 0 q2 -60 -2 -110z" fill="#b9bfbf"/><path d="M${470 + k * 34 - 2 + k} 1428 l6 8" stroke="#3a2c2a" stroke-width="5" stroke-linecap="round"/>`).join('')}</g>
+    <!-- 이불 (앞) -->
+    <path d="M-400 1700 q500 -140 1000 -60 q500 60 880 0 V2400 H-400z" fill="url(#hb-bl)"/>
+    <path d="M-400 1720 q500 -140 1000 -60 q500 60 880 0" stroke="#262935" stroke-width="10" fill="none"/>
+    <rect id="hb-dim" x="-400" y="-500" width="1880" height="2900" fill="#000" opacity="0"/>`,
+  tick: (root, t, lt, o) => {
+    const on = o.lightOn != null && lt >= o.lightOn && !(o.lightOff != null && lt >= o.lightOff);
+    at(q(root, 'hb-gap'), 'opacity', on ? .9 : 0);
+    at(q(root, 'hb-glow'), 'opacity', on ? .35 : 0);
+    at(q(root, 'hb-feet'), 'opacity', on && o.feetAt != null ? clamp((lt - o.feetAt) / .6) : 0);
+    const f = o.fingersAt != null ? clamp((lt - o.fingersAt) / 1.8) : 0;
+    at(q(root, 'hb-fing'), 'opacity', f ? 1 : 0);
+    at(q(root, 'hb-fing'), 'transform', `translate(0 1326) scale(1 ${.15 + .85 * ease(f)}) translate(0 -1326)`);
+    at(q(root, 'hb-dim'), 'opacity', o.dim || 0);
   },
 };
 
